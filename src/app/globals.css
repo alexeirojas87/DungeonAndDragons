@@ -1,0 +1,372 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-primary: #0b0e14;
+  --color-bg-secondary: #1b2330;
+  --color-bg-tertiary: #273241;
+  --color-bg-panel: #141b26;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #f9fbff;
+  --color-text-dim: #e4ebf3;
+  --color-accent-green: #9cf2b0;
+  --color-accent-gold: #ffda78;
+  --color-accent-amber: #ffd06b;
+  --color-accent-crimson: #ff9d9d;
+  --color-accent-blue: #abd5ff;
+  --color-accent-purple: #e0bbff;
+  --color-border: #8594a6;
+  --color-border-light: #bdc9d6;
+  --color-danger: #ff9d9d;
+  --color-success: #9cf2b0;
+  --color-warning: #ffd06b;
+  --font-mono: 'IBM Plex Mono', 'SF Mono', 'Fira Code', monospace;
+  --font-narrative: 'EB Garamond', 'Crimson Text', 'Georgia', serif;
+  --font-display: 'Cinzel', 'EB Garamond', serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-narrative);
+  font-size: 17px;
+  font-weight: 500;
+  overflow: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-light);
+}
+
+/* Selection */
+::selection {
+  background: var(--color-accent-gold);
+  color: var(--color-bg-primary);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent-gold);
+  outline-offset: 3px;
+}
+
+/* Terminal cursor animation */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: blink 1s step-end infinite, flickerGlow 2s ease-in-out infinite;
+}
+
+@keyframes flickerGlow {
+  0%, 100% { box-shadow: 0 0 4px var(--color-accent-gold); }
+  30% { box-shadow: 0 0 6px var(--color-accent-gold); }
+  50% { box-shadow: 0 0 2px var(--color-accent-gold); }
+  70% { box-shadow: 0 0 8px var(--color-accent-gold); }
+}
+
+/* Text glow effect */
+@keyframes glow {
+  0%, 100% { text-shadow: 0 0 4px currentColor; }
+  50% { text-shadow: 0 0 8px currentColor; }
+}
+
+.text-glow {
+  animation: glow 3s ease-in-out infinite;
+}
+
+/* Screen shake */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+.screen-shake {
+  animation: shake 0.15s ease-in-out;
+}
+
+/* Fade in */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* Pulse */
+@keyframes pulse-border {
+  0%, 100% { border-color: var(--color-border); }
+  50% { border-color: var(--color-accent-gold); }
+}
+
+.pulse-border {
+  animation: pulse-border 2s ease-in-out infinite;
+}
+
+/* Bar animations */
+@keyframes bar-drain {
+  from { width: var(--from-width); }
+  to { width: var(--to-width); }
+}
+
+/* Noise texture overlay */
+.noise-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  display: none;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  background-size: 128px 128px;
+}
+
+/* Scanline effect */
+.scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: none;
+}
+
+/* Dice roll animation */
+@keyframes diceRoll {
+  0% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(90deg) scale(1.1); }
+  50% { transform: rotate(180deg) scale(1); }
+  75% { transform: rotate(270deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.dice-roll {
+  animation: diceRoll 0.4s ease-in-out;
+}
+
+/* Combat flash */
+@keyframes combatFlash {
+  0% { background-color: transparent; }
+  50% { background-color: rgba(196, 64, 64, 0.1); }
+  100% { background-color: transparent; }
+}
+
+.combat-flash {
+  animation: combatFlash 0.3s ease-out;
+}
+
+/* Tooltip */
+.tooltip {
+  position: relative;
+}
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  font-family: var(--font-mono);
+  color: var(--color-text-secondary);
+}
+.tooltip:hover::after {
+  opacity: 1;
+}
+
+/* Vignette overlay for game area */
+.vignette::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: none;
+  z-index: 10;
+}
+
+/* Smooth scroll for terminal */
+.terminal-scroll {
+  scroll-behavior: smooth;
+}
+
+/* Narrative text glow for important moments */
+.narrative-glow {
+  text-shadow: 0 0 8px rgba(184, 148, 63, 0.3), 0 0 16px rgba(184, 148, 63, 0.1);
+}
+
+/* Tactile hover effect */
+.tactile-hover {
+  transition: transform 0.1s ease, box-shadow 0.15s ease;
+}
+.tactile-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+.tactile-hover:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* CRT scanlines - subtle and atmospheric */
+.crt-scanlines {
+  position: relative;
+}
+.crt-scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: none;
+  z-index: 5;
+}
+
+/* Entry entrance animation - slide up + fade */
+@keyframes entrySlide {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.entry-enter {
+  animation: entrySlide 0.35s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+/* Fog animation for title screen */
+@keyframes fogDrift {
+  0% { transform: translateX(-10%) translateY(0); opacity: 0.03; }
+  50% { transform: translateX(5%) translateY(-8px); opacity: 0.06; }
+  100% { transform: translateX(-10%) translateY(0); opacity: 0.03; }
+}
+
+.fog-layer {
+  animation: fogDrift 20s ease-in-out infinite;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(184, 148, 63, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 30%, rgba(106, 74, 138, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(74, 107, 138, 0.03) 0%, transparent 50%);
+}
+
+@keyframes fogDrift2 {
+  0% { transform: translateX(8%) translateY(-5px); opacity: 0.02; }
+  50% { transform: translateX(-6%) translateY(6px); opacity: 0.05; }
+  100% { transform: translateX(8%) translateY(-5px); opacity: 0.02; }
+}
+
+.fog-layer-2 {
+  animation: fogDrift2 28s ease-in-out infinite;
+  background:
+    radial-gradient(ellipse at 70% 60%, rgba(184, 148, 63, 0.04) 0%, transparent 40%),
+    radial-gradient(ellipse at 30% 20%, rgba(139, 58, 58, 0.03) 0%, transparent 40%);
+}
+
+/* Golden title glow */
+.title-glow {
+  text-shadow:
+    0 0 10px rgba(184, 148, 63, 0.4),
+    0 0 30px rgba(184, 148, 63, 0.15),
+    0 0 60px rgba(184, 148, 63, 0.05);
+}
+
+/* ==================== Mobile Overrides ==================== */
+
+/* Prevent zoom on input focus (iOS) */
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+  font-size: 16px !important;
+}
+
+/* Safe area insets for notched phones */
+@supports (padding: env(safe-area-inset-top)) {
+  .safe-area-top { padding-top: env(safe-area-inset-top); }
+  .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
+  .safe-area-left { padding-left: env(safe-area-inset-left); }
+  .safe-area-right { padding-right: env(safe-area-inset-right); }
+}
+
+/* Touch-friendly tap targets */
+@media (pointer: coarse) {
+  button,
+  a,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 768px) {
+  /* Smaller font on mobile for terminal readability */
+  .terminal-mobile-font {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  /* Character panel slide-in animation */
+  .character-panel-slide-in {
+    animation: slideInLeft 0.25s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  }
+
+  .character-panel-slide-out {
+    animation: slideOutLeft 0.2s ease-in forwards;
+  }
+
+  @keyframes slideInLeft {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+  }
+
+  @keyframes slideOutLeft {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+  }
+
+  /* Bottom action bar */
+  .mobile-bottom-bar {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Ensure input stays above keyboard */
+  .mobile-input-wrapper {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+  }
+
+  /* Overlay backdrop blur */
+  .overlay-backdrop {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+}
