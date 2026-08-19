@@ -286,6 +286,8 @@ export interface Combatant {
   hp: number;
   maxHp: number;
   ac: number;
+  attackBonus: number;
+  damage: string;
   conditions: Condition[];
   portrait: string;
   isAlive: boolean;

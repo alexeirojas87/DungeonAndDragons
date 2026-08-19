@@ -31,6 +31,8 @@ export function createEncounter(
       hp: char.hp,
       maxHp: char.maxHp,
       ac: char.ac,
+      attackBonus: getAttributeModifier(char.attributes.strength),
+      damage: '1d8',
       conditions: [...char.conditions],
       portrait: char.portrait,
       isAlive: true,
@@ -49,6 +51,8 @@ export function createEncounter(
       hp: enemy.hp,
       maxHp: enemy.maxHp,
       ac: enemy.ac,
+      attackBonus: getAttributeModifier(enemy.attack),
+      damage: enemy.damage,
       conditions: [...enemy.conditions],
       portrait: enemy.portrait,
       isAlive: true,
@@ -86,7 +90,7 @@ export function resolveAttack(
   spellDamage?: string,
   damageType?: DamageType
 ): { hit: boolean; damage: number; critical: boolean; roll: DiceRoll; logEntry: CombatLogEntry } {
-  const attackRoll = rollD20(getAttributeModifier(attacker.type === 'player' ? 14 : 10));
+  const attackRoll = rollD20(attacker.attackBonus);
   const hit = attackRoll.total >= defender.ac || attackRoll.isCritical;
   const critical = attackRoll.isCritical;
 
@@ -94,9 +98,8 @@ export function resolveAttack(
   if (hit) {
     const damageStr = isSpell && spellDamage
       ? spellDamage
-      : attacker.type === 'player' ? '1d8' : '1d4';
-    const dmgMod = attacker.type === 'player' ? getAttributeModifier(14) : 0;
-    const dmgRoll = rollDamage(damageStr, dmgMod);
+      : attacker.damage;
+    const dmgRoll = rollDamage(damageStr);
     damage = critical ? dmgRoll.total * 2 : dmgRoll.total;
   }
 

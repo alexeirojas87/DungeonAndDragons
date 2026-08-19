@@ -336,3 +336,37 @@ El arnés incorpora la comprobación generalizada: **cada nodo de cada capítulo
 restaurado en frío, con los puzles resueltos y sin resolver, debe ofrecer una
 salida**. Más «la curación sobrevive a la siguiente ronda» y «subir de nivel da
 estadísticas».
+
+## 8. Tercera ronda: los tres perfiles del criterio de cierre
+
+Los tres evaluadores (A: Mago/Tormenta, B: Clérigo/Ciénaga, C: Guerrero/Costa)
+jugaron en el navegador y cruzaron sus perfiles con el arnés. Dos perfiles
+cerraron en vivo con cero errores de flujo y cero contradicciones:
+
+- **A (Mago)** — en vivo: 2/2 puzles del Cap. I resueltos (ledger→`tunnel_map`,
+  runas), túnel tomado, Guardián vencido, final, **Continuar** generó el Cap. II
+  «La Campana que Cuenta» que engarza con el final del I, jugado y terminado.
+- **C (Guerrero)** — en vivo: ruta del consejo, texto libre interpretado
+  («approach the hooded stranger…» activó al NPC), y el encadenado a Cap. III
+  validado por código + la fixture generada (`chronicle→prompt`).
+- **B (Clérigo)** — en vivo: abandono de ambos puzles con salida limpia
+  (ENIGMAS=0), final alcanzado, **Menú principal** → **Continue** restauró el
+  capítulo. La muerte deliberada **no fue reproducible en el navegador**:
+  el Guardián fallaba casi todos sus ataques.
+
+### El hallazgo del Guardián: el ataque de los monstruos ignoraba su atributo
+
+El evaluador B no podía morir en vivo. Causa en `combat.ts:89`: `resolveAttack`
+usaba `getAttributeModifier(attacker.type === 'player' ? 14 : 10)` — el bono de
+ataque de **todo** enemigo era el de un atributo 10 (modificador +0), fijo,
+**ignorando el campo `attack` del monstruo** (el Guardián tiene 16). Contra CA 18
+solo acertaba con tiradas ≥18 del d20 (~15%), por lo que provocar la muerte era
+casi imposible. Y el modificador fijo +2 del jugador tampoco salía de su fuerza.
+
+`Combatant` gana `attackBonus` y `damage`, `createEncounter` los relena desde
+`enemy.attack`/`enemy.damage` y `char.attributes.strength`, y `resolveAttack`
+tira `d20 + attackBonus`. El Guardián (16 → +3) ahora acierta CA 18 con ≥15
+(~35%), y los personajes usan su fuerza real. Ningún fallo de flujo ni
+contradicción apareció en las partidas; el único hallazgo fue este balance de
+combate, corregido y con el harness (`pnpm playthrough`) en verde tras el
+cambio.
