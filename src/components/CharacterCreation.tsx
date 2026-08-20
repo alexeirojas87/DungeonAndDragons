@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import type { Archetype, Origin, Language } from '../engine/types';
 import { ARCHETYPES, ORIGINS } from '../engine/character';
+import { resolveCharacter } from '../assets/registry';
 
 interface CharacterCreationProps {
   language: Language;
@@ -89,14 +90,24 @@ export function CharacterCreation({ language, onComplete }: CharacterCreationPro
                 <button
                   key={id}
                   onClick={() => setArchetype(id)}
-                  className={`p-5 rounded border bg-[var(--color-bg-secondary)] text-left transition-all shadow-[0_2px_10px_rgba(0,0,0,0.22)] ${
+                  className={`p-4 rounded border bg-[var(--color-bg-secondary)] text-left transition-all shadow-[0_2px_10px_rgba(0,0,0,0.3)] overflow-hidden ${
                     archetype === id
-                      ? 'border-[var(--color-accent-gold)] bg-[rgba(240,201,106,0.12)]'
+                      ? 'border-[var(--color-accent-gold)] bg-[rgba(198,154,70,0.12)]'
                       : 'border-[var(--color-border-light)] hover:border-[var(--color-accent-gold)]'
                   }`}
                 >
-                  <div className="font-[var(--font-display)] text-[19px] text-[var(--color-accent-gold)] tracking-wider">
-                    {language === 'es' ? arch.nameEs : arch.name}
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={resolveCharacter(id, id)}
+                      alt={arch.name}
+                      className="w-14 h-14 object-cover rounded-sm rpg-image-frame select-none"
+                      draggable={false}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-[var(--font-display)] text-[19px] text-[var(--color-accent-gold)] tracking-wider">
+                        {language === 'es' ? arch.nameEs : arch.name}
+                      </div>
+                    </div>
                   </div>
                   <p className="text-[16px] font-medium text-[var(--color-text-primary)] mt-2 leading-[1.6]">
                     {language === 'es' ? arch.descriptionEs : arch.description}

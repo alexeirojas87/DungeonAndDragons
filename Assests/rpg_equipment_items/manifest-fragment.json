@@ -1,0 +1,242 @@
+{
+  "weapon-sword": {
+    "file": "items/weapon-sword.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "weapon-axe": {
+    "file": "items/weapon-axe.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "weapon-bow": {
+    "file": "items/weapon-bow.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "weapon-staff": {
+    "file": "items/weapon-staff.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "weapon-hammer": {
+    "file": "items/weapon-hammer.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "weapon-dagger": {
+    "file": "items/weapon-dagger.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "shield-heraldic": {
+    "file": "items/shield-heraldic.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "shield-round": {
+    "file": "items/shield-round.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "helmet-knight": {
+    "file": "items/helmet-knight.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "helmet-horned": {
+    "file": "items/helmet-horned.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "armor-heavy": {
+    "file": "items/armor-heavy.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "armor-leather": {
+    "file": "items/armor-leather.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "boots-heavy": {
+    "file": "items/boots-heavy.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "boots-fur": {
+    "file": "items/boots-fur.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "boots-ranger": {
+    "file": "items/boots-ranger.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "ring-sapphire": {
+    "file": "items/ring-sapphire.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "ring-ruby": {
+    "file": "items/ring-ruby.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "amulet-sapphire": {
+    "file": "items/amulet-sapphire.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "amulet-amethyst": {
+    "file": "items/amulet-amethyst.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "amulet-emerald": {
+    "file": "items/amulet-emerald.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "potion-health": {
+    "file": "items/potion-health.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "potion-mana": {
+    "file": "items/potion-mana.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "potion-nature": {
+    "file": "items/potion-nature.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "potion-golden": {
+    "file": "items/potion-golden.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "scroll": {
+    "file": "items/scroll.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "spellbook": {
+    "file": "items/spellbook.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "key": {
+    "file": "items/key.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "chest": {
+    "file": "items/chest.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "gems": {
+    "file": "items/gems.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  },
+  "gold": {
+    "file": "items/gold.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "equipment-items-atlas"
+  }
+}

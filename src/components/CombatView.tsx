@@ -5,14 +5,16 @@
 'use client';
 
 import type { CombatEncounter, Combatant, Language } from '../engine/types';
+import { resolveEnemy, resolveCharacter } from '../assets/registry';
 
 interface CombatViewProps {
   encounter: CombatEncounter;
   language: Language;
   currentPlayerId: string;
+  playerPortrait?: string;
 }
 
-export function CombatView({ encounter, language, currentPlayerId }: CombatViewProps) {
+export function CombatView({ encounter, language, currentPlayerId, playerPortrait }: CombatViewProps) {
   const currentCombatant = encounter.initiativeOrder[encounter.currentTurn];
   const isPlayerTurn = currentCombatant?.id === currentPlayerId;
 
@@ -36,6 +38,7 @@ export function CombatView({ encounter, language, currentPlayerId }: CombatViewP
             combatant={combatant}
             isActive={combatant.id === currentCombatant?.id}
             language={language}
+            playerPortrait={playerPortrait}
           />
         ))}
       </div>
@@ -60,26 +63,30 @@ export function CombatView({ encounter, language, currentPlayerId }: CombatViewP
   );
 }
 
-function CombatantCard({ combatant, isActive, language }: {
-  combatant: Combatant; isActive: boolean; language: Language;
+function CombatantCard({ combatant, isActive, language, playerPortrait }: {
+  combatant: Combatant; isActive: boolean; language: Language; playerPortrait?: string;
 }) {
   const hpPercent = (combatant.hp / combatant.maxHp) * 100;
   const hpColor = hpPercent > 60 ? 'var(--color-accent-green)' : hpPercent > 30 ? 'var(--color-accent-amber)' : 'var(--color-accent-crimson)';
+  const portraitSrc = combatant.type === 'player'
+    ? playerPortrait ?? resolveCharacter(combatant.portrait)
+    : resolveEnemy(combatant.portrait);
 
   return (
     <div className={`flex-shrink-0 p-3 rounded border transition-all ${
       isActive
-        ? 'border-[var(--color-accent-gold)] bg-[rgba(184,148,63,0.1)]'
+        ? 'border-[var(--color-accent-gold)] bg-[rgba(198,154,70,0.12)]'
         : combatant.isAlive
           ? 'border-[var(--color-border)]'
           : 'border-[var(--color-border)] opacity-40'
     }`}>
       <div className="flex items-center gap-2 mb-1">
-        <div className="w-6 h-6 rounded bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] flex items-center justify-center">
-          <span className="font-[var(--font-mono)] text-[10px] text-[var(--color-text-secondary)]">
-            {combatant.type === 'player' ? 'P' : 'E'}
-          </span>
-        </div>
+        <img
+          src={portraitSrc}
+          alt={combatant.type === 'player' ? 'hero' : 'enemy'}
+          className={`w-9 h-9 rounded-sm object-cover select-none rpg-image-frame ${isActive ? 'ring-1 ring-[var(--color-accent-gold)]' : ''}`}
+          draggable={false}
+        />
         <span className="font-[var(--font-mono)] text-[13px] text-[var(--color-text-primary)] max-w-[100px] truncate">
           {language === 'es' ? combatant.nameEs : combatant.name}
         </span>

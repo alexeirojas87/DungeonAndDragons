@@ -214,9 +214,14 @@ const CHAPTER_SPEC = (prefix: string, index: number, level: number) => `SHAPE (a
     "objects":[{"id":"","name":"","nameEs":"","description":"","descriptionEs":"",
                 "interactable":true,"broken":false,"hidden":false}],
     "secrets":[],              // leave this an empty array
-    "dangerLevel":0, "discovered":true,
-    "ambiance":"tavern|dungeon|crypt|forest|town|battle|boss|shop|temple|sewer|outdoor|cave|library|throne"
- }},
+"dangerLevel":0, "discovered":true,
+    "ambiance":"tavern|dungeon|crypt|forest|town|battle|boss|shop|temple|sewer|outdoor|cave|library|throne",
+    // visualType is OPTIONAL — omit it unless it helps choose art from the visual
+    // library. When present it is a SEMANTIC WORD ONLY (crypt|dungeon|tavern|
+    // temple|forest|cave|tower|library|throne|sewer|swamp|altar|village|pier|
+    // dragon-lair|portal|...), NEVER a filesystem path.
+    "visualType":"crypt"                                    // optional
+  }},
  "npcs": { "<npcId>": {
     "id":"<same as key>", "name":"", "nameEs":"", "portrait":"villager",
     "faction":"<a non-empty word, e.g. blackmere or ashen_veil>",

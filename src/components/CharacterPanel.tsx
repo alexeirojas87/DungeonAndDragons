@@ -7,6 +7,7 @@
 import type { Character, Language } from '../engine/types';
 import { ARCHETYPES, ORIGINS } from '../engine/character';
 import { slotLabel } from '../engine/inventory';
+import { resolveCharacter, resolveItem, resolveIcon } from '../assets/registry';
 
 interface CharacterPanelProps {
   character: Character | null;
@@ -40,7 +41,7 @@ export function CharacterPanel({ character, language, locationName, locationName
       {/* Header */}
       <div className="p-4 border-b border-[var(--color-border)]">
         <div className="flex items-center gap-3">
-          <PortraitPlaceholder character={character} />
+          <Portrait character={character} />
           <div className="flex-1 min-w-0">
             <h2 className="font-[var(--font-display)] text-[var(--color-accent-gold)] text-[17px] tracking-wider truncate">
               {character.name}
@@ -102,17 +103,22 @@ export function CharacterPanel({ character, language, locationName, locationName
 
       {/* Equipment */}
       <div className="px-4 py-3 border-b border-[var(--color-border)] flex-1 overflow-y-auto">
-        <div className="font-[var(--font-mono)] text-[13px] text-[var(--color-text-secondary)] uppercase tracking-widest mb-2 flex items-center gap-1.5">
-          <span className="text-[10px]">⚙</span>
+        <div className="font-[var(--font-display)] text-[13px] text-[var(--color-text-secondary)] uppercase tracking-widest mb-2 flex items-center gap-1.5">
+          <img src={resolveIcon('icon-inventory')} alt="" className="w-4 h-4 opacity-80" />
           {language === 'es' ? 'Equipo' : 'Equipment'}
         </div>
         <div className="space-y-1.5">
           {Object.entries(character.equipment).map(([slot, item]) => (
-            <div key={slot} className="flex items-center justify-between text-[15px]">
-              <span className="font-[var(--font-mono)] text-[var(--color-text-secondary)] uppercase text-[12px]">
+            <div key={slot} className="flex items-center gap-2 text-[15px]">
+              <div className="w-8 h-8 flex-shrink-0 rounded-sm border border-[var(--color-border)] bg-[var(--color-bg-tertiary)] overflow-hidden">
+                {item ? (
+                  <img src={resolveItem(item)} alt={es ? item.nameEs : item.name} className="w-full h-full object-cover" draggable={false} />
+                ) : null}
+              </div>
+              <span className="font-[var(--font-mono)] text-[var(--color-text-secondary)] uppercase text-[12px] min-w-0">
                 {slotLabel(slot, language)}
               </span>
-              <span className="text-[var(--color-text-secondary)] truncate ml-2">
+              <span className="text-[var(--color-text-secondary)] truncate ml-auto">
                 {item ? (language === 'es' ? item.nameEs : item.name) : '—'}
               </span>
             </div>
@@ -136,14 +142,13 @@ export function CharacterPanel({ character, language, locationName, locationName
   );
 }
 
-function PortraitPlaceholder({ character }: { character: Character }) {
-  const initials = character.name.slice(0, 2).toUpperCase();
+function Portrait({ character }: { character: Character }) {
   const hpPercent = (character.hp / character.maxHp) * 100;
   const glowColor = hpPercent > 60
-    ? 'rgba(74, 158, 74, 0.35)'
+    ? 'rgba(109, 138, 78, 0.35)'
     : hpPercent > 30
-    ? 'rgba(196, 146, 42, 0.35)'
-    : 'rgba(196, 64, 64, 0.4)';
+    ? 'rgba(198, 154, 70, 0.35)'
+    : 'rgba(163, 53, 42, 0.4)';
   const borderColor = hpPercent > 60
     ? 'var(--color-accent-green)'
     : hpPercent > 30
@@ -151,15 +156,15 @@ function PortraitPlaceholder({ character }: { character: Character }) {
     : 'var(--color-accent-crimson)';
   return (
     <div
-      className="w-11 h-11 rounded bg-[var(--color-bg-tertiary)] flex items-center justify-center flex-shrink-0 transition-all duration-500"
-      style={{
-        border: `1px solid ${borderColor}`,
-        boxShadow: `0 0 10px ${glowColor}, inset 0 0 6px ${glowColor}`,
-      }}
+      className="w-14 h-14 rounded-sm overflow-hidden flex-shrink-0 rpg-image-frame bg-[var(--color-bg-tertiary)] transition-all duration-500"
+      style={{ borderColor, boxShadow: `0 0 12px ${glowColor}, inset 0 0 6px ${glowColor}` }}
     >
-      <span className="font-[var(--font-display)] text-[var(--color-accent-gold)] text-base">
-        {initials}
-      </span>
+      <img
+        src={resolveCharacter(character.portrait, character.archetype)}
+        alt={character.archetype}
+        className="w-full h-full object-cover select-none"
+        draggable={false}
+      />
     </div>
   );
 }

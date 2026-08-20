@@ -9,11 +9,13 @@ import { Terminal } from './Terminal';
 import { CharacterPanel } from './CharacterPanel';
 import { InputBar } from './InputBar';
 import { CombatView } from './CombatView';
+import { AdventureScene } from './AdventureScene';
 import { DebugPanel } from './DebugPanel';
 import { ChapterTransition } from './ChapterTransition';
 import { DeathScreen } from './DeathScreen';
 import { InventoryPanel, QuestLogPanel } from './InventoryPanel';
 import { getSuggestedActions } from '../engine/intent';
+import { resolveCharacter, resolveIcon } from '../assets/registry';
 import type { Chapter, ChapterSummary } from '../engine/chapter';
 import type { PuzzleView } from './InputBar';
 import type { Language, UIState, GameState, Character, WorldLocation, NPC, CombatEncounter, NarrativeEntry } from '../engine/types';
@@ -117,33 +119,26 @@ export function GameScreen({
             </h2>
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
-            <button
+            <HeaderBtn
+              icon="icon-character"
+              label={language === 'es' ? 'Personaje' : 'Character'}
               onClick={() => onToggleUI('showCharacterSheet')}
-              className="md:hidden p-2 rounded border border-[var(--color-border)] text-[var(--color-text-dim)] active:text-[var(--color-accent-gold)] active:border-[var(--color-accent-gold)] transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </button>
-            <button
+              mobileOnly
+            />
+            <HeaderBtn
+              icon="icon-inventory"
+              label={language === 'es' ? 'Inventario' : 'Inventory'}
               onClick={() => onToggleUI('showInventory')}
-              className="p-2 rounded border border-[var(--color-border)] text-[var(--color-text-dim)] active:text-[var(--color-accent-gold)] active:border-[var(--color-accent-gold)] transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
-            </button>
-            <button
+            />
+            <HeaderBtn
+              icon="icon-quest"
+              label={language === 'es' ? 'Misiones' : 'Quests'}
               onClick={() => onToggleUI('showQuestLog')}
-              className="hidden md:block p-2 rounded border border-[var(--color-border)] text-[var(--color-text-dim)] active:text-[var(--color-accent-gold)] active:border-[var(--color-accent-gold)] transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </button>
+              desktopOnly
+            />
             <button
               onClick={() => onToggleUI('showDebug')}
-              className="p-2 rounded border border-green-800/50 text-green-700 hover:text-green-400 hover:border-green-500 transition-colors"
+              className="p-2 rounded border border-[var(--color-border)] text-[var(--color-text-dim)] hover:text-[var(--color-accent-gold)] hover:border-[var(--color-accent-gold)] transition-colors"
               title="Debug Panel (Ctrl+Shift+D)"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -153,12 +148,22 @@ export function GameScreen({
           </div>
         </div>
 
+        {/* Adventure Scene — composed illustrated world */}
+        <AdventureScene
+          location={location}
+          chapterLocation={chapter?.locations?.[location?.id ?? ''] ?? null}
+          npcs={npcs}
+          combat={combat}
+          language={language}
+        />
+
         {/* Combat View */}
         {combat && character && (
           <CombatView
             encounter={combat}
             language={language}
             currentPlayerId={character.id}
+            playerPortrait={resolveCharacter(character.portrait, character.archetype)}
           />
         )}
 
@@ -187,22 +192,22 @@ export function GameScreen({
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 mobile-bottom-bar mobile-input-wrapper">
         <div className="flex items-center justify-around border-t border-[var(--color-border)] bg-[var(--color-bg-panel)] px-2 py-1">
           <MobileActionBarBtn
-            icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>}
+            icon={<img src={resolveIcon('icon-map')} alt="" className="w-5 h-5" />}
             label={language === 'es' ? 'Mirar' : 'Look'}
             onClick={() => onProcessInput('look around')}
           />
           <MobileActionBarBtn
-            icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>}
+            icon={<img src={resolveIcon('icon-chest')} alt="" className="w-5 h-5" />}
             label={language === 'es' ? 'Buscar' : 'Search'}
             onClick={() => onProcessInput('search')}
           />
           <MobileActionBarBtn
-            icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>}
+            icon={<img src={resolveIcon('icon-inventory')} alt="" className="w-5 h-5" />}
             label={language === 'es' ? 'Inventario' : 'Inventory'}
             onClick={() => onToggleUI('showInventory')}
           />
           <MobileActionBarBtn
-            icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>}
+            icon={<img src={resolveIcon('icon-quest')} alt="" className="w-5 h-5" />}
             label={language === 'es' ? 'Misiones' : 'Quests'}
             onClick={() => onToggleUI('showQuestLog')}
           />
@@ -306,6 +311,26 @@ function MobileActionBarBtn({ icon, label, onClick }: { icon: React.ReactNode; l
     >
       {icon}
       <span className="font-[var(--font-mono)] text-[13px] uppercase tracking-wider">{label}</span>
+    </button>
+  );
+}
+
+function HeaderBtn({
+  icon, label, onClick, mobileOnly = false, desktopOnly = false,
+}: {
+  icon: string; label: string; onClick: () => void;
+  mobileOnly?: boolean; desktopOnly?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      aria-label={label}
+      title={label}
+      className={`p-2 rounded border border-[var(--color-border)] text-[var(--color-text-dim)] active:text-[var(--color-accent-gold)] active:border-[var(--color-accent-gold)] hover:text-[var(--color-accent-gold)] hover:border-[var(--color-accent-gold)] transition-colors ${
+        mobileOnly ? 'md:hidden' : desktopOnly ? 'hidden md:block' : ''
+      }`}
+    >
+      <img src={resolveIcon(icon)} alt={label} className="w-5 h-5" draggable={false} />
     </button>
   );
 }

@@ -1,0 +1,272 @@
+{
+  "paladin": {
+    "file": "characters/paladin.png",
+    "category": "characters",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "mage": {
+    "file": "characters/mage.png",
+    "category": "characters",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "rogue": {
+    "file": "characters/rogue.png",
+    "category": "characters",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "ranger": {
+    "file": "characters/ranger.png",
+    "category": "characters",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "cleric": {
+    "file": "characters/cleric.png",
+    "category": "characters",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "dwarf-warrior": {
+    "file": "characters/dwarf-warrior.png",
+    "category": "characters",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "wizard": {
+    "file": "npcs/wizard.png",
+    "category": "npcs",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "innkeeper": {
+    "file": "npcs/innkeeper.png",
+    "category": "npcs",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "blacksmith": {
+    "file": "npcs/blacksmith.png",
+    "category": "npcs",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "merchant": {
+    "file": "npcs/merchant.png",
+    "category": "npcs",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "king": {
+    "file": "npcs/king.png",
+    "category": "npcs",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "elf-noble": {
+    "file": "npcs/elf-noble.png",
+    "category": "npcs",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "goblin": {
+    "file": "enemies/goblin.png",
+    "category": "enemies",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "skeleton": {
+    "file": "enemies/skeleton.png",
+    "category": "enemies",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "orc": {
+    "file": "enemies/orc.png",
+    "category": "enemies",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "dire-wolf": {
+    "file": "enemies/dire-wolf.png",
+    "category": "enemies",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "giant-spider": {
+    "file": "enemies/giant-spider.png",
+    "category": "enemies",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "slime": {
+    "file": "enemies/slime.png",
+    "category": "enemies",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "zombie": {
+    "file": "enemies/zombie.png",
+    "category": "enemies",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "necromancer": {
+    "file": "enemies/necromancer.png",
+    "category": "enemies",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "stone-golem": {
+    "file": "enemies/stone-golem.png",
+    "category": "enemies",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "fire-elemental": {
+    "file": "enemies/fire-elemental.png",
+    "category": "enemies",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "ice-elemental": {
+    "file": "enemies/ice-elemental.png",
+    "category": "enemies",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "demon": {
+    "file": "enemies/demon.png",
+    "category": "enemies",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "red-dragon": {
+    "file": "enemies/red-dragon.png",
+    "category": "enemies",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "ice-dragon": {
+    "file": "enemies/ice-dragon.png",
+    "category": "enemies",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "treant": {
+    "file": "enemies/treant.png",
+    "category": "enemies",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "minotaur": {
+    "file": "enemies/minotaur.png",
+    "category": "enemies",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "ogre": {
+    "file": "enemies/ogre.png",
+    "category": "enemies",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  },
+  "mimic": {
+    "file": "enemies/mimic.png",
+    "category": "enemies",
+    "size": [
+      256,
+      256
+    ],
+    "source": "characters-enemies-atlas"
+  }
+}

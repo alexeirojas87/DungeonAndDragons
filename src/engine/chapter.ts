@@ -306,6 +306,8 @@ const locationSchema = z.object({
   discovered: z.boolean(),
   secrets: z.array(secretSchema),
   ambiance: ambianceEnum,
+  /** Optional semantic visual hint (e.g. "crypt", "tavern", "arcane"). */
+  visualType: z.string().optional(),
   requiresKey: id.optional(),
 });
 
@@ -938,6 +940,12 @@ export function coerceChapterShape(input: unknown): unknown {
       // "ruins") is not worth a repair round-trip.
       if (!(AMBIANCE_IDS as readonly string[]).includes(location.ambiance as string)) {
         location.ambiance = 'outdoor';
+      }
+      // A location's visual never needs a repair round trip: if the LLM did not
+      // already supply a semantic visualType, derive one from the ambiance so the
+      // asset resolver always has a hint even for hand-authored or old chapters.
+      if (!nonEmptyString(location.visualType)) {
+        location.visualType = location.ambiance;
       }
     }
   }

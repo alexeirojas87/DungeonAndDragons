@@ -179,6 +179,8 @@ export interface WorldLocation {
   discovered: boolean;
   secrets: Secret[];
   ambiance: AmbianceType;
+  /** Optional semantic visual hint from the LLM (e.g. "crypt"). Never a path. */
+  visualType?: string;
   requiresKey?: string;
 }
 

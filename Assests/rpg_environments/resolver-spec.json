@@ -1,0 +1,10 @@
+{
+  "resolutionStrategy": [
+    "normalize requested ambiance/location to lowercase",
+    "exact-match an environment id",
+    "otherwise match against aliases",
+    "otherwise use dungeon as fallback"
+  ],
+  "fallback": "dungeon",
+  "environmentCount": 30
+}

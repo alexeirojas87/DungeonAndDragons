@@ -1,24 +1,43 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg-primary: #0b0e14;
-  --color-bg-secondary: #1b2330;
-  --color-bg-tertiary: #273241;
-  --color-bg-panel: #141b26;
-  --color-text-primary: #ffffff;
-  --color-text-secondary: #f9fbff;
-  --color-text-dim: #e4ebf3;
-  --color-accent-green: #9cf2b0;
-  --color-accent-gold: #ffda78;
-  --color-accent-amber: #ffd06b;
-  --color-accent-crimson: #ff9d9d;
-  --color-accent-blue: #abd5ff;
-  --color-accent-purple: #e0bbff;
-  --color-border: #8594a6;
-  --color-border-light: #bdc9d6;
-  --color-danger: #ff9d9d;
-  --color-success: #9cf2b0;
-  --color-warning: #ffd06b;
+  /* The Gauntlet — illustrated fantasy RPG palette.
+     Parchment, dark wood, stone, aged brass. Warm and readable against
+     full-scene environment art. Old token names stay mapped here so every
+     existing component re-themes without a per-component rewrite. */
+  --color-bg-primary: #0d0a06;
+  --color-bg-secondary: #1d150c;
+  --color-bg-tertiary: #2a2014;
+  --color-bg-panel: #171209;
+  --color-text-primary: #f2e6cb;
+  --color-text-secondary: #e4d4b4;
+  --color-text-dim: #a99573;
+  --color-accent-green: #9db87c;
+  --color-accent-gold: #d6b25a;
+  --color-accent-amber: #c69a46;
+  --color-accent-crimson: #c4634f;
+  --color-accent-blue: #79a0c2;
+  --color-accent-purple: #a88fc0;
+  --color-border: #433623;
+  --color-border-light: #6b5938;
+  --color-danger: #c4634f;
+  --color-success: #9db87c;
+  --color-warning: #d6b55a;
+
+  /* RPG-specific tokens for panels, metals and surfaces */
+  --rpg-bg: #0d0a06;
+  --rpg-wood: #241812;
+  --rpg-wood-light: #3a2a1c;
+  --rpg-stone: #161209;
+  --rpg-parchment: #eadbbd;
+  --rpg-gold: #c9a227;
+  --rpg-brass: #8a6d3b;
+  --rpg-bronze: #6e5427;
+  --rpg-crimson: #a1352a;
+  --rpg-mana: #4f7fad;
+  --rpg-success: #5d8a4e;
+  --rpg-danger: #a13228;
+
   --font-mono: 'IBM Plex Mono', 'SF Mono', 'Fira Code', monospace;
   --font-narrative: 'EB Garamond', 'Crimson Text', 'Georgia', serif;
   --font-display: 'Cinzel', 'EB Garamond', serif;
@@ -369,4 +388,89 @@ select {
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
   }
+}
+
+/* ==================== RPG Surface Kit ==================== */
+
+/* Aged brass frame for panels */
+.rpg-panel {
+  background: var(--rpg-stone);
+  border: 1px solid var(--rpg-brass);
+  box-shadow:
+    inset 0 0 0 1px var(--rpg-bronze),
+    0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+/* Parchment surface — used for readable text blocks over art */
+.rpg-parchment {
+  background: var(--rpg-parchment);
+  color: #2a2115;
+}
+
+/* Ornamental brass divider */
+.rpg-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--rpg-gold), transparent);
+  opacity: 0.6;
+}
+
+/* Bordered image with brass corner caps (for portraits / items) */
+.rpg-image-frame {
+  border: 1px solid var(--rpg-brass);
+  box-shadow:
+    0 0 0 1px var(--rpg-bronze) inset,
+    0 4px 14px rgba(0, 0, 0, 0.5);
+}
+
+/* Soft inner vignette so text over art stays legible */
+.rpg-scrim-top {
+  background: linear-gradient(to bottom, rgba(13, 10, 6, 0.72), rgba(13, 10, 6, 0) 60%);
+}
+.rpg-scrim-bottom {
+  background: linear-gradient(to top, rgba(13, 10, 6, 0.9), rgba(13, 10, 6, 0) 55%);
+}
+
+/* Hover tooltip (data-tip) for inventory tiles */
+.tooltip-hover {
+  position: absolute;
+}
+.tooltip-hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% - 4px);
+  left: 0;
+  z-index: 30;
+  width: max-content;
+  max-width: 240px;
+  background: #1a140c;
+  border: 1px solid var(--rpg-brass);
+  color: var(--rpg-parchment);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.45;
+  padding: 8px 10px;
+  border-radius: 2px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+.tooltip-hover:hover::after {
+  opacity: 1;
+}
+
+/* Reduced motion: settle the cinematic pan */
+@media (prefers-reduced-motion: reduce) {
+  .scene-slow-drift {
+    animation: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .scene-slow-drift {
+    animation: sceneDrift 45s ease-in-out infinite;
+  }
+}
+@keyframes sceneDrift {
+  0%, 100% { transform: scale(1) translateX(0); }
+  50% { transform: scale(1.06) translateX(-1.5%); }
 }

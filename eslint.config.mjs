@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Third-party tooling dirs (graft hooks, agent glue) are not lint targets.
+    ".claude/**",
+    ".serena/**",
+    "node_modules/**",
   ]),
 ]);
 

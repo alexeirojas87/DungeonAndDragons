@@ -1,0 +1,250 @@
+{
+  "chest": {
+    "file": "props/prop-chest.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "barrel": {
+    "file": "props/prop-barrel.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "crate": {
+    "file": "props/prop-crate.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "wall-torch": {
+    "file": "props/prop-wall-torch.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "brazier": {
+    "file": "props/prop-brazier.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "altar": {
+    "file": "props/prop-altar.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "pillar": {
+    "file": "props/prop-pillar.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "ruined-pillar": {
+    "file": "props/prop-ruined-pillar.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "sarcophagus": {
+    "file": "props/prop-sarcophagus.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "tombstone": {
+    "file": "props/prop-tombstone.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "bones": {
+    "file": "props/prop-bones.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "banner": {
+    "file": "props/prop-banner.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "door": {
+    "file": "props/prop-door.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "gate": {
+    "file": "props/prop-gate.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "trapdoor": {
+    "file": "props/prop-trapdoor.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "spiral-stairs": {
+    "file": "props/prop-spiral-stairs.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "stone-stairs": {
+    "file": "props/prop-stone-stairs.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "stone-arch": {
+    "file": "props/prop-stone-arch.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "table": {
+    "file": "props/prop-table.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "chair": {
+    "file": "props/prop-chair.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "bookshelf": {
+    "file": "props/prop-bookshelf.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "alchemy-table": {
+    "file": "props/prop-alchemy-table.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "weapon-rack": {
+    "file": "props/prop-weapon-rack.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "loot-sack": {
+    "file": "props/prop-loot-sack.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "statue": {
+    "file": "props/prop-statue.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "gargoyle": {
+    "file": "props/prop-gargoyle.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "fountain": {
+    "file": "props/prop-fountain.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "runestone": {
+    "file": "props/prop-runestone.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "magic-crystal": {
+    "file": "props/prop-magic-crystal.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "coins": {
+    "file": "props/prop-coins.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  },
+  "treasure-pile": {
+    "file": "props/prop-treasure-pile.png",
+    "size": [
+      256,
+      256
+    ],
+    "source": "props-atlas-fixed-v2"
+  }
+}

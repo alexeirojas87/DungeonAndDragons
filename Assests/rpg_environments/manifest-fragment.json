@@ -1,0 +1,441 @@
+{
+  "dungeon": {
+    "file": "environments/dungeon.png",
+    "type": "environment",
+    "aliases": [
+      "dungeon",
+      "cellar",
+      "prison",
+      "catacomb"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "crypt": {
+    "file": "environments/crypt.png",
+    "type": "environment",
+    "aliases": [
+      "crypt",
+      "mausoleum",
+      "tomb",
+      "burial chamber"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "cave": {
+    "file": "environments/cave.png",
+    "type": "environment",
+    "aliases": [
+      "cave",
+      "cavern",
+      "mine"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "forest": {
+    "file": "environments/forest.png",
+    "type": "environment",
+    "aliases": [
+      "forest",
+      "woods",
+      "woodland",
+      "wilderness"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "tavern": {
+    "file": "environments/tavern.png",
+    "type": "environment",
+    "aliases": [
+      "tavern",
+      "inn",
+      "pub",
+      "alehouse"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "town-square": {
+    "file": "environments/town-square.png",
+    "type": "environment",
+    "aliases": [
+      "town square",
+      "village square",
+      "plaza",
+      "market square"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "temple": {
+    "file": "environments/temple.png",
+    "type": "environment",
+    "aliases": [
+      "temple",
+      "chapel",
+      "sanctuary",
+      "shrine"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "sewer": {
+    "file": "environments/sewer.png",
+    "type": "environment",
+    "aliases": [
+      "sewer",
+      "drain",
+      "undercity"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "library": {
+    "file": "environments/library.png",
+    "type": "environment",
+    "aliases": [
+      "library",
+      "archive",
+      "study",
+      "scriptorium"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "throne-room": {
+    "file": "environments/throne-room.png",
+    "type": "environment",
+    "aliases": [
+      "throne room",
+      "royal hall",
+      "court",
+      "palace hall"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "barracks": {
+    "file": "environments/barracks.png",
+    "type": "environment",
+    "aliases": [
+      "barracks",
+      "guardhouse",
+      "armory"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "blacksmith": {
+    "file": "environments/blacksmith.png",
+    "type": "environment",
+    "aliases": [
+      "blacksmith",
+      "forge",
+      "smithy"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "arcane-tower": {
+    "file": "environments/arcane-tower.png",
+    "type": "environment",
+    "aliases": [
+      "arcane tower",
+      "wizard tower",
+      "mage tower",
+      "magic chamber"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "desert-ruins": {
+    "file": "environments/desert-ruins.png",
+    "type": "environment",
+    "aliases": [
+      "desert ruins",
+      "sand ruins",
+      "ancient desert"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "swamp": {
+    "file": "environments/swamp.png",
+    "type": "environment",
+    "aliases": [
+      "swamp",
+      "marsh",
+      "bog",
+      "wetlands"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "snowy-mountains": {
+    "file": "environments/snowy-mountains.png",
+    "type": "environment",
+    "aliases": [
+      "snowy mountains",
+      "mountains",
+      "snowfield",
+      "alpine"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "volcanic-cavern": {
+    "file": "environments/volcanic-cavern.png",
+    "type": "environment",
+    "aliases": [
+      "volcanic cavern",
+      "lava cave",
+      "volcano",
+      "magma chamber"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "coastal-pier": {
+    "file": "environments/coastal-pier.png",
+    "type": "environment",
+    "aliases": [
+      "coastal pier",
+      "dock",
+      "harbor",
+      "port",
+      "pier"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "waterfall-grove": {
+    "file": "environments/waterfall-grove.png",
+    "type": "environment",
+    "aliases": [
+      "waterfall grove",
+      "waterfall",
+      "sacred grove",
+      "oasis"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "ancient-altar": {
+    "file": "environments/ancient-altar.png",
+    "type": "environment",
+    "aliases": [
+      "ancient altar",
+      "altar",
+      "ritual site",
+      "stone circle"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "abandoned-village": {
+    "file": "environments/abandoned-village.png",
+    "type": "environment",
+    "aliases": [
+      "abandoned village",
+      "ruined village",
+      "ghost town"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "underground-lake": {
+    "file": "environments/underground-lake.png",
+    "type": "environment",
+    "aliases": [
+      "underground lake",
+      "subterranean lake",
+      "cave lake"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "pirate-cove": {
+    "file": "environments/pirate-cove.png",
+    "type": "environment",
+    "aliases": [
+      "pirate cove",
+      "shipwreck",
+      "smuggler cove"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "goblin-camp": {
+    "file": "environments/goblin-camp.png",
+    "type": "environment",
+    "aliases": [
+      "goblin camp",
+      "monster camp",
+      "raider camp"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "ice-cavern": {
+    "file": "environments/ice-cavern.png",
+    "type": "environment",
+    "aliases": [
+      "ice cavern",
+      "ice cave",
+      "frozen cave",
+      "glacier"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "celestial-garden": {
+    "file": "environments/celestial-garden.png",
+    "type": "environment",
+    "aliases": [
+      "celestial garden",
+      "holy garden",
+      "divine garden"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "dark-ritual-chamber": {
+    "file": "environments/dark-ritual-chamber.png",
+    "type": "environment",
+    "aliases": [
+      "dark ritual chamber",
+      "ritual chamber",
+      "cult chamber",
+      "summoning room"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "dragon-lair": {
+    "file": "environments/dragon-lair.png",
+    "type": "environment",
+    "aliases": [
+      "dragon lair",
+      "dragon cave",
+      "hoard chamber"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "mystic-portal": {
+    "file": "environments/mystic-portal.png",
+    "type": "environment",
+    "aliases": [
+      "mystic portal",
+      "portal",
+      "gateway",
+      "teleporter"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  },
+  "floating-island": {
+    "file": "environments/floating-island.png",
+    "type": "environment",
+    "aliases": [
+      "floating island",
+      "sky island",
+      "airborne ruins"
+    ],
+    "size": [
+      512,
+      384
+    ],
+    "source": "environments-atlas"
+  }
+}
