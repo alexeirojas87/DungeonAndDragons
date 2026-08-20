@@ -11,7 +11,7 @@ import type {
 import { rollSkillCheck, rollD20, rollDamage, getAttributeModifier } from './dice';
 import { eventBus, createEvent } from './events';
 import { damageCharacter, healCharacter, getSkillModifier, addExperience, ARCHETYPES, ORIGINS } from './character';
-import { createItem, equipItem, unequipItem, consumeItem, getEffectiveAC, ITEM_TEMPLATES } from './inventory';
+import { createItem, equipItem, unequipItem, consumeItem, getEffectiveAC, ITEM_TEMPLATES, generateItemId } from './inventory';
 import {
   createEncounter, resolveAttack, applyDamage, applyHealing,
   nextTurn, isEncounterOver, getCurrentCombatant, enemyAction,
@@ -163,6 +163,42 @@ export class GameEngine {
     return this.getChapter()?.monsters[templateId]
       ?? MONSTER_TEMPLATES[templateId]
       ?? MONSTER_TEMPLATES['skeleton_guard_1'];
+  }
+
+  /**
+   * Resolves an item from the static templates first, then from the active
+   * chapter's own `items` registry. Generated chapters declare their items
+   * (a dark blade, a sealed relic…), but those never reached the inventory:
+   * every grant point only consulted ITEM_TEMPLATES and returned null for a
+   * chapter-only id, so the DM could narrate "the blade is yours" while the
+   * inventory stayed empty. Chapter items can now be created and carried.
+   */
+  private resolveItem(templateId: string): Item | null {
+    if (!templateId) return null;
+    const known = createItem(templateId);
+    if (known) return known;
+
+    const template = this.getChapter()?.items?.[templateId];
+    if (!template) return null;
+
+    return {
+      id: generateItemId(),
+      templateId: template.id,
+      name: template.name,
+      nameEs: template.nameEs,
+      type: template.type,
+      rarity: template.rarity,
+      weight: template.weight,
+      value: template.value,
+      description: template.description,
+      descriptionEs: template.descriptionEs,
+      properties: { ...template.properties },
+      durability: template.maxDurability,
+      maxDurability: template.maxDurability,
+      slot: template.slot,
+      usable: template.usable,
+      consumable: template.consumable,
+    };
   }
 
   /**
@@ -510,7 +546,7 @@ export class GameEngine {
     const hero = this.state.party[0];
     const gained: string[] = [];
     for (const templateId of puzzle.unlocks.items ?? []) {
-      const item = createItem(templateId);
+      const item = this.resolveItem(templateId);
       if (item && hero) {
         hero.inventory.push(item);
         gained.push(this.language === 'es' ? item.nameEs : item.name);
@@ -1617,7 +1653,7 @@ export class GameEngine {
 
         if (obj.contains && obj.contains.length > 0) {
           const itemTemplateId = obj.contains[0];
-          const item = createItem(itemTemplateId);
+          const item = this.resolveItem(itemTemplateId);
           if (item) {
             this.state.party[0].inventory.push(item);
             obj.contains = obj.contains.slice(1);
@@ -1630,6 +1666,30 @@ export class GameEngine {
               mood: 'triumph',
             })];
           }
+        }
+      }
+    }
+
+    // The player often names the ITEM, not its container ("take the dark blade"
+    // when the blade sits on an unnamed pedestal). Walk containers and match
+    // against the resolved contained item's name before giving up.
+    for (const obj of currentLoc.objects) {
+      if (!obj.contains || obj.contains.length === 0) continue;
+      for (const templateId of obj.contains) {
+        const contained = this.resolveItem(templateId);
+        if (!contained) continue;
+        const match = itemNameMatches(contained.name, itemName) || itemNameMatches(contained.nameEs, itemName);
+        if (match) {
+          this.state.party[0].inventory.push(contained);
+          obj.contains = obj.contains.filter(id => id !== templateId);
+          eventBus.emit(createEvent('ITEM_ACQUIRED', { itemId: contained.id, itemName: contained.name }));
+          return [this.addNarrative({
+            type: 'system',
+            content: this.language === 'es'
+              ? `Obtienes: ${contained.nameEs}`
+              : `Acquired: ${contained.name}`,
+            mood: 'triumph',
+          })];
         }
       }
     }
@@ -1867,7 +1927,7 @@ export class GameEngine {
         // Loot
         if (enemyTemplate?.loot) {
           for (const lootId of enemyTemplate.loot) {
-            const item = createItem(lootId);
+            const item = this.resolveItem(lootId);
             if (item) {
               this.state.party[0].inventory.push(item);
               narrations.push(this.addNarrative({
@@ -2238,7 +2298,7 @@ export class GameEngine {
           // Discover contained items
           if (secret.contains) {
             for (const itemId of secret.contains) {
-              const item = createItem(itemId);
+              const item = this.resolveItem(itemId);
               if (item) {
                 this.state.party[0].inventory.push(item);
                 results.push(this.addNarrative({
@@ -2918,16 +2978,35 @@ export class GameEngine {
     const currentLoc = this.state.worldState.locations[this.state.location];
     if (!currentLoc) return [];
 
+    // 1. Object named like the target (e.g. "dark pedestal" holds the blade).
     for (const obj of currentLoc.objects) {
       if (obj.name.toLowerCase().includes(itemName.toLowerCase()) || obj.nameEs.toLowerCase().includes(itemName.toLowerCase())) {
         if (obj.contains && obj.contains.length > 0) {
-          const item = createItem(obj.contains[0]);
+          const item = this.resolveItem(obj.contains[0]);
           if (item) {
             this.state.party[0].inventory.push(item);
             obj.contains = obj.contains.slice(1);
             eventBus.emit(createEvent('ITEM_ACQUIRED', { itemId: item.id, itemName: item.name }));
             return [this.createNarrativeEntry({ type: 'system', content: this.language === 'es' ? `Obtienes: ${item.nameEs}` : `Acquired: ${item.name}`, mood: 'triumph' })];
           }
+        }
+      }
+    }
+
+    // 2. The player often names the ITEM, not its container ("take the dark
+    // blade" when the blade sits on an unnamed pedestal). Walk containers and
+    // match against the resolved contained item's name before giving up.
+    for (const obj of currentLoc.objects) {
+      if (!obj.contains || obj.contains.length === 0) continue;
+      for (const templateId of obj.contains) {
+        const contained = this.resolveItem(templateId);
+        if (!contained) continue;
+        const match = itemNameMatches(contained.name, itemName) || itemNameMatches(contained.nameEs, itemName);
+        if (match) {
+          this.state.party[0].inventory.push(contained);
+          obj.contains = obj.contains.filter(id => id !== templateId);
+          eventBus.emit(createEvent('ITEM_ACQUIRED', { itemId: contained.id, itemName: contained.name }));
+          return [this.createNarrativeEntry({ type: 'system', content: this.language === 'es' ? `Obtienes: ${contained.nameEs}` : `Acquired: ${contained.name}`, mood: 'triumph' })];
         }
       }
     }
@@ -3069,7 +3148,7 @@ export class GameEngine {
           results.push(this.createNarrativeEntry({ type: 'narration', content: this.language === 'es' ? secret.descriptionEs : secret.description, mood: 'mystery' }));
           if (secret.contains) {
             for (const itemId of secret.contains) {
-              const item = createItem(itemId);
+              const item = this.resolveItem(itemId);
               if (item) {
                 this.state.party[0].inventory.push(item);
                 results.push(this.createNarrativeEntry({ type: 'system', content: this.language === 'es' ? `Descubres: ${item.nameEs}` : `You discover: ${item.name}`, mood: 'triumph' }));
@@ -3096,7 +3175,7 @@ export class GameEngine {
         if (obj.contains && obj.contains.length > 0) {
           const results: NarrativeEntry[] = [];
           for (const itemId of obj.contains) {
-            const item = createItem(itemId);
+            const item = this.resolveItem(itemId);
             if (item) {
               this.state.party[0].inventory.push(item);
               results.push(this.createNarrativeEntry({ type: 'system', content: this.language === 'es' ? `Encuentras: ${item.nameEs}` : `You find: ${item.name}`, mood: 'triumph' }));
@@ -3202,4 +3281,18 @@ export class GameEngine {
   private handleListenRaw(action: InterpretedAction): NarrativeEntry[] {
     return [this.createNarrativeEntry({ type: 'narration', content: this.language === 'es' ? 'Escuchás atentamente...' : 'You listen carefully...', mood: 'mystery' })];
   }
+}
+
+/**
+ * Loose name match for taking items: compares either direction after stripping
+ * common articles, so "la hoja" finds "Hoja Oscura" just as "hoja oscura" does.
+ */
+function itemNameMatches(itemName: string, targetName: string): boolean {
+  const strip = (s: string) => s.toLowerCase()
+    .replace(/^(la |el |los |las |un |una |unos |unas |the |a |an )/, '')
+    .trim();
+  const a = strip(itemName);
+  const b = strip(targetName);
+  if (!a || !b) return false;
+  return a.includes(b) || b.includes(a);
 }

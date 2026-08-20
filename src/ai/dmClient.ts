@@ -4,6 +4,12 @@
 
 import type { GameState, Language, NPC, WorldLocation } from '../engine/types';
 
+// ONE source of truth for how long a narration may be. The model is told this
+// exact number so it writes *within* the budget instead of over-writing and
+// then being cut by the client. The terminal renders it fully; no slice ever
+// needs to happen for a compliant response.
+export const NARRATION_MAX_CHARS = 500;
+
 const DM_SYSTEM_PROMPT = `You are the Dungeon Master for a dark fantasy RPG called "The Gauntlet".
 
 ROLE: You describe what happens. The game engine already resolved the action.
@@ -11,7 +17,7 @@ ROLE: You describe what happens. The game engine already resolved the action.
 RULES:
 1. NEVER modify game state
 2. NEVER invent dice results
-3. Keep responses SHORT (2-4 sentences max)
+3. Keep responses SHORT. HARD LIMIT: the entire response MUST stay under ${NARRATION_MAX_CHARS} characters (about 80-90 words, typically 2-4 sentences). Under is fine; never go over.
 4. Match intensity to situation
 5. Use sensory details but be concise
 6. If player talks to an NPC, describe the NPC's reaction briefly
@@ -22,7 +28,7 @@ RULES:
 11. Treat STORY FACTS as authoritative; never deny an ally, item, promise, route, or consequence listed there
 12. If the engine result rejects an action but a STORY FACT directly supports it, describe the supported attempt without erasing that fact
 13. NEVER invent walls, rubble, false doors or dead ends across a listed EXIT. If the player moves toward one, describe the passage and the transition through it
-14. NEVER stop mid-sentence. Finish every sentence you start
+14. NEVER leave a sentence unfinished. Write complete sentences only — if you are approaching the character limit, close the thought and finish the sentence, even if it shortens the reply.
 
 STYLE:
 - Punchy, atmospheric prose
@@ -136,7 +142,7 @@ export async function callDM(context: DMContext): Promise<string> {
 
   const messages = [
     { role: 'system' as const, content: systemMessage },
-    { role: 'user' as const, content: `Player action: "${playerAction}"\n\nResult: ${actionResult}\n\nDescribe what happens next (1-3 paragraphs, in ${language === 'es' ? 'Spanish' : 'English'}):` },
+    { role: 'user' as const, content: `Player action: "${playerAction}"\n\nResult: ${actionResult}\n\nDescribe what happens next. Respond in ${language === 'es' ? 'Spanish' : 'English'}, remaining under ${NARRATION_MAX_CHARS} characters, in complete sentences:` },
   ];
 
   try {

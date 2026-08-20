@@ -24,6 +24,8 @@ const VERB_PATTERNS: Array<{ patterns: RegExp[]; type: ActionType; skill?: Skill
   // Taking items
   { patterns: [/^(take|grab|pick up|collect|gather|loot|acquire|steal)/i], type: 'take' },
   { patterns: [/^(get|obtain|procure)/i], type: 'take' },
+  // Spanish: "tomar", "coger", "recoger", "agarrar", "llevar"
+  { patterns: [/^(tomar|toma|coger|coge|recoger|recoge|agarrar|agarra|llevar|lleva)/i], type: 'take' },
 
   // Dropping items
   { patterns: [/^(drop|discard|leave|abandon|扔掉)/i], type: 'drop' },
@@ -181,7 +183,7 @@ function extractAction(input: string, type: ActionType, skill?: Skill): Interpre
     }
 
     case 'take': {
-      const item = extractTarget(input, ['take', 'grab', 'pick up', 'collect', 'get', 'loot', 'steal']);
+      const item = extractTarget(input, ['take', 'grab', 'pick up', 'collect', 'get', 'loot', 'steal', 'tomar', 'toma', 'coger', 'coge', 'recoger', 'recoge', 'agarrar', 'agarra', 'llevar', 'lleva']);
       return { type: 'take', item, confidence: 0.85 };
     }
 

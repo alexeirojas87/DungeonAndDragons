@@ -12,7 +12,7 @@ import {
   deleteSave, hasCheckpoint, loadCheckpoint, loadGame, saveCheckpoint, saveGame,
 } from '../lib/persistence';
 import { audioManager } from '../audio/audioManager';
-import { callDM } from '../ai/dmClient';
+import { callDM, NARRATION_MAX_CHARS } from '../ai/dmClient';
 import { generateNextChapter } from '../ai/chapterClient';
 
 export type GameScreen = 'menu' | 'language' | 'character_creation' | 'game';
@@ -218,9 +218,12 @@ export function useGame() {
         });
 
         if (dmText && dmText.length > 10) {
-          // Replace narration entries with DM text
+          // Replace narration entries with DM text. The DM is asked to write
+          // under NARRATION_MAX_CHARS, so a compliant response renders whole.
+          // This is only a safety net for a model that over-runs: a rescue on a
+          // sentence boundary (never a hard slice that cuts mid-word).
           finalResults = results.map(r =>
-            r.type === 'narration' ? { ...r, content: dmText.slice(0, 400) } : r
+            r.type === 'narration' ? { ...r, content: trimAtSentence(dmText, NARRATION_MAX_CHARS) } : r
           );
         }
       } catch (err) {
@@ -359,4 +362,25 @@ export function useGame() {
     setScreen,
     manualSave,
   };
+}
+
+/**
+ * Truncates narration at a sentence boundary instead of a raw character
+ * count, so prose never ends mid-word (the previous slice(0,400) cut phrases
+ * like "…como si guardar"). Stops at the last sentence terminator before the
+ * limit; prefers not to chop a long dialogue mid-speech.
+ */
+function trimAtSentence(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text;
+  const enders = ['. ', '! ', '? ', '».', '».', '“', '.\n'];
+  let cut = -1;
+  for (const token of enders) {
+    const idx = text.lastIndexOf(token, maxLength);
+    if (idx > cut) cut = idx;
+  }
+  if (cut > 0) return text.slice(0, cut + (text[cut + 1] === ' ' ? 1 : 0)).trimEnd();
+  // No sentence boundary found: fall back to the last space so we never cut a
+  // word, even if the source lacks punctuation.
+  const space = text.lastIndexOf(' ', maxLength);
+  return space > 0 ? text.slice(0, space).trimEnd() : text.slice(0, maxLength).trimEnd();
 }
