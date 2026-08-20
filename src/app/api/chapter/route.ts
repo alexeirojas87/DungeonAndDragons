@@ -16,7 +16,7 @@ import {
 
 const NAN_BASE_URL = process.env.NAN_BASE_URL || 'https://api.nan.builders/v1';
 const NAN_API_KEY = process.env.NAN_API_KEY || '';
-const MODEL = process.env.NAN_CHAPTER_MODEL || 'deepseek-v4-flash';
+const MODEL = process.env.NAN_CHAPTER_MODEL || 'qwen3.6';
 
 const MAX_REPAIR_ATTEMPTS = 3;
 /** Gateway timeouts and empty streams are not the model's fault; they get their own retries. */

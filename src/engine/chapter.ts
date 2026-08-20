@@ -308,7 +308,11 @@ const locationSchema = z.object({
   ambiance: ambianceEnum,
   /** Optional semantic visual hint (e.g. "crypt", "tavern", "arcane"). */
   visualType: z.string().optional(),
-  requiresKey: id.optional(),
+  /** Item templateId that gates entry. Kept loose (not the snake_case id
+   * pattern): the model writes a semantic token and the referential check
+   * below still rejects anything that is not a real item this chapter (or a
+   * global template) declares. */
+  requiresKey: z.string().min(1).optional(),
 });
 
 const dialogueResponseSchema = z.object({

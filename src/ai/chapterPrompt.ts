@@ -107,11 +107,13 @@ of what the Ashen Court sealed away), and whatever survives beneath the Drowned 
 Tone: restrained, physical, no winking. Violence costs something. Nothing is explained twice.`;
 
 function heroBlock(hero: HeroBrief): string {
-  const carried = hero.items.length
-    ? hero.items.map(i => `  - ${i.templateId} · ${i.name} (${i.rarity} ${i.type})`).join('\n')
+  const items = hero.items ?? [];
+  const equipped = hero.equipped ?? [];
+  const carried = items.length
+    ? items.map(i => `  - ${i.templateId} · ${i.name} (${i.rarity} ${i.type})`).join('\n')
     : '  - (nothing)';
-  const equipped = hero.equipped.length
-    ? hero.equipped.map(i => `  - ${i.slot ?? 'slot'} · ${i.name} (${i.templateId})`).join('\n')
+  const equippedText = equipped.length
+    ? equipped.map(i => `  - ${i.slot ?? 'slot'} · ${i.name} (${i.templateId})`).join('\n')
     : '  - (nothing)';
 
   return `HERO
