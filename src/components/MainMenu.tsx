@@ -4,7 +4,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import type { Language } from '../engine/types';
 import { resolveEnvironment } from '../assets/registry';
 
@@ -13,14 +13,22 @@ interface MainMenuProps {
   onContinue: () => void;
 }
 
+// Reads whether a save exists without triggering a hydration mismatch: the
+// server persists "no", the client resolves the real value on mount.
+function subscribeSavedGame(cb: () => void): () => void {
+  window.addEventListener('storage', cb);
+  return () => window.removeEventListener('storage', cb);
+}
+function readSavedGame(): boolean {
+  try {
+    return !!localStorage.getItem('gauntlet_save');
+  } catch {
+    return false;
+  }
+}
+
 export function MainMenu({ onSelectLanguage, onContinue }: MainMenuProps) {
-  const [hasSavedGame] = useState(() => {
-    try {
-      return !!localStorage.getItem('gauntlet_save');
-    } catch {
-      return false;
-    }
-  });
+  const hasSavedGame = useSyncExternalStore(subscribeSavedGame, readSavedGame, () => false);
 
   const handleContinue = () => {
     onContinue();
