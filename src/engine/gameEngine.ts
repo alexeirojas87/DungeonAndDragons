@@ -1774,8 +1774,7 @@ export class GameEngine {
 
     const player = this.state.party[0];
     const item = player.inventory.find(i =>
-      i.name.toLowerCase().includes(itemName.toLowerCase()) ||
-      i.nameEs.toLowerCase().includes(itemName.toLowerCase())
+      itemNameMatches(i.name, itemName) || itemNameMatches(i.nameEs, itemName)
     );
 
     if (!item || !item.slot) {
@@ -1810,8 +1809,7 @@ export class GameEngine {
 
     const player = this.state.party[0];
     const equipped = Object.entries(player.equipment).find(([_, item]) =>
-      item && (item.name.toLowerCase().includes(itemName.toLowerCase()) ||
-               item.nameEs.toLowerCase().includes(itemName.toLowerCase()))
+      item && (itemNameMatches(item.name, itemName) || itemNameMatches(item.nameEs, itemName))
     );
 
     if (!equipped) {
@@ -3043,7 +3041,7 @@ export class GameEngine {
     if (!itemName) return [];
 
     const player = this.state.party[0];
-    const item = player.inventory.find(i => i.name.toLowerCase().includes(itemName.toLowerCase()) || i.nameEs.toLowerCase().includes(itemName.toLowerCase()));
+    const item = player.inventory.find(i => itemNameMatches(i.name, itemName) || itemNameMatches(i.nameEs, itemName));
 
     if (!item || !item.slot) return [this.createNarrativeEntry({ type: 'system', content: this.language === 'es' ? `No puedes equipar "${itemName}".` : `You can't equip "${itemName}".`, mood: 'neutral' })];
 

@@ -36,7 +36,9 @@ const VERB_PATTERNS: Array<{ patterns: RegExp[]; type: ActionType; skill?: Skill
 
   // Equipment
   { patterns: [/^(equip|wear|don|wield|hold|arm)/i], type: 'equip' },
+  { patterns: [/^(equipar|equipa|equípame|equiparme|equiparse|equipándote|vestir|portar|empuñar|empuña|armarte)/i, /^(equip(?:ar|arme)?|equípa(?:te|me)?)\s+\w+/i], type: 'equip' },
   { patterns: [/^(unequip|remove|sheathe|holster|take off)/i], type: 'unequip' },
+  { patterns: [/^(quitar|retirar|desequipar|guardar)\s*(equipamiento|arma|armadura)?/i], type: 'unequip' },
 
   // Combat
   { patterns: [/^(attack|hit|strike|slay|kill|fight|smash|bash|cleave|slash|thrust|stab)/i], type: 'attack' },
@@ -198,7 +200,7 @@ function extractAction(input: string, type: ActionType, skill?: Skill): Interpre
     }
 
     case 'equip': {
-      const item = extractTarget(input, ['equip', 'wear', 'don', 'wield', 'hold', 'arm']);
+      const item = extractTarget(input, ['equip', 'wear', 'don', 'wield', 'hold', 'arm', 'equipar', 'equipa', 'equípame', 'equiparme', 'equiparse', 'vestir', 'portar', 'empuñar', 'empuña']);
       return { type: 'equip', item, confidence: 0.9 };
     }
 
