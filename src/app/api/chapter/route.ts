@@ -16,9 +16,17 @@ import {
 
 const NAN_BASE_URL = process.env.NAN_BASE_URL || 'https://api.nan.builders/v1';
 const NAN_API_KEY = process.env.NAN_API_KEY || '';
+// Primary writer: fast, finishes long JSON in one pass.
 const MODEL = process.env.NAN_CHAPTER_MODEL || 'qwen3.6';
+// Fallback writer: used when the primary keeps failing a repair. It receives
+// the exact broken JSON qwen produced and continues from it (the repair pass
+// already feeds the previous draft forward), so the two models unify into one
+// chapter instead of racing to write it from scratch.
+const FALLBACK_MODEL = process.env.NAN_CHAPTER_FALLBACK_MODEL || 'deepseek-v4-flash';
 
-const MAX_REPAIR_ATTEMPTS = 3;
+// How many repair chances each model gets before the other steps in.
+const PRIMARY_REPAIR_ATTEMPTS = 2;
+const FALLBACK_REPAIR_ATTEMPTS = 2;
 /** Gateway timeouts and empty streams are not the model's fault; they get their own retries. */
 const MAX_TRANSPORT_RETRIES = 2;
 
@@ -35,7 +43,7 @@ class TruncatedResponse extends Error {
  * connection that long gets killed by the gateway (Cloudflare 524) long before
  * the model is done. Streaming keeps bytes moving, so the request survives.
  */
-async function callLLM(messages: Message[], maxTokens: number, temperature: number): Promise<string> {
+async function callLLM(messages: Message[], maxTokens: number, temperature: number, model: string): Promise<string> {
   const res = await fetch(`${NAN_BASE_URL}/chat/completions`, {
     method: 'POST',
     headers: {
@@ -45,7 +53,7 @@ async function callLLM(messages: Message[], maxTokens: number, temperature: numb
       'User-Agent': 'the-gauntlet/1.0',
     },
     body: JSON.stringify({
-      model: MODEL,
+      model,
       messages,
       temperature,
       max_tokens: maxTokens,
@@ -105,15 +113,15 @@ class TransportError extends Error {}
  * Retries transport failures (gateway timeouts, dropped streams) in place, so a
  * flaky minute never eats one of the model's three chances to get it right.
  */
-async function callLLMWithRetries(messages: Message[], maxTokens: number, temperature: number): Promise<string> {
+async function callLLMWithRetries(messages: Message[], maxTokens: number, temperature: number, model: string): Promise<string> {
   let lastError: unknown;
   for (let retry = 0; retry <= MAX_TRANSPORT_RETRIES; retry++) {
     try {
-      return await callLLM(messages, maxTokens, temperature);
+      return await callLLM(messages, maxTokens, temperature, model);
     } catch (error) {
       if (!(error instanceof TransportError)) throw error;
       lastError = error;
-      console.warn(`Transport retry ${retry + 1}: ${(error as Error).message}`);
+      console.warn(`Transport retry ${retry + 1} (${model}): ${(error as Error).message}`);
     }
   }
   throw lastError;
@@ -192,19 +200,21 @@ export async function POST(req: NextRequest) {
   // ---- Pass 1: outline. Small, cheap, and worth retrying on its own. ----
   let outline: ChapterOutline | null = null;
   const outlineIssues: string[] = [];
-  for (let attempt = 0; attempt < 2 && !outline; attempt++) {
+  const outlineModels = [MODEL, FALLBACK_MODEL]; // primary first, fallback if it fails
+  for (let attempt = 0; attempt < outlineModels.length && !outline; attempt++) {
+    const model = outlineModels[attempt];
     try {
-      const raw = await callLLMWithRetries(buildOutlineMessages(request), 12000, 0.9);
+      const raw = await callLLMWithRetries(buildOutlineMessages(request), 12000, 0.9, model);
       const parsed = OutlineSchema.safeParse(extractJson(raw));
       if (parsed.success) outline = trimOutline(parsed.data);
       else {
         outlineIssues.push(...parsed.error.issues.map(i => `${i.path.join('.')}: ${i.message}`));
-        console.warn('Outline rejected. Raw head:', raw.slice(0, 400));
+        console.warn(`Outline rejected (${model}). Raw head:`, raw.slice(0, 400));
       }
     } catch (error) {
-      outlineIssues.push(error instanceof Error ? error.message : String(error));
+      outlineIssues.push(`${model}: ${error instanceof Error ? error.message : String(error)}`);
       if (error instanceof TruncatedResponse) {
-        console.warn('Outline truncated. Partial head:', error.partial.slice(0, 400));
+        console.warn(`Outline truncated (${model}). Partial head:`, error.partial.slice(0, 400));
       }
     }
   }
@@ -218,25 +228,43 @@ export async function POST(req: NextRequest) {
   }
 
   // ---- Pass 2: full chapter, then repair until it validates or we give up. ----
+  // Writer schedule: the primary model writes the chapter and repairs it twice;
+  // if it still cannot satisfy the validator, the fallback model gets the SAME
+  // draft (buildRepairMessages feeds the previous JSON forward) and finishes or
+  // rebuilds it. Both models unify into one chapter — never two competing ones.
+  const attemptModels: string[] = [
+    ...Array.from({ length: PRIMARY_REPAIR_ATTEMPTS }, () => MODEL),
+    ...Array.from({ length: FALLBACK_REPAIR_ATTEMPTS }, () => FALLBACK_MODEL),
+  ];
+
   let lastRaw = '';
   let lastIssues: string[] = [];
 
-  for (let attempt = 0; attempt < MAX_REPAIR_ATTEMPTS; attempt++) {
+  for (let attempt = 0; attempt < attemptModels.length; attempt++) {
+    const model = attemptModels[attempt];
     const messages = attempt === 0
       ? buildChapterMessages(request, outline)
       : buildRepairMessages(request, outline, lastRaw, lastIssues);
 
+    // The fallback writer (deepseek-v4-flash) caps its output well below what
+    // the primary can emit, so it must write a TIGHT chapter or it will re-
+    // truncate mid-JSON. Tell it the budget explicitly instead of hoping.
+    if (model === FALLBACK_MODEL) {
+      const last = messages[messages.length - 1];
+      last.content += '\n\nHARD BUDGET for this pass: the ENTIRE chapter JSON must fit in about 12,000 characters. Keep prose to 1-2 sentences per node, keep every required field and every referenced id valid, and close every JSON brace. A short valid chapter beats a long broken one.';
+    }
+
     try {
-      lastRaw = await callLLMWithRetries(messages, 32000, attempt === 0 ? 0.8 : 0.4);
+      lastRaw = await callLLMWithRetries(messages, 32000, attempt === 0 ? 0.8 : 0.4, model);
       const candidate = extractJson(lastRaw);
       const { chapter, issues } = inspect(candidate, usedIds);
 
       if (chapter) {
-        return NextResponse.json({ chapter, outline, attempts: attempt + 1 });
+        return NextResponse.json({ chapter, outline, attempts: attempt + 1, model });
       }
 
       lastIssues = issues;
-      console.warn(`Chapter attempt ${attempt + 1} rejected:`, issues);
+      console.warn(`Chapter attempt ${attempt + 1} rejected (${model}):`, issues);
     } catch (error) {
       if (error instanceof TruncatedResponse) {
         // Keep the partial so the repair pass can finish it rather than restart.
@@ -245,7 +273,7 @@ export async function POST(req: NextRequest) {
       } else {
         lastIssues = [error instanceof Error ? error.message : String(error)];
       }
-      console.warn(`Chapter attempt ${attempt + 1} threw:`, lastIssues);
+      console.warn(`Chapter attempt ${attempt + 1} threw (${model}):`, lastIssues);
     }
   }
 

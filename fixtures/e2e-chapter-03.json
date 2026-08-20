@@ -1,0 +1,705 @@
+{
+ "id": "chapter-03",
+ "index": 3,
+ "title": "The Throat of Stone",
+ "titleEs": "La Garganta de Piedra",
+ "premise": "Alexei descends into the Drowned Door's throat. The tunnel is narrow, flooded, and home to the Gullet Stalker. He must retrieve the Ashen Veil's seal before the water rises permanently.",
+ "premiseEs": "Alexei desciende a la garganta de la Puerta Ahogada. El túnel es estrecho, inundado y hogar del Depredador del Bocado. Debe recuperar el sello del Velo Cenizo antes de que el agua suba permanentemente.",
+ "intro": [
+  {
+   "type": "narration",
+   "text": "The Drowned Door swallows you. Cold, brine-licked wind howls through the archway as you step into the dark.",
+   "textEs": "La Puerta Ahogada te traga. El viento frío y salado aúlla a través del arco mientras das un paso en la oscuridad.",
+   "mood": "tense"
+  }
+ ],
+ "startNodeId": "c3_start",
+ "startLocationId": "c3_place_tunnel1",
+ "nodes": {
+  "c3_start": {
+   "id": "c3_start",
+   "title": "The Descent",
+   "titleEs": "La Descenso",
+   "text": "The water laps at your boots. The tunnel narrows, walls slick with algae and old blood. A collapsed archway blocks the path forward, but a rusted iron grate stands slightly ajar in the side wall, holding back a rushing current.",
+   "textEs": "El agua se lame tus botas. El túnel se estrecha, las paredes resbaladizas con algas y sangre vieja. Un arco colapsado bloquea el camino hacia adelante, pero una reja de hierro oxidada se encuentra ligeramente entreabierta en la pared lateral, conteniendo una corriente implacable.",
+   "choices": [
+    {
+     "id": "c3_c_sluice",
+     "label": "Investigate the grate",
+     "labelEs": "Investigar la reja",
+     "nextNodeId": "c3_sluice_puzzle"
+    },
+    {
+     "id": "c3_c_debris",
+     "label": "Force past the debris",
+     "labelEs": "Forzar el paso por los escombros",
+     "nextNodeId": "c3_sluice_skip"
+    }
+   ],
+   "kind": "beat",
+   "locationId": "c3_place_tunnel1"
+  },
+  "c3_sluice_puzzle": {
+   "id": "c3_sluice_puzzle",
+   "title": "The Sluice Gate",
+   "titleEs": "La Compuerta",
+   "text": "The grate is locked by a simple tumblers mechanism. Your rusty key fits the slot perfectly, but the water pressure fights the turn.",
+   "textEs": "La reja está cerrada por un mecanismo de cilindros simple. Tu llave oxidada encaja perfectamente en la ranura, pero la presión del agua se opone al giro.",
+   "choices": [],
+   "kind": "puzzle",
+   "puzzleId": "c3_puzzle1_sluice",
+   "locationId": "c3_place_tunnel1"
+  },
+  "c3_sluice_solved": {
+   "id": "c3_sluice_solved",
+   "title": "Dry Path",
+   "titleEs": "Camino Seco",
+   "text": "The key turns. The grate swings inward, and the rushing water drains away into the side channel. The main tunnel is now dry, though the water level behind you has risen.",
+   "textEs": "La llave gira. La reja se abre hacia adentro y el agua se escurre por el canal lateral. El túnel principal está ahora seco, aunque el nivel del agua detrás de ti ha subido.",
+   "choices": [
+    {
+     "id": "c3_c_deep",
+     "label": "Move deeper",
+     "labelEs": "Avanzar",
+     "nextNodeId": "c3_lair_approach"
+    }
+   ],
+   "kind": "beat",
+   "locationId": "c3_place_tunnel1"
+  },
+  "c3_sluice_skip": {
+   "id": "c3_sluice_skip",
+   "title": "Squeeze Through",
+   "titleEs": "Abrirse Paso",
+   "text": "You squeeze through the gap between the rubble and the wall. The water surges in, soaking your gear and chilling your bones. The grate remains sealed.",
+   "textEs": "Te abres paso por la brecha entre los escombros y la pared. El agua se precipita, empapando tu equipo y helando tus huesos. La reja permanece sellada.",
+   "choices": [
+    {
+     "id": "c3_c_deep_skip",
+     "label": "Move deeper",
+     "labelEs": "Avanzar",
+     "nextNodeId": "c3_lair_approach"
+    }
+   ],
+   "kind": "beat",
+   "locationId": "c3_place_tunnel1"
+  },
+  "c3_lair_approach": {
+   "id": "c3_lair_approach",
+   "title": "The Stalker's Den",
+   "titleEs": "El Nido del Depredador",
+   "text": "The tunnel opens into a cavernous den. Stalactites drip with viscous fluid. A pale, blind shape coils in the shallows—the Gullet Stalker. It senses your movement and rises.",
+   "textEs": "El túnel se abre en una caverna. Las estalactitas gotean fluido viscoso. Una figura pálida y ciega se arrolla en la orilla poco profunda: el Depredador del Bocado. Siente tu movimiento y se alza.",
+   "choices": [
+    {
+     "id": "c3_c_fight",
+     "label": "Draw weapon, fight",
+     "labelEs": "Sacar el arma, combatir",
+     "nextNodeId": "c3_stalker_fight"
+    },
+    {
+     "id": "c3_c_sneak",
+     "label": "Slip into the shadows, stay quiet",
+     "labelEs": "Escabullirse en las sombras, guardar silencio",
+     "nextNodeId": "c3_stalker_sneak"
+    }
+   ],
+   "kind": "beat",
+   "locationId": "c3_place_lair"
+  },
+  "c3_stalker_fight": {
+   "id": "c3_stalker_fight",
+   "title": "Blood in the Water",
+   "titleEs": "Sangre en el Agua",
+   "text": "The Stalker lunges, jaws snapping. You parry and strike, but its slime coats your blade, making it hard to grip. You land a killing blow, but not without taking a deep gash.",
+   "textEs": "El Depredador se abalanza, mandíbulas crujiendo. Bloqueas y golpeas, pero su baba cubre tu hoja, dificultando el agarre. Aciertas un golpe mortal, pero no sin recibir un profundo tajo.",
+   "choices": [
+    {
+     "id": "c3_c_search",
+     "label": "Search the lair",
+     "labelEs": "Buscar en el nido",
+     "nextNodeId": "c3_lair_loot"
+    }
+   ],
+   "kind": "beat",
+   "locationId": "c3_place_lair"
+  },
+  "c3_stalker_sneak": {
+   "id": "c3_stalker_sneak",
+   "title": "Quiet Passage",
+   "titleEs": "Paso Silencioso",
+   "text": "You press against the damp stone, holding your breath. The Stalker thrashes once, then settles back into the shallows, distracted by a dripping echo. You move past unharmed.",
+   "textEs": "Te presionas contra la piedra húmeda, conteniendo la respiración. El Depredador se retuerce una vez, luego se asienta de nuevo en la orilla, distraído por un eco goteante. Pasas ilesso.",
+   "choices": [
+    {
+     "id": "c3_c_search_skip",
+     "label": "Search the lair",
+     "labelEs": "Buscar en el nido",
+     "nextNodeId": "c3_lair_loot"
+    }
+   ],
+   "kind": "beat",
+   "locationId": "c3_place_lair"
+  },
+  "c3_lair_loot": {
+   "id": "c3_lair_loot",
+   "title": "Seal Half: Bone",
+   "titleEs": "Mitad del Sello: Hueso",
+   "text": "Behind a pile of bleached bones, you find a leather satchel. Inside lies a carved rib bone etched with a single rune—the first half of the Ashen Veil seal.",
+   "textEs": "Detrás de un montón de huesos blanqueados, encuentras un saquito de cuero. Dentro hay un hueso de costilla tallado con una sola runa: la primera mitad del sello del Velo Cenizo.",
+   "choices": [
+    {
+     "id": "c3_c_exit",
+     "label": "Exit to the chamber",
+     "labelEs": "Salir a la cámara",
+     "nextNodeId": "c3_chamber_approach"
+    }
+   ],
+   "kind": "beat",
+   "locationId": "c3_place_lair"
+  },
+  "c3_chamber_approach": {
+   "id": "c3_chamber_approach",
+   "title": "The Valve Room",
+   "titleEs": "La Sala de Válvulas",
+   "text": "Massive iron gears dominate the center, surrounded by a flooded moat. An archway leads up, but a pressure plate guards it. A spectral figure flickers near the gears—Elara, a scholar bound to the mechanism.",
+   "textEs": "Enormes engranajes de hierro dominan el centro, rodeados por un foso inundado. Un arco lleva hacia arriba, pero una placa de presión lo guarda. Una figura espectral parpadea cerca de los engranajes: Elara, una erudita vinculada al mecanismo.",
+   "choices": [
+    {
+     "id": "c3_c_talk",
+     "label": "Speak to Elara",
+     "labelEs": "Hablar con Elara",
+     "nextNodeId": "c3_elara_dialogue"
+    },
+    {
+     "id": "c3_c_valve",
+     "label": "Disarm the pressure plate manually",
+     "labelEs": "Desarmar la placa de presión manualmente",
+     "nextNodeId": "c3_valve_puzzle"
+    },
+    {
+     "id": "c3_c_rush",
+     "label": "Step on the plate and run",
+     "labelEs": "Pisar la placa y correr",
+     "nextNodeId": "c3_trap_skip"
+    }
+   ],
+   "kind": "beat",
+   "locationId": "c3_place_chamber"
+  },
+  "c3_elara_dialogue": {
+   "id": "c3_elara_dialogue",
+   "title": "Elara's Warning",
+   "titleEs": "Advertencia de Elara",
+   "text": "Elara's voice is like grinding stones. 'The seal halves must be joined to the gear to lower the water. Do not let the pressure plate trigger the counterweight. It will crush you.'",
+   "textEs": "La voz de Elara es como piedras moliendo. 'Las mitades del sello deben unirse al engranaje para bajar el agua. No dejes que la placa de presión active el contrapeso. Te aplastará.'",
+   "choices": [
+    {
+     "id": "c3_c_back",
+     "label": "Return to the plate",
+     "labelEs": "Volver a la placa",
+     "nextNodeId": "c3_chamber_approach"
+    }
+   ],
+   "kind": "beat",
+   "locationId": "c3_place_chamber"
+  },
+  "c3_valve_puzzle": {
+   "id": "c3_valve_puzzle",
+   "title": "The Binding Gear",
+   "titleEs": "El Engranaje de Vinculación",
+   "text": "The pressure plate is wired to a complex series of levers and counterweights. You see two slots in the central gear, waiting for the seal halves.",
+   "textEs": "La placa de presión está conectada a una compleja serie de palancas y contrapesos. Ves dos ranuras en el engranaje central, esperando las mitades del sello.",
+   "choices": [],
+   "kind": "puzzle",
+   "puzzleId": "c3_puzzle2_valve",
+   "locationId": "c3_place_chamber"
+  },
+  "c3_valve_solved": {
+   "id": "c3_valve_solved",
+   "title": "Trap Disarmed",
+   "titleEs": "Trampa Desactivada",
+   "text": "You fit the seal halves into the gear. The mechanism groans, then smoothly disengages the trap. The pressure plate retracts, revealing the ascent ladder.",
+   "textEs": "Encajas las mitades del sello en el engranaje. El mecanismo cruje, luego desengancha suavemente la trampa. La placa de presión se retrae, revelando la escalera de ascenso.",
+   "choices": [
+    {
+     "id": "c3_c_climb_solved",
+     "label": "Begin the climb",
+     "labelEs": "Comenzar la escalada",
+     "nextNodeId": "c3_ascent_choice"
+    }
+   ],
+   "kind": "beat",
+   "locationId": "c3_place_chamber"
+  },
+  "c3_trap_skip": {
+   "id": "c3_trap_skip",
+   "title": "Counterweight Slam",
+   "titleEs": "Golpe del Contrapeso",
+   "text": "You step onto the plate. Gears screech. The counterweight drops, slamming the archway shut for a moment before jamming open. A heavy stone falls on your shoulder.",
+   "textEs": "Pisas la placa. Los engranajes chirrían. El contrapeso cae, cerrando el arco momentáneamente antes de atascarse abierto. Una piedra pesada cae sobre tu hombro.",
+   "choices": [
+    {
+     "id": "c3_c_climb_skip",
+     "label": "Begin the climb",
+     "labelEs": "Comenzar la escalada",
+     "nextNodeId": "c3_ascent_choice"
+    }
+   ],
+   "kind": "beat",
+   "locationId": "c3_place_chamber"
+  },
+  "c3_ascent_choice": {
+   "id": "c3_ascent_choice",
+   "title": "Rising Tide",
+   "titleEs": "Marea Creciente",
+   "text": "The ladder leads up into a narrow shaft. Water is already seeping down, rising fast. You have seconds to decide how to handle the rising tide.",
+   "textEs": "La escalera lleva hacia arriba a un pozo estrecho. El agua ya se filtra, subiendo rápido. Tienes segundos para decidir cómo manejar la marea creciente.",
+   "choices": [
+    {
+     "id": "c3_c_divert",
+     "label": "Pull the emergency diversion lever",
+     "labelEs": "Tirar de la palanca de desvío de emergencia",
+     "nextNodeId": "c3_end_collapse"
+    },
+    {
+     "id": "c3_c_steady",
+     "label": "Climb steadily, fighting the current",
+     "labelEs": "Escalar con constancia, luchando contra la corriente",
+     "nextNodeId": "c3_end_safe"
+    },
+    {
+     "id": "c3_c_run",
+     "label": "Run for the top",
+     "labelEs": "Correr hacia la cima",
+     "nextNodeId": "c3_end_damaged"
+    },
+    {
+     "id": "c3_c_hold",
+     "label": "Try to hold the water back with your body",
+     "labelEs": "Intentar contener el agua con tu cuerpo",
+     "nextNodeId": "c3_end_drowned"
+    }
+   ],
+   "kind": "beat",
+   "locationId": "c3_place_chamber"
+  },
+  "c3_end_safe": {
+   "id": "c3_end_safe",
+   "title": "Seal Secured",
+   "titleEs": "Sello Asegurado",
+   "text": "You climb steadily, hand over hand. The water rises to your chest, but you reach the top. The Ashen Veil's knowledge is preserved. Blackmere remains safe from the immediate flood.",
+   "textEs": "Escalas con constancia, mano sobre mano. El agua sube hasta tu pecho, pero alcanzas la cima. El conocimiento del Velo Cenizo se preserva. Blackmere permanece a salvo de la inundación inmediata.",
+   "choices": [],
+   "kind": "ending",
+   "locationId": "c3_place_chamber",
+   "terminal": true,
+   "externalEntry": true
+  },
+  "c3_end_collapse": {
+   "id": "c3_end_collapse",
+   "title": "Tunnel Collapse",
+   "titleEs": "Colapso del Túnel",
+   "text": "You yank the lever. Water is diverted, but the tunnel groans and cracks. You escape quickly, but the structural damage may cause Blackmere's foundations to fail.",
+   "textEs": "Tiras de la palanca. El agua se desvía, pero el túnel cruje y se agrieta. Escapas rápidamente, pero el daño estructural puede hacer que los cimientos de Blackmere fallen.",
+   "choices": [],
+   "kind": "ending",
+   "locationId": "c3_place_chamber",
+   "terminal": true
+  },
+  "c3_end_damaged": {
+   "id": "c3_end_damaged",
+   "title": "Wounded Ascent",
+   "titleEs": "Escalada Herida",
+   "text": "You sprint up the ladder, slipping on wet rungs. You make it out, but not without scrapes and bruises. The seal is intact, but your body bears the cost.",
+   "textEs": "Corres por la escalera, resbalando en los peldaños mojados. Sales, pero no sin rasguños y moretones. El sello está intacto, pero tu cuerpo lleva el costo.",
+   "choices": [],
+   "kind": "ending",
+   "locationId": "c3_place_chamber",
+   "terminal": true
+  },
+  "c3_end_drowned": {
+   "id": "c3_end_drowned",
+   "title": "Drowned",
+   "titleEs": "Ahogado",
+   "text": "You brace against the rushing water, but it is too strong. It drags you down into the dark. The seal remains with the Stalker. Blackmere is doomed to eventual flooding.",
+   "textEs": "Te apoyas contra el agua que se precipita, pero es demasiado fuerte. Te arrastra hacia la oscuridad. El sello permanece con el Depredador. Blackmere está condenado a una inundación eventual.",
+   "choices": [],
+   "kind": "ending",
+   "locationId": "c3_place_chamber",
+   "terminal": true
+  }
+ },
+ "puzzles": {
+  "c3_puzzle1_sluice": {
+   "id": "c3_puzzle1_sluice",
+   "title": "The Sluice Gate",
+   "titleEs": "La Compuerta",
+   "prompt": "The grate is locked by a simple tumblers mechanism. Your rusty key fits the slot perfectly, but the water pressure fights the turn.",
+   "promptEs": "La reja está cerrada por un mecanismo de cilindros simple. Tu llave oxidada encaja perfectamente en la ranura, pero la presión del agua se opone al giro.",
+   "hints": [
+    {
+     "en": "The key turns clockwise.",
+     "es": "La llave gira en el sentido de las agujas del reloj."
+    },
+    {
+     "en": "Listen for the click of the tumblers.",
+     "es": "Escucha el clic de los seguros."
+    }
+   ],
+   "unlocks": {
+    "flags": {
+     "c3_sluice_open": true
+    },
+    "items": []
+   },
+   "solvedNodeId": "c3_sluice_solved",
+   "skipNodeId": "c3_sluice_skip",
+   "kind": "mechanism",
+   "steps": [
+    "c3_step_key",
+    "c3_step_turn"
+   ],
+   "ordered": true,
+   "stepLabels": [
+    {
+     "id": "c3_step_key",
+     "label": "Insert the key",
+     "labelEs": "Insertar la llave"
+    },
+    {
+     "id": "c3_step_turn",
+     "label": "Turn the key",
+     "labelEs": "Girar la llave"
+    }
+   ],
+   "onWrongStep": {
+    "en": "The water surges, soaking you.",
+    "es": "El agua se precipita, te moja."
+   }
+  },
+  "c3_puzzle2_valve": {
+   "id": "c3_puzzle2_valve",
+   "title": "The Binding Gear",
+   "titleEs": "El Engranaje de Vinculación",
+   "prompt": "Two halves of a seal wait in the gear's slots. How do you lower the water without triggering the trap?",
+   "promptEs": "Dos mitades de un sello esperan en las ranuras del engranaje. ¿Cómo bajas el agua sin activar la trampa?",
+   "hints": [
+    {
+     "en": "Combine the bone and iron pieces.",
+     "es": "Combina las piezas de hueso y hierro."
+    },
+    {
+     "en": "Place them together in the mechanism.",
+     "es": "Colócalas juntas en el mecanismo."
+    }
+   ],
+   "unlocks": {
+    "flags": {
+     "c3_trap_disarmed": true
+    },
+    "items": []
+   },
+   "solvedNodeId": "c3_valve_solved",
+   "skipNodeId": "c3_trap_skip",
+   "kind": "riddle",
+   "answers": [
+    "join halves"
+   ],
+   "answersEs": [
+    "unir mitades"
+   ]
+  }
+ },
+ "locations": {
+  "c3_place_tunnel1": {
+   "id": "c3_place_tunnel1",
+   "name": "The Lower Throat",
+   "nameEs": "La Garganta Inferior",
+   "description": "A narrow, flooded tunnel slick with algae and old blood. A collapsed archway blocks the path forward.",
+   "descriptionEs": "Un túnel estrecho e inundado resbaladizo con algas y sangre vieja. Un arco colapsado bloquea el camino hacia adelante.",
+   "connections": [
+    "c3_place_lair"
+   ],
+   "objects": [],
+   "npcs": [
+    "c3_npc_trapped_villager"
+   ],
+   "enemies": [],
+   "dangerLevel": 2,
+   "discovered": true,
+   "secrets": [],
+   "ambiance": "dungeon",
+   "visualType": "dungeon",
+   "requiresKey": "rusty_key"
+  },
+  "c3_place_lair": {
+   "id": "c3_place_lair",
+   "name": "Stalker's Den",
+   "nameEs": "El Nido del Depredador",
+   "description": "A cavernous den where stalactites drip with viscous fluid. The shallows hold the Gullet Stalker.",
+   "descriptionEs": "Una caverna donde las estalactitas gotean fluido viscoso. La orilla poco profunda alberga al Depredador del Bocado.",
+   "connections": [
+    "c3_place_tunnel1",
+    "c3_place_chamber"
+   ],
+   "objects": [],
+   "npcs": [],
+   "enemies": [
+    "c3_monster_stalker"
+   ],
+   "dangerLevel": 3,
+   "discovered": true,
+   "secrets": [],
+   "ambiance": "dungeon",
+   "visualType": "dungeon"
+  },
+  "c3_place_chamber": {
+   "id": "c3_place_chamber",
+   "name": "The Valve Room",
+   "nameEs": "La Sala de Válvulas",
+   "description": "Massive iron gears dominate the center, surrounded by a flooded moat. An archway leads up.",
+   "descriptionEs": "Enormes engranajes de hierro dominan el centro, rodeados por un foso inundado. Un arco lleva hacia arriba.",
+   "connections": [
+    "c3_place_lair"
+   ],
+   "objects": [],
+   "npcs": [
+    "c3_npc_elara"
+   ],
+   "enemies": [],
+   "dangerLevel": 2,
+   "discovered": true,
+   "secrets": [],
+   "ambiance": "dungeon",
+   "visualType": "dungeon"
+  }
+ },
+ "npcs": {
+  "c3_npc_elara": {
+   "id": "c3_npc_elara",
+   "name": "Elara",
+   "nameEs": "Elara",
+   "portrait": "scholar",
+   "faction": "ashen_veil",
+   "location": "c3_place_chamber",
+   "disposition": 50,
+   "knowledge": [
+    "The Ashen Court sealed something terrible beneath Blackmere."
+   ],
+   "memory": [],
+   "dialogue": [
+    {
+     "id": "greeting",
+     "text": "'The seal halves must be joined to the gear to lower the water. Do not let the pressure plate trigger the counterweight. It will crush you.'",
+     "textEs": "'Las mitades del sello deben unirse al engranaje para bajar el agua. No dejes que la placa de presión active el contrapeso. Te aplastará.'",
+     "responses": [
+      {
+       "text": "I'll be careful.",
+       "textEs": "Tendré cuidado.",
+       "nextNodeId": "end"
+      }
+     ]
+    }
+   ],
+   "inventory": [],
+   "alive": true,
+   "occupation": "Scholar",
+   "occupationEs": "Erudita",
+   "secrets": [],
+   "secretsEs": [],
+   "personality": "Resolute, fading.",
+   "personalityEs": "Resuelta, desvaneciéndose."
+  },
+  "c3_npc_trapped_villager": {
+   "id": "c3_npc_trapped_villager",
+   "name": "Tomas",
+   "nameEs": "Tomas",
+   "portrait": "villager",
+   "faction": "blackmere",
+   "location": "c3_place_tunnel1",
+   "disposition": -20,
+   "knowledge": [],
+   "memory": [],
+   "dialogue": [
+    {
+     "id": "greeting",
+     "text": "A bloated corpse slumps against the rubble. A waterlogged letter falls from his grip.",
+     "textEs": "Un cadáver hinchado se desploma contra los escombros. Una carta empapada cae de su agarre.",
+     "responses": [
+      {
+       "text": "Read the letter.",
+       "textEs": "Leer la carta.",
+       "nextNodeId": "end"
+      }
+     ]
+    }
+   ],
+   "inventory": [],
+   "alive": false,
+   "occupation": "Villager",
+   "occupationEs": "Aldeano",
+   "secrets": [],
+   "secretsEs": [],
+   "personality": "Desperate.",
+   "personalityEs": "Desesperado."
+  }
+ },
+ "monsters": {
+  "c3_monster_stalker": {
+   "templateId": "c3_monster_stalker",
+   "name": "Gullet Stalker",
+   "nameEs": "Depredador del Bocado",
+   "portrait": "skeleton",
+   "hp": 20,
+   "maxHp": 20,
+   "ac": 13,
+   "attack": 14,
+   "damage": "2d8",
+   "damageType": "bludgeoning",
+   "abilities": [
+    "blinded",
+    "aquatic"
+   ],
+   "abilitiesEs": [
+    "ciego",
+    "acuático"
+   ],
+   "xpValue": 100,
+   "loot": [
+    "ashen_seal_half_1"
+   ],
+   "intelligence": 6,
+   "morale": 80,
+   "conditions": []
+  }
+ },
+ "items": {
+  "rusty_key": {
+   "id": "rusty_key",
+   "name": "Rusty Key",
+   "nameEs": "Llave Oxidada",
+   "type": "misc",
+   "rarity": "common",
+   "weight": 1,
+   "value": 2,
+   "description": "A heavy iron key crusted with corrosion.",
+   "descriptionEs": "Una llave de hierro pesada cubierta de corrosión.",
+   "properties": {},
+   "usable": false,
+   "consumable": false
+  },
+  "ashen_seal_half_1": {
+   "id": "ashen_seal_half_1",
+   "name": "Seal Half: Bone",
+   "nameEs": "Mitad del Sello: Hueso",
+   "type": "relic",
+   "rarity": "uncommon",
+   "weight": 0.5,
+   "value": 25,
+   "description": "A carved rib bone bearing a single rune.",
+   "descriptionEs": "Un hueso de costilla tallado con una sola runa.",
+   "properties": {},
+   "usable": false,
+   "consumable": false
+  },
+  "ashen_seal_half_2": {
+   "id": "ashen_seal_half_2",
+   "name": "Seal Half: Iron",
+   "nameEs": "Mitad del Sello: Hierro",
+   "type": "relic",
+   "rarity": "uncommon",
+   "weight": 0.5,
+   "value": 25,
+   "description": "A cold iron plate etched with binding lines.",
+   "descriptionEs": "Una placa de hierro frío grabada con líneas de vinculación.",
+   "properties": {},
+   "usable": false,
+   "consumable": false
+  }
+ },
+ "quests": {
+  "c3_quest_seal": {
+   "id": "c3_quest_seal",
+   "name": "Retrieve the Ashen Veil's Seal",
+   "nameEs": "Recuperar el Sello del Velo Cenizo",
+   "description": "Descend into the Drowned Door and secure both halves of the Ashen Veil's seal before the water rises permanently.",
+   "descriptionEs": "Desciende a la Puerta Ahogada y asegura ambas mitades del sello del Velo Cenizo antes de que el agua suba permanentemente.",
+   "state": "available",
+   "objectives": [
+    {
+     "id": "obj1",
+     "description": "Find the first half of the seal in the Stalker's Den.",
+     "descriptionEs": "Encuentra la primera mitad del sello en el nido del Depredador.",
+     "completed": false,
+     "current": 0,
+     "required": 1
+    },
+    {
+     "id": "obj2",
+     "description": "Disarm the trap in the Valve Room.",
+     "descriptionEs": "Desactiva la trampa en la Sala de Válvulas.",
+     "completed": false,
+     "current": 0,
+     "required": 1
+    }
+   ],
+   "rewards": [
+    {
+     "type": "xp",
+     "value": 400
+    },
+    {
+     "type": "gold",
+     "value": 80
+    }
+   ],
+   "isMain": true
+  }
+ },
+ "mainQuestId": "c3_quest_seal",
+ "hooks": {
+  "bossLocationId": "c3_place_lair",
+  "aftermathNodeId": "c3_end_safe"
+ },
+ "storyFacts": [
+  {
+   "flag": "c3_seal_recovered",
+   "en": "The Ashen Veil's seal has been secured.",
+   "es": "El sello del Velo Cenizo ha sido asegurado."
+  }
+ ],
+ "suggestions": {
+  "c3_place_tunnel1": [
+   {
+    "label": "Search the rubble",
+    "labelEs": "Buscar en los escombros",
+    "action": "look around"
+   }
+  ],
+  "c3_place_lair": [
+   {
+    "label": "Examine the Stalker's remains",
+    "labelEs": "Examinar los restos del Depredador",
+    "action": "look around"
+   }
+  ],
+  "c3_place_chamber": [
+   {
+    "label": "Inspect the gears",
+    "labelEs": "Inspeccionar los engranajes",
+    "action": "look around"
+   }
+  ]
+ },
+ "externalEntrySeeds": {
+  "c3_end_safe": [
+   {
+    "c3_seal_recovered": true
+   }
+  ]
+ },
+ "summaryFlags": [
+  "c3_seal_recovered"
+ ]
+}
