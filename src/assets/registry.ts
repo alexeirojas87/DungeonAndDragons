@@ -13,18 +13,22 @@
 // ============================================================
 
 import {
-  ASSET_ROOT, CATEGORY_DIRS, CHARACTER_ARCHETYPES, NPC_ALIASES,
+  CATEGORY_DIRS, CHARACTER_ARCHETYPES, NPC_ALIASES,
   ENEMY_ALIASES, AMBIANCE_TO_ENV, ENV_FALLBACK, ENV_KEYWORDS,
   ITEM_KEYWORDS, PROPS, ICON_FALLBACK, ENEMY_ASSETS,
 } from './catalog';
 
+// The filesystem library is exposed through the /api/asset stream route, which
+// is already rooted at Assests/. Every resolver output is a public URL served
+// by Next, never a real filesystem path.
+const ASSET_URL_ROOT = '/api/asset';
+
 function assetUrl(category: keyof typeof CATEGORY_DIRS, id: string): string {
-  return `/${ASSET_ROOT}/${CATEGORY_DIRS[category]}/${id}.png`;
+  return `${ASSET_URL_ROOT}/${CATEGORY_DIRS[category]}/${id}.png`;
 }
 
-// Environments get a leading slash off (their dir has no trailing slash).
 function envUrl(id: string): string {
-  return `/${ASSET_ROOT}/${CATEGORY_DIRS.environments}/${id}.png`;
+  return `${ASSET_URL_ROOT}/${CATEGORY_DIRS.environments}/${id}.png`;
 }
 
 const normalize = (s: string) =>
@@ -166,12 +170,12 @@ export function resolveProp(token: string): string {
   const q = normalize(token);
   for (const [propId, keywords] of Object.entries(PROPS)) {
     if (propId.replace(/-/g, ' ') === q || keywords.some(k => q.includes(normalize(k)))) {
-      return assetUrl('props', propId);
+      return assetUrl('props', `prop-${propId}`);
     }
   }
   for (const [propId] of Object.entries(PROPS)) {
     if (propId.replace(/-/g, ' ').split(' ').some(w => w.length > 2 && q.includes(w))) {
-      return assetUrl('props', propId);
+      return assetUrl('props', `prop-${propId}`);
     }
   }
   return assetUrl('props', 'prop-crate');
@@ -181,10 +185,10 @@ export function resolveProp(token: string): string {
 // Icons
 // ---------------------------------------------------------------
 export function resolveIcon(id: string): string {
-  if (id.includes('icon-') && CATEGORY_DIRS) {
-    return `/${ASSET_ROOT}/rpg_icons/${id}.png`;
+  if (id.includes('icon-')) {
+    return `${ASSET_URL_ROOT}/rpg_icons/${id}.png`;
   }
-  return `/${ASSET_ROOT}/rpg_icons/${ICON_FALLBACK}.png`;
+  return `${ASSET_URL_ROOT}/rpg_icons/${ICON_FALLBACK}.png`;
 }
 
 // ---------------------------------------------------------------

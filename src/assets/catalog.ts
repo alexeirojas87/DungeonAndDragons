@@ -98,6 +98,31 @@ export const ENEMY_ALIASES: Record<string, string> = {
   wraithlord: 'necromancer',
   bandit: 'goblin',
   guard: 'orc',
+  // Generated chapters often name monsters by what they are made of; map the
+  // loose tokens so the scene still feels right and never shows a hole.
+  blob: 'slime',
+  jelly: 'slime',
+  mold: 'slime',
+  vine: 'treant',
+  tree: 'treant',
+  plant: 'treant',
+  ent: 'treant',
+  wight: 'zombie',
+  corpse: 'zombie',
+  spirit: 'necromancer',
+  ghost: 'necromancer',
+  wisp: 'demon',
+  horror: 'demon',
+  fiend: 'demon',
+  imp: 'goblin',
+  kobold: 'goblin',
+  goblinoid: 'goblin',
+  troll: 'ogre',
+  giant: 'ogre',
+  brute: 'ogre',
+  hellhound: 'dire-wolf',
+  beetle: 'giant-spider',
+  chittering: 'giant-spider',
 };
 
 // ------------------------------------------------------------------------

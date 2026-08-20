@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import type { Language } from '../engine/types';
+import { resolveEnvironment } from '../assets/registry';
 
 interface MainMenuProps {
   onSelectLanguage: (lang: Language) => void;
@@ -26,25 +27,31 @@ export function MainMenu({ onSelectLanguage, onContinue }: MainMenuProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center p-4 noise-overlay scanlines relative overflow-hidden">
-      {/* Animated fog layers */}
-      <div className="fog-layer absolute inset-0 pointer-events-none" />
-      <div className="fog-layer-2 absolute inset-0 pointer-events-none" />
+    <div className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Full-bleed environment backdrop — the menu opens onto the world */}
+      <img
+        src={resolveEnvironment('tavern')}
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover opacity-40 select-none"
+        draggable={false}
+      />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(13,10,6,0.2),rgba(13,10,6,0.9))]" />
+      <div className="absolute inset-0 rpg-scrim-bottom" />
 
-      <div className="text-center max-w-lg relative z-10">
+      <div className="text-center max-w-lg relative z-10 rpg-panel rounded px-8 py-10 bg-[rgba(23,18,9,0.72)]">
         {/* Logo */}
-        <div className="mb-12">
+        <div className="mb-8">
           <h1 className="font-[var(--font-display)] text-[var(--color-accent-gold)] text-4xl md:text-5xl tracking-[0.3em] uppercase mb-2 title-glow">
             The Gauntlet
           </h1>
-          <div className="h-px bg-gradient-to-r from-transparent via-[var(--color-accent-gold)] to-transparent opacity-40" />
+          <div className="w-24 mx-auto h-px bg-gradient-to-r from-transparent via-[var(--color-accent-gold)] to-transparent" />
           <p className="font-[var(--font-mono)] text-[var(--color-text-secondary)] text-sm mt-4 tracking-widest uppercase">
             A Living Fantasy RPG
           </p>
         </div>
 
         {/* Tagline */}
-        <p className="font-[var(--font-narrative)] text-[var(--color-text-secondary)] text-lg italic mb-12 leading-relaxed">
+        <p className="font-[var(--font-narrative)] text-[var(--color-text-secondary)] text-lg italic mb-10 leading-relaxed">
           &ldquo;The terminal is not a limitation.<br />
           <span className="text-[var(--color-accent-gold)]">The terminal is the window into the world.</span>&rdquo;
         </p>
