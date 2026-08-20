@@ -5,14 +5,23 @@
 // ============================================================
 
 import type { Chapter, ChapterSummary } from '../engine/chapter';
-import type { Character, Language } from '../engine/types';
-import type { HeroBrief } from './chapterPrompt';
+import type { Character, Item, Language } from '../engine/types';
+import type { HeroBrief, HeroItemBrief } from './chapterPrompt';
 
 export type ChapterResult =
   | { ok: true; chapter: Chapter }
   | { ok: false; error: string; issues: string[] };
 
 export function describeHero(hero: Character): HeroBrief {
+  const brief = (item: Item): HeroItemBrief => ({
+    templateId: item.templateId,
+    name: item.name,
+    nameEs: item.nameEs,
+    rarity: item.rarity,
+    type: item.type,
+    slot: item.slot,
+    description: item.description,
+  });
   return {
     name: hero.name,
     level: hero.level,
@@ -23,6 +32,8 @@ export function describeHero(hero: Character): HeroBrief {
     mp: hero.mp,
     maxMp: hero.maxMp,
     gold: hero.gold,
+    items: hero.inventory.map(brief),
+    equipped: Object.values(hero.equipment).filter((i): i is Item => !!i).map(brief),
     notableItems: hero.inventory
       .filter(item => item.rarity !== 'common')
       .map(item => item.name)

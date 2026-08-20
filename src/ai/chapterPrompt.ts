@@ -9,6 +9,16 @@
 import { z } from 'zod';
 import { ARCHETYPE_IDS, ORIGIN_IDS, SKILL_IDS, type ChapterSummary } from '../engine/chapter';
 
+export interface HeroItemBrief {
+  templateId: string;
+  name: string;
+  nameEs: string;
+  rarity: string;
+  type: string;
+  slot?: string;
+  description: string;
+}
+
 export interface HeroBrief {
   name: string;
   level: number;
@@ -19,6 +29,10 @@ export interface HeroBrief {
   mp: number;
   maxMp: number;
   gold: number;
+  /** Every goal the hero is carrying when the chapter starts. */
+  items: HeroItemBrief[];
+  /** Currently equipped gear (slot -> item). */
+  equipped: HeroItemBrief[];
   notableItems: string[];
   spells: string[];
 }
@@ -93,11 +107,32 @@ of what the Ashen Court sealed away), and whatever survives beneath the Drowned 
 Tone: restrained, physical, no winking. Violence costs something. Nothing is explained twice.`;
 
 function heroBlock(hero: HeroBrief): string {
+  const carried = hero.items.length
+    ? hero.items.map(i => `  - ${i.templateId} · ${i.name} (${i.rarity} ${i.type})`).join('\n')
+    : '  - (nothing)';
+  const equipped = hero.equipped.length
+    ? hero.equipped.map(i => `  - ${i.slot ?? 'slot'} · ${i.name} (${i.templateId})`).join('\n')
+    : '  - (nothing)';
+
   return `HERO
 ${hero.name}, level ${hero.level} ${hero.archetype} of ${hero.origin}.
 HP ${hero.hp}/${hero.maxHp}, MP ${hero.mp}/${hero.maxMp}, ${hero.gold} gold.
-Notable items: ${hero.notableItems.join(', ') || 'none'}.
-Spells: ${hero.spells.join(', ') || 'none'}.`;
+Spells: ${hero.spells.join(', ') || 'none'}.
+
+ITEMS CARRIED (all real, all in the player's inventory as this chapter begins):
+${carried}
+
+EQUIPPED:
+${equipped}
+
+ITEM CONTINUITY: make SUCH items matter. Pick at least one carried or equipped item and give it a role
+this chapter via supported mechanics ONLY:
+  - a location's "requiresKey" set to that item's exact templateId: the engine opens the passage only while the item is held;
+  - a location object whose "contains" lists that exact id, so the player must take it (optionally behind a searchDC) to progress a beat;
+  - an NPC thread that wants it, and the story later recognizes it (a delivered relic activates a route; a weapon opens a pact, etc.).
+To use a carried item here, DECLARE it again in this chapter's "items" map under the EXACT same id (same name/stats is fine);
+standard templates (rusty_key, health_potion, etc.) need no redeclaration. If nothing fits the story, say so explicitly in the
+continuity note instead of forcing a token reference.`;
 }
 
 function chronicleBlock(chronicle: ChapterSummary[]): string {
@@ -208,13 +243,16 @@ const CHAPTER_SPEC = (prefix: string, index: number, level: number) => `SHAPE (a
     // check only:     "skill":"investigation", "dc":14,
     //                 "clues":[{"id":"${prefix}clue","en":"","es":"","dcReduction":2}]
  }},
- "locations": { "<locationId>": {
+"locations": { "<locationId>": {
     "id":"<same as key>", "name":"", "nameEs":"", "description":"", "descriptionEs":"",
     "connections":["<other location ids>"], "npcs":["<npc ids>"], "enemies":["<monster ids>"],
     "objects":[{"id":"","name":"","nameEs":"","description":"","descriptionEs":"",
-                "interactable":true,"broken":false,"hidden":false}],
+                "interactable":true,"broken":false,"hidden":false,
+                "contains":[""],       // item ids only; optional. Taking it removes it here.
+                "searchDC":0},         // optional; the player must beat it to find the contains
     "secrets":[],              // leave this an empty array
-"dangerLevel":0, "discovered":true,
+    "dangerLevel":0, "discovered":true,
+    "requiresKey":"",          // OPTIONAL — exact item templateId (carried or global) that gates entry
     "ambiance":"tavern|dungeon|crypt|forest|town|battle|boss|shop|temple|sewer|outdoor|cave|library|throne",
     // visualType is OPTIONAL — omit it unless it helps choose art from the visual
     // library. When present it is a SEMANTIC WORD ONLY (crypt|dungeon|tavern|
@@ -291,6 +329,16 @@ RULES THAT WILL BE MACHINE-CHECKED — a chapter that breaks any of them is reje
     of your locations across the chapter. A chapter whose beats never set locationId leaves the
     player standing in the starting room while the prose describes a journey, and the location
     shown on screen then contradicts every line of it.
+12c. CARRIED ITEMS. The "ITEMS CARRIED" list in the brief is authoritative: those objects are in
+    the player's hands when this chapter starts. Give at least one of them a real role, using the
+    mechanics below. To use one here you MUST re-declare it in "items" with the exact same id.
+    - requiresKey on a location gates movement on that id;
+    - an object's "contains" holding that id plus "interactable":true makes relocating it part of a beat;
+    - an NPC dialogue tree can grant or reclaim it (a fair trade reads better than theft).
+12d. Every item reference (location.requiresKey, objects.contains, puzzle unlocks, secret.contains,
+    monster loot, dialogue item conditions) must resolve to this chapter's "items" or to the
+    standard templates (rusty_key, health_potion, mana_potion, etc.). A carried item id that is not
+    redeclared is an unknown reference and the chapter is rejected.
 13. Answer with JSON only. No markdown fence, no commentary.`;
 
 export function buildChapterMessages(request: ChapterRequest, outline: ChapterOutline) {

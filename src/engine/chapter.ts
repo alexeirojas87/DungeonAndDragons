@@ -613,6 +613,26 @@ export function validateChapter(chapter: Chapter, usedIds: Set<string> = new Set
     for (const enemyId of location.enemies) {
       if (!monsterIds.has(enemyId)) errors.push(`location ${location.id} lists missing monster ${enemyId}`);
     }
+    // Carried-item continuity: requiresKey and contains must point at an item
+    // this chapter declares or a standard global template — otherwise the gate
+    // can never open or the loot can never be taken, and the run breaks later.
+    if (location.requiresKey && !itemIds.has(location.requiresKey) && !GLOBAL_ITEM_IDS.has(location.requiresKey)) {
+      errors.push(`location ${location.id} requiresKey references unknown item ${location.requiresKey}`);
+    }
+    for (const object of location.objects) {
+      for (const itemId of object.contains ?? []) {
+        if (!itemIds.has(itemId) && !GLOBAL_ITEM_IDS.has(itemId)) {
+          errors.push(`location ${location.id} object ${object.id} contains unknown item ${itemId}`);
+        }
+      }
+    }
+    for (const secret of location.secrets) {
+      for (const itemId of secret.contains ?? []) {
+        if (!itemIds.has(itemId) && !GLOBAL_ITEM_IDS.has(itemId)) {
+          errors.push(`location ${location.id} secret ${secret.id} contains unknown item ${itemId}`);
+        }
+      }
+    }
   }
   for (const npc of Object.values(chapter.npcs)) {
     if (!locationIds.has(npc.location)) errors.push(`npc ${npc.id} lives in missing location ${npc.location}`);
