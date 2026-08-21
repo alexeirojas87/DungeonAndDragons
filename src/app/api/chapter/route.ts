@@ -6,6 +6,7 @@
 // ============================================================
 
 import { NextRequest, NextResponse } from 'next/server';
+import { createHash } from 'node:crypto';
 import {
   ChapterSchema, coerceChapterShape, normalizeChapter, validateChapter, type Chapter,
 } from '../../../engine/chapter';
@@ -29,6 +30,57 @@ const PRIMARY_REPAIR_ATTEMPTS = 2;
 const FALLBACK_REPAIR_ATTEMPTS = 2;
 /** Gateway timeouts and empty streams are not the model's fault; they get their own retries. */
 const MAX_TRANSPORT_RETRIES = 2;
+
+// ---------------------------------------------------------------------------
+// In-memory chapter cache + in-flight coalescing.
+// The game spends 2.5-5 min per generated chapter, so identical requests (a
+// retry after a timeout, a reload, many players on identical history + gear)
+// must NOT each burn another LLM run. Two mechanisms:
+//   - inflight: same request key while an LLM call is running → both callers
+//     await the SAME promise (NaN caps concurrency at 5; this collapses N
+//     duplicite runs into one).
+//   - cache (LRU + TTL): a finished chapter for a request key is served from
+//     memory instantly. In-memory only, no DB: a pod restart just cold-caches.
+// Keys hash the FULL request — a different chronicle or inventory is a
+// different story and must not be served from another player's chapter.
+// ---------------------------------------------------------------------------
+const CACHE_LIMIT = 128;
+const CACHE_TTL_MS = 2 * 60 * 60 * 1000; // 2h
+
+interface CacheEntry { chapter: Chapter; outline: ChapterOutline; attempts: number; model: string; ts: number; }
+
+const chapterCache = new Map<string, CacheEntry>();
+/** key -> promise of a generated chapter; identical requests wait on this. */
+const inflight = new Map<string, Promise<CacheEntry>>();
+
+/** Deterministic id for a generation request. Bad/absent entries never collide
+ *  because they are serialized the way the route builds the LLM call. */
+function requestHash(request: ChapterRequest): string {
+  const canonical = JSON.stringify({
+    nextIndex: request.nextIndex,
+    chronicle: request.chronicle ?? [],
+    hero: request.hero,
+    language: request.language,
+    usedIds: [...(request.usedIds ?? [])].sort(),
+  });
+  return createHash('sha1').update(canonical).digest('hex').slice(0, 24);
+}
+
+function cacheGet(key: string): CacheEntry | null {
+  const entry = chapterCache.get(key);
+  if (!entry) return null;
+  if (Date.now() - entry.ts > CACHE_TTL_MS) { chapterCache.delete(key); return null; }
+  return entry;
+}
+
+function cacheSet(key: string, entry: CacheEntry): void {
+  if (chapterCache.has(key)) chapterCache.delete(key);
+  chapterCache.set(key, entry);
+  if (chapterCache.size > CACHE_LIMIT) {
+    const oldest = chapterCache.keys().next().value;
+    if (oldest !== undefined) chapterCache.delete(oldest);
+  }
+}
 
 type Message = { role: 'system' | 'user' | 'assistant'; content: string };
 
@@ -195,6 +247,71 @@ export async function POST(req: NextRequest) {
   request.chronicle ??= [];
   request.language = request.language === 'es' ? 'es' : 'en';
 
+  // ---- Cache / coalescing gate ----
+  const key = requestHash(request);
+
+  // 1. A finished chapter for this exact request? Serve it without the LLM.
+  const cached = cacheGet(key);
+  if (cached) {
+    console.info(`Chapter cache HIT for ${key} (${cached.model}, ${cached.attempts} attempt(s))`);
+    return NextResponse.json({
+      chapter: cached.chapter, outline: cached.outline,
+      attempts: cached.attempts, model: cached.model, cached: true,
+    });
+  }
+
+  // 2. Identical request already mid-flight? Await the same promise; this is
+  //    what collapses N concurrent equal runs into one LLM call (NaN ≤5).
+  //    The promise is cleared both on success and on failure so a later retry
+  //    does not deadlock on a stale rejection.
+  const inflightKey = key;
+  const existing = inflight.get(inflightKey);
+  if (existing) {
+    console.info(`Coalescing duplicate chapter request ${key} onto an in-flight run`);
+    try {
+      const entry = await existing;
+      return NextResponse.json({
+        chapter: entry.chapter, outline: entry.outline,
+        attempts: entry.attempts, model: entry.model,
+      });
+    } catch {
+      // The in-flight run failed; fall through to start a fresh one below.
+    }
+  }
+
+  let resolveRun!: (entry: CacheEntry) => void;
+  let rejectRun!: (err: unknown) => void;
+  const run = new Promise<CacheEntry>((resolve, reject) => { resolveRun = resolve; rejectRun = reject; });
+  inflight.set(inflightKey, run);
+
+  try {
+    const entry = await generateChapterFor(request);
+    cacheSet(key, entry);
+    resolveRun(entry);
+    return NextResponse.json({
+      chapter: entry.chapter, outline: entry.outline,
+      attempts: entry.attempts, model: entry.model,
+    });
+  } catch (error) {
+    rejectRun(error);
+    const message = error instanceof Error ? error.message : String(error);
+    if (error instanceof CachedGenerationError) {
+      return NextResponse.json({ error: error.tag, issues: error.issues }, { status: error.status });
+    }
+    return NextResponse.json({ error: message, issues: [] }, { status: 500 });
+  } finally {
+    inflight.delete(inflightKey);
+  }
+}
+
+/** A generation failure that carries structured issues instead of a thrown message. */
+class CachedGenerationError extends Error {
+  constructor(readonly tag: string, readonly issues: string[], readonly status: number) {
+    super(tag);
+  }
+}
+
+async function generateChapterFor(request: ChapterRequest): Promise<CacheEntry> {
   const usedIds = new Set(request.usedIds);
 
   const t0 = Date.now();
@@ -228,28 +345,17 @@ export async function POST(req: NextRequest) {
 
   if (!outline) {
     console.error('Chapter outline failed:', outlineIssues);
-    return NextResponse.json(
-      { error: 'chapter_outline_failed', issues: outlineIssues.slice(0, 10) },
-      { status: 422 },
-    );
+    throw new CachedGenerationError('chapter_outline_failed', outlineIssues.slice(0, 10), 422);
   }
   clock('outline done');
 
-// ---- Pass 2: chapter. Parallel on purpose — NaN allows 5 concurrents and a
-  // chapter takes minutes, so two drafts of the same outline run at once and
-  // the first one that validates wins. Worst case drops from a sum of attempts
-  // to the max of two. Each draft is a full chapter, so the repair pass feeds
-  // the best draft forward to whichever model can finish it. Both models keep
-  // working on ONE chapter — never two competing save files.
+  // ---- Pass 2: chapter. Parallel on purpose — NaN allows 5 concurrents and a
+  // chapter takes minutes, so three drafts of the same outline run at once and
+  // the first one that validates wins. The repair round then feeds the best
+  // draft forward to whichever model can finish it.
   let lastRaw = '';
   let lastIssues: string[] = [];
 
-  // ROUND A — three independent full drafts from the primary model (varied
-  // temperature). The FIRST one to validate wins — we do NOT wait for the
-  // slower drafts (Promise.all would hold the request for the slowest call).
-  // NaN allows 5 concurrents, and three drafts all start together, so adding a
-  // third costs no wall-clock time while sharply raising the chance round A
-  // validates and we never need the repair round below.
   const roundA = await raceFirst(
     generateChapter(MODEL, buildChapterMessages(request, outline), 0.8, usedIds),
     generateChapter(MODEL, buildChapterMessages(request, outline), 0.55, usedIds),
@@ -257,7 +363,7 @@ export async function POST(req: NextRequest) {
   );
   if (roundA.valid) {
     clock('round A validated');
-    return NextResponse.json({ chapter: roundA.valid, outline, attempts: 1, model: roundA.validModel });
+    return { chapter: roundA.valid, outline, attempts: 1, model: roundA.validModel ?? MODEL, ts: Date.now() };
   }
   const losers = roundA.drafts;
   clock(`round A failed (${losers.map(d => d.issueCount).join(',')})`);
@@ -265,24 +371,19 @@ export async function POST(req: NextRequest) {
   lastRaw = best?.raw ?? '';
   lastIssues = best?.issues ?? ['the model returned nothing usable'];
 
-  // ROUND B — repair in parallel: primary tries to fix the saved draft as the
-  // fallback writes a compact one. First valid chapter wins, same race.
   const roundB = await raceFirst(
     generateChapter(MODEL, buildRepairMessages(request, outline, lastRaw, lastIssues), 0.4, usedIds),
     generateChapter(FALLBACK_MODEL, buildRepairMessages(request, outline, lastRaw, lastIssues), 0.4, usedIds, true),
   );
   if (roundB.valid) {
     clock('round B validated');
-    return NextResponse.json({ chapter: roundB.valid, outline, attempts: 2, model: roundB.validModel });
+    return { chapter: roundB.valid, outline, attempts: 2, model: roundB.validModel ?? FALLBACK_MODEL, ts: Date.now() };
   }
   const repairIssues: string[] = [];
   for (const draft of roundB.drafts) repairIssues.push(...draft.issues);
   clock('round B failed');
 
-  return NextResponse.json(
-    { error: 'chapter_validation_failed', issues: repairIssues.slice(0, 15) },
-    { status: 422 },
-  );
+  throw new CachedGenerationError('chapter_validation_failed', repairIssues.slice(0, 15), 422);
 }
 
 /** Runs one model pass and inspects the result. Never throws for a bad draft:

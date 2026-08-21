@@ -14,6 +14,7 @@ import {
 import { audioManager } from '../audio/audioManager';
 import { callDM, NARRATION_MAX_CHARS } from '../ai/dmClient';
 import { generateNextChapter } from '../ai/chapterClient';
+import type { Chapter } from '../engine/chapter';
 
 export type GameScreen = 'menu' | 'language' | 'character_creation' | 'game';
 
@@ -30,6 +31,13 @@ export function useGame() {
   const [isGeneratingChapter, setIsGeneratingChapter] = useState(false);
   const [chapterError, setChapterError] = useState<{ message: string; issues: string[] } | null>(null);
   const [stateVersion, setStateVersion] = useState(0);
+  /**
+   * The next chapter already generated in the background (prefetch). When the
+   * player finishes a chapter, generation starts immediately so "Continue" is
+   * almost instant; the chapter is held here (not yet appended) until advance.
+   */
+  const prefetchedChapterRef = useRef<{ index: number; chapter: Chapter } | null>(null);
+  const prefetchInFlightRef = useRef<boolean | Promise<unknown>>(false);
   const [uiState, setUiState] = useState<UIState>({
     showInventory: false,
     showCharacterSheet: false,
@@ -111,10 +119,66 @@ export function useGame() {
     setNarrative([...saved.narrative]);
     setActiveDialogue(saved.gameState.activeDialogue);
     setChapterError(null);
+    // A checkpoint restore may have gone back before the chapter ended, so the
+    // prefetched next-chapter is no longer the right one.
+    prefetchedChapterRef.current = null;
     audioManager.play('menu_select');
     setStateVersion(version => version + 1);
     setScreen('game');
   }, [getEngine]);
+
+  /** Fetches the next chapter for the current campaign state, stores it in the
+   *  prefetch slot, and does NOT touch the live game. Fire-and-forget. */
+  const prefetchNextChapter = useCallback(async () => {
+    const engine = getEngine();
+    const hero = engine.getState().party[0];
+    if (!hero || !engine.canAdvanceChapter()) return;
+
+    // Not another attempt while one prefetch is already running.
+    if (prefetchInFlightRef.current) return;
+
+    const state = engine.getState();
+    const nextIndex = (engine.getChapter()?.index ?? state.chapters.length) + 1;
+    const call = generateNextChapter({
+      nextIndex,
+      chronicle: engine.getChronicle(),
+      hero,
+      language,
+      usedIds: engine.getUsedIds(),
+    });
+    prefetchInFlightRef.current = call;
+
+    try {
+      const result = await call;
+      // The prefetch may have been invalidated (retry/abandon/new run). Only
+      // keep it if the chapter index still matches what will be asked next.
+      const eng = getEngine();
+      const stillValid = eng.canAdvanceChapter()
+        && (eng.getChapter()?.index ?? eng.getState().chapters.length) + 1 === nextIndex;
+      if (result.ok && stillValid) {
+        prefetchedChapterRef.current = { index: nextIndex, chapter: result.chapter };
+      } else if (!result.ok) {
+        // Prefetch failures are silent — the player never asked yet. The real
+        // advance will surface the error through its normal overlay.
+        prefetchedChapterRef.current = null;
+      }
+    } finally {
+      prefetchInFlightRef.current = false;
+    }
+  }, [getEngine, language]);
+
+  /**
+   * Watch for the moment the current chapter is complete. The instant it is,
+   * start generating the next chapter in the background so the eventual
+   * "Continue" has almost nothing to wait for. Cancelled implicitly when a
+   * retry/abandon changes the engine state (canAdvanceChapter() flips false).
+   */
+  useEffect(() => {
+    if (!engineRef.current) return;
+    if (engineRef.current.canAdvanceChapter()) {
+      prefetchNextChapter();
+    }
+  }, [prefetchNextChapter, stateVersion]);
 
   /**
    * Generates the next chapter and loads it. The server has already validated
@@ -130,8 +194,25 @@ export function useGame() {
     setChapterError(null);
 
     const state = engine.getState();
+    const nextIndex = (engine.getChapter()?.index ?? state.chapters.length) + 1;
+
+    // If a prefetched chapter for THIS index is waiting, use it → near-instant.
+    const prefetched = prefetchedChapterRef.current;
+    if (prefetched && prefetched.index === nextIndex) {
+      prefetchedChapterRef.current = null;
+      engine.appendChapter(prefetched.chapter);
+      setNarrative([...engine.getNarrative()]);
+      setActiveDialogue(null);
+      saveGame(engine.getState(), engine.getNarrative(), language);
+      saveCheckpoint(engine.getState(), engine.getNarrative(), language);
+      audioManager.play('menu_select');
+      setIsGeneratingChapter(false);
+      setStateVersion(version => version + 1);
+      return;
+    }
+
     const result = await generateNextChapter({
-      nextIndex: (engine.getChapter()?.index ?? state.chapters.length) + 1,
+      nextIndex,
       chronicle: engine.getChronicle(),
       hero,
       language,
@@ -158,6 +239,7 @@ export function useGame() {
     setChapterError(null);
     setActiveDialogue(null);
     setNarrative([]);
+    prefetchedChapterRef.current = null;
     engineRef.current = null;
     setScreen('menu');
   }, []);
