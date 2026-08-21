@@ -1,0 +1,14 @@
+node_modules
+.next
+.git
+.env*
+Archive.zip
+IMG_3230.jpg
+graft
+fixtures
+scripts
+PLAN-CAPITULOS.md
+CLAUDE.md
+AGENTS.md
+*.log
+.DS_Store
