@@ -7,7 +7,10 @@
 
 # ---- Build ----
 FROM node:22-alpine AS builder
-RUN corepack prepare pnpm@11.21.0 --activate
+# Install pnpm directly via npm: `corepack prepare --activate` only stages the
+# shim and does not put `pnpm` on PATH in the non-interactive build shell
+# (classic "pnpm: not found"). npm -g always lands in node's bin dir (on PATH).
+RUN npm install -g pnpm@11.21.0
 
 WORKDIR /app
 
@@ -22,7 +25,7 @@ RUN pnpm build
 
 # ---- Runtime ----
 FROM node:22-alpine AS runner
-RUN corepack prepare pnpm@11.21.0 --activate && addgroup -S nodejs && adduser -S nextjs -G nodejs
+RUN npm install -g pnpm@11.21.0 && addgroup -S nodejs && adduser -S nextjs -G nodejs
 ENV NODE_ENV=production
 WORKDIR /app
 
