@@ -92,11 +92,11 @@ export type ChapterOutline = z.infer<typeof OutlineSchema>;
 export function trimOutline(outline: ChapterOutline): ChapterOutline {
   return {
     ...outline,
-    beats: outline.beats.slice(0, 7),
-    cast: outline.cast.slice(0, 4),
-    places: outline.places.slice(0, 5),
+    beats: outline.beats.slice(0, 5),
+    cast: outline.cast.slice(0, 3),
+    places: outline.places.slice(0, 4),
     puzzles: outline.puzzles.slice(0, 2),
-    endings: outline.endings.slice(0, 4),
+    endings: outline.endings.slice(0, 3),
   };
 }
 
@@ -239,9 +239,13 @@ const CHAPTER_SPEC = (prefix: string, index: number, level: number) => `SHAPE (a
     "unlocks":{"flags":{"${prefix}flag":true}},
     "solvedNodeId":"", "skipNodeId":"",
     // riddle only:    "answers":["water"], "answersEs":["agua"]
-    // mechanism only: "steps":["${prefix}a","${prefix}b"], "ordered":true,
-    //                 "stepLabels":[{"id":"${prefix}a","label":"","labelEs":""}],
-    //                 "onWrongStep":{"en":"","es":""}
+    // mechanism only: ALL four fields below are REQUIRED — a mechanism puzzle
+    // is rejected (too small / missing fields) without every one of them:
+    //   "ordered":true,
+    //   "steps":["${prefix}gear","${prefix}torch"],       // >=2 step ids
+    //   "stepLabels":[{"id":"${prefix}gear","label":"Turn the gear","labelEs":"Girar el engranaje"},
+    //                 {"id":"${prefix}torch","label":"Open the flue","labelEs":"Abrir el tiro"}],
+    //   "onWrongStep":{"en":"The room hisses.", "es":"La sala silba."}
     // check only:     "skill":"investigation", "dc":14,
     //                 "clues":[{"id":"${prefix}clue","en":"","es":"","dcReduction":2}]
  }},
@@ -325,7 +329,7 @@ RULES THAT WILL BE MACHINE-CHECKED — a chapter that breaks any of them is reje
     2d8-2d10; lesser enemies 8-16 HP.
 11. Arrays that have nothing in them are written as [], never omitted and never left with a
     half-filled object inside. This is the single most common way a chapter gets rejected.
-12. Keep it tight: 12-18 nodes, 3-5 locations, 2-4 npcs, 2-3 monsters, 1 quest. Two to four
+12. Keep it tight: 10-14 nodes, 3-5 locations, 2-4 npcs, 2-3 monsters, 1 quest. One or two
     sentences per node. A chapter that does not fit in one answer is worse than a shorter one.
 12b. MOVE THE PLAYER. Give "locationId" to every beat that happens somewhere new, and use all
     of your locations across the chapter. A chapter whose beats never set locationId leaves the
@@ -339,8 +343,9 @@ RULES THAT WILL BE MACHINE-CHECKED — a chapter that breaks any of them is reje
     - an NPC dialogue tree can grant or reclaim it (a fair trade reads better than theft).
 12d. Every item reference (location.requiresKey, objects.contains, puzzle unlocks, secret.contains,
     monster loot, dialogue item conditions) must resolve to this chapter's "items" or to the
-    standard templates (rusty_key, health_potion, mana_potion, etc.). A carried item id that is not
-    redeclared is an unknown reference and the chapter is rejected.
+    standard templates (rusty_key, health_potion, mana_potion, etc.). Refer to standard templates
+    BY ID — never copy their full stat block into "items", never redeclare them. A carried item id
+    that is not redeclared is an unknown reference and the chapter is rejected.
 13. Answer with JSON only. No markdown fence, no commentary.`;
 
 export function buildChapterMessages(request: ChapterRequest, outline: ChapterOutline) {

@@ -197,10 +197,17 @@ export async function POST(req: NextRequest) {
 
   const usedIds = new Set(request.usedIds);
 
+  const t0 = Date.now();
+  const clock = (label: string) => console.info(`[timing] ${label}: ${Math.round((Date.now() - t0) / 1000)}s`);
+
   // ---- Pass 1: outline. Small, cheap, and worth retrying on its own. ----
   let outline: ChapterOutline | null = null;
   const outlineIssues: string[] = [];
-  const outlineModels = [MODEL, FALLBACK_MODEL]; // primary first, fallback if it fails
+  // The outline is tiny and cheap; the primary model usually nails it, and when
+  // it returns an empty/truncated object another primary attempt is the fastest
+  // recovery. The fallback only enters for a transport-level failure (its long
+  // warm-up and tight cap are a poor fit for a small JSON).
+  const outlineModels = [MODEL, MODEL, FALLBACK_MODEL];
   for (let attempt = 0; attempt < outlineModels.length && !outline; attempt++) {
     const model = outlineModels[attempt];
     try {
@@ -226,59 +233,124 @@ export async function POST(req: NextRequest) {
       { status: 422 },
     );
   }
+  clock('outline done');
 
-  // ---- Pass 2: full chapter, then repair until it validates or we give up. ----
-  // Writer schedule: the primary model writes the chapter and repairs it twice;
-  // if it still cannot satisfy the validator, the fallback model gets the SAME
-  // draft (buildRepairMessages feeds the previous JSON forward) and finishes or
-  // rebuilds it. Both models unify into one chapter — never two competing ones.
-  const attemptModels: string[] = [
-    ...Array.from({ length: PRIMARY_REPAIR_ATTEMPTS }, () => MODEL),
-    ...Array.from({ length: FALLBACK_REPAIR_ATTEMPTS }, () => FALLBACK_MODEL),
-  ];
-
+// ---- Pass 2: chapter. Parallel on purpose — NaN allows 5 concurrents and a
+  // chapter takes minutes, so two drafts of the same outline run at once and
+  // the first one that validates wins. Worst case drops from a sum of attempts
+  // to the max of two. Each draft is a full chapter, so the repair pass feeds
+  // the best draft forward to whichever model can finish it. Both models keep
+  // working on ONE chapter — never two competing save files.
   let lastRaw = '';
   let lastIssues: string[] = [];
 
-  for (let attempt = 0; attempt < attemptModels.length; attempt++) {
-    const model = attemptModels[attempt];
-    const messages = attempt === 0
-      ? buildChapterMessages(request, outline)
-      : buildRepairMessages(request, outline, lastRaw, lastIssues);
-
-    // The fallback writer (deepseek-v4-flash) caps its output well below what
-    // the primary can emit, so it must write a TIGHT chapter or it will re-
-    // truncate mid-JSON. Tell it the budget explicitly instead of hoping.
-    if (model === FALLBACK_MODEL) {
-      const last = messages[messages.length - 1];
-      last.content += '\n\nHARD BUDGET for this pass: the ENTIRE chapter JSON must fit in about 12,000 characters. Keep prose to 1-2 sentences per node, keep every required field and every referenced id valid, and close every JSON brace. A short valid chapter beats a long broken one.';
-    }
-
-    try {
-      lastRaw = await callLLMWithRetries(messages, 32000, attempt === 0 ? 0.8 : 0.4, model);
-      const candidate = extractJson(lastRaw);
-      const { chapter, issues } = inspect(candidate, usedIds);
-
-      if (chapter) {
-        return NextResponse.json({ chapter, outline, attempts: attempt + 1, model });
-      }
-
-      lastIssues = issues;
-      console.warn(`Chapter attempt ${attempt + 1} rejected (${model}):`, issues);
-    } catch (error) {
-      if (error instanceof TruncatedResponse) {
-        // Keep the partial so the repair pass can finish it rather than restart.
-        lastRaw = error.partial;
-        lastIssues = ['The JSON was cut off before it ended. Return the whole chapter again, complete and closed, and keep the prose shorter so it fits.'];
-      } else {
-        lastIssues = [error instanceof Error ? error.message : String(error)];
-      }
-      console.warn(`Chapter attempt ${attempt + 1} threw (${model}):`, lastIssues);
-    }
+  // ROUND A — three independent full drafts from the primary model (varied
+  // temperature). The FIRST one to validate wins — we do NOT wait for the
+  // slower drafts (Promise.all would hold the request for the slowest call).
+  // NaN allows 5 concurrents, and three drafts all start together, so adding a
+  // third costs no wall-clock time while sharply raising the chance round A
+  // validates and we never need the repair round below.
+  const roundA = await raceFirst(
+    generateChapter(MODEL, buildChapterMessages(request, outline), 0.8, usedIds),
+    generateChapter(MODEL, buildChapterMessages(request, outline), 0.55, usedIds),
+    generateChapter(MODEL, buildChapterMessages(request, outline), 0.7, usedIds),
+  );
+  if (roundA.valid) {
+    clock('round A validated');
+    return NextResponse.json({ chapter: roundA.valid, outline, attempts: 1, model: roundA.validModel });
   }
+  const losers = roundA.drafts;
+  clock(`round A failed (${losers.map(d => d.issueCount).join(',')})`);
+  const best = [...losers].sort((a, b) => a.issueCount - b.issueCount)[0];
+  lastRaw = best?.raw ?? '';
+  lastIssues = best?.issues ?? ['the model returned nothing usable'];
+
+  // ROUND B — repair in parallel: primary tries to fix the saved draft as the
+  // fallback writes a compact one. First valid chapter wins, same race.
+  const roundB = await raceFirst(
+    generateChapter(MODEL, buildRepairMessages(request, outline, lastRaw, lastIssues), 0.4, usedIds),
+    generateChapter(FALLBACK_MODEL, buildRepairMessages(request, outline, lastRaw, lastIssues), 0.4, usedIds, true),
+  );
+  if (roundB.valid) {
+    clock('round B validated');
+    return NextResponse.json({ chapter: roundB.valid, outline, attempts: 2, model: roundB.validModel });
+  }
+  const repairIssues: string[] = [];
+  for (const draft of roundB.drafts) repairIssues.push(...draft.issues);
+  clock('round B failed');
 
   return NextResponse.json(
-    { error: 'chapter_validation_failed', issues: lastIssues.slice(0, 15) },
+    { error: 'chapter_validation_failed', issues: repairIssues.slice(0, 15) },
     { status: 422 },
   );
+}
+
+/** Runs one model pass and inspects the result. Never throws for a bad draft:
+ *  it returns a scored draft object so the parallel round can pick the best. */
+async function generateChapter(
+  model: string,
+  messages: Message[],
+  temperature: number,
+  usedIds: Set<string>,
+  tight = false,
+): Promise<{ chapter?: Chapter; raw: string; issues: string[]; issueCount: number; model: string }> {
+  // Every writer is nudged toward a compact chapter (a shrunk, valid run beats
+  // a long one that truncates or drifts). The fallback gets the harder budget
+  // because it caps its output below what the primary can emit.
+  if (tight) {
+    const last = messages[messages.length - 1];
+    last.content += '\n\nHARD BUDGET: the ENTIRE chapter JSON must fit in about 12,000 characters. Keep prose to 1-2 sentences per node, keep every required field and every referenced id valid, and close every JSON brace. A short valid chapter beats a long broken one.';
+  } else {
+    const last = messages[messages.length - 1];
+    last.content += '\n\nKEEP IT TIGHT: 10-14 nodes, 1-2 sentences per node. Every nextNodeId must name a real node you defined in this exact JSON — a choice that points nowhere is dropped and can break the graph. Prefer reusing a node over inventing one.';
+  }
+
+  try {
+    const raw = await callLLMWithRetries(messages, 32000, temperature, model);
+    const candidate = extractJson(raw);
+    const { chapter, issues } = inspect(candidate, usedIds);
+    if (!chapter && issues.length <= 8) {
+      console.warn(`[${model}] draft rejected (${issues.length}):`, issues.join(' | '));
+    }
+    return { chapter, raw, issues, issueCount: issues.length, model };
+  } catch (error) {
+    const partial = error instanceof TruncatedResponse ? error.partial : '';
+    const issues = [
+      error instanceof TruncatedResponse
+        ? 'The JSON was cut off before it ended. Return the whole chapter again, complete and closed, and keep the prose shorter so it fits.'
+        : error instanceof Error ? error.message : String(error),
+    ];
+    return { chapter: undefined, raw: partial, issues, issueCount: 999, model };
+  }
+}
+
+type Draft = { chapter?: Chapter; raw: string; issues: string[]; issueCount: number; model: string };
+
+/**
+ * Resolves the first draft that produced a VALID chapter, without waiting for
+ * the slowest request. The round is only "lost" when every draft has settled
+ * and none validated — then all drafts are handed back so the caller can pick
+ * the least-broken one to repair. This is the difference between "max of the
+ * two calls" and "sum of the two calls" — the whole point of the parallelism.
+ */
+async function raceFirst(
+  ...drafts: Promise<Draft>[]
+): Promise<{ valid?: Chapter; validModel?: string; drafts: Draft[] }> {
+  const results: Draft[] = [];
+  let settled = 0;
+  return new Promise<{ valid?: Chapter; validModel?: string; drafts: Draft[] }>((resolve, reject) => {
+    for (const draftPromise of drafts) {
+      draftPromise.then((draft) => {
+        results.push(draft);
+        if (draft.chapter) {
+          resolve({ valid: draft.chapter, validModel: draft.model, drafts: results });
+          return;
+        }
+        settled += 1;
+        if (settled === drafts.length) {
+          resolve({ drafts: results });
+        }
+      }).catch(reject);
+    }
+  });
 }

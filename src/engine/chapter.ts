@@ -264,7 +264,10 @@ const puzzleSchema = z.discriminatedUnion('kind', [
   z.object({
     ...puzzleBaseShape,
     kind: z.literal('check'),
-    skill: skillEnum,
+    // Skill is normalised (fuzzy-matched to a real skill) right after schema;
+    // the model sometimes writes a near-miss ("strength", "locks") and that is
+    // not worth a repair round-trip.
+    skill: z.string(),
     dc: z.number().int().min(8).max(20),
     clues: z.array(z.object({ id, en: text, es: text, dcReduction: z.number().int().min(1).max(5) })),
   }),
@@ -971,6 +974,11 @@ export function coerceChapterShape(input: unknown): unknown {
       if (!nonEmptyString(location.visualType)) {
         location.visualType = location.ambiance;
       }
+      // The model writes "requiresKey":"" for locations it does not gate; an
+      // empty string fails the schema. Treat it as "no key" — the same meaning.
+      if (location.requiresKey === '' || location.requiresKey == null) {
+        delete location.requiresKey;
+      }
     }
   }
 
@@ -1022,6 +1030,12 @@ export function coerceChapterShape(input: unknown): unknown {
       );
       if (!nonEmptyString(monster.portrait)) monster.portrait = 'skeleton';
       if (typeof monster.maxHp !== 'number' && typeof monster.hp === 'number') monster.maxHp = monster.hp;
+      // Damage is a dice string ("2d6") — the model sometimes writes a bare
+      // number or "d6". Not worth a repair round-trip; keep a sane default so
+      // the monster stays usable.
+      if (typeof monster.damage !== 'string' || !/^\d+d\d+$/.test(monster.damage)) {
+        monster.damage = '1d6';
+      }
     }
   }
 
@@ -1075,6 +1089,27 @@ export function normalizeChapter(input: Chapter): { chapter: Chapter; notes: str
   const npcIds = new Set(Object.keys(chapter.npcs));
   const monsterIds = new Set(Object.keys(chapter.monsters));
   const itemIds = new Set([...Object.keys(chapter.items ?? {}), ...GLOBAL_ITEM_IDS]);
+
+  // ---- global items keep their canonical template ----
+  // A chapter is allowed (and encouraged) to reference a standard template by
+  // id, but when the model mis-types the redeclaration it costs a whole repair
+  // round-trip for something that already exists. If the chapter's copy of a
+  // global item is incomplete (missing any required field), swap in the
+  // canonical template wholesale — the meaning is identical and the schema
+  // stops complaining.
+  if (isObject(chapter.items)) {
+    for (const [id, raw] of Object.entries(chapter.items)) {
+      if (!GLOBAL_ITEM_IDS.has(id) || !isObject(raw)) continue;
+      const templ = ITEM_TEMPLATES[id];
+      const rawObj = raw as Loose;
+      const requires = ['type', 'rarity', 'weight', 'value', 'properties', 'usable', 'consumable'];
+      const incomplete = requires.some(field => rawObj[field] === undefined || rawObj[field] === null);
+      if (incomplete && templ) {
+        chapter.items[id] = JSON.parse(JSON.stringify(templ));
+        notes.push(`restored canonical template for global item ${id}`);
+      }
+    }
+  }
 
   // ---- world references ----
   for (const location of Object.values(chapter.locations)) {
@@ -1135,6 +1170,19 @@ export function normalizeChapter(input: Chapter): { chapter: Chapter; notes: str
     if (puzzle.unlocks.locationId && !locationIds.has(puzzle.unlocks.locationId)) {
       delete puzzle.unlocks.locationId;
       notes.push(`dropped a dangling unlock location from ${puzzle.id}`);
+    }
+
+    // Skill fuzzy-match: map a near-miss skill to the closest real one, else
+    // fall back to a deliberate default so the check stays solvable.
+    // Skill fuzzy-match: map a near-miss skill to the closest real one, else
+    // fall back to a deliberate default so the check stays solvable.
+    if (puzzle.kind === 'check') {
+      const raw = (puzzle as unknown as Loose).skill as string;
+      const matched = matchSkill(raw);
+      if (matched !== raw) {
+        (puzzle as unknown as Loose).skill = matched;
+        notes.push(`mapped puzzle ${puzzle.id} skill "${raw}" -> ${matched}`);
+      }
     }
   }
 
@@ -1323,4 +1371,55 @@ export function collectChapterIds(chapter: Chapter): string[] {
     ...Object.keys(chapter.monsters),
     ...Object.keys(chapter.items ?? {}),
   ];
+}
+
+/**
+ * Maps a free-text skill the model wrote onto the closest real skills. The
+ * generated chapters write near-misses ("strength", "perception check", "lock")
+ * that are not worth a repair round-trip; the check just needs a solvable skill.
+ */
+const SKILL_SYNONYMS: Record<string, Skill> = {
+  strength: 'athletics',
+  athletics: 'athletics',
+  acrobatics: 'acrobatics',
+  sleight: 'sleight_of_hand',
+  'sleight of hand': 'sleight_of_hand',
+  investigation: 'investigation',
+  investigation_: 'investigation',
+  perception: 'perception',
+  arcana: 'arcana',
+  history: 'history',
+  insight: 'insight',
+  survival: 'survival',
+  stealth: 'stealth',
+  animal: 'animal_handling',
+  'animal handling': 'animal_handling',
+  nature: 'nature',
+  religion: 'religion',
+  medicine: 'medicine',
+  persuasion: 'persuasion',
+  intimidation: 'intimidation',
+  deception: 'deception',
+  melee: 'melee',
+  ranged: 'ranged',
+  performance: 'performance',
+  locks: 'sleight_of_hand',
+  lock: 'sleight_of_hand',
+  lockpick: 'sleight_of_hand',
+  trickery: 'sleight_of_hand',
+  trap: 'perception',
+  traps: 'perception',
+  smarts: 'arcana',
+  'force push': 'athletics',
+  push: 'athletics',
+  lift: 'athletics',
+};
+
+function matchSkill(raw: string): Skill {
+  const key = raw.trim().toLowerCase().replace(/_/g, ' ');
+  if (SKILL_IDS.some(s => s === key.replace(/ /g, '_'))) {
+    return key.replace(/ /g, '_') as Skill;
+  }
+  if (SKILL_SYNONYMS[key]) return SKILL_SYNONYMS[key];
+  return 'investigation';
 }
