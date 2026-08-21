@@ -13,7 +13,7 @@
 
 import type { WorldLocation, NPC, CombatEncounter, Language } from '../engine/types';
 import {
-  resolveEnvironment, resolveNpc, resolveEnemy, resolveProp, sceneImages,
+  resolveEnvironment, resolveNpc, resolveEnemy, resolveProp,
 } from '../assets/registry';
 
 interface AdventureSceneProps {
@@ -22,9 +22,75 @@ interface AdventureSceneProps {
   npcs: NPC[];
   combat: CombatEncounter | null;
   language: Language;
+  /** 'band' is the framed strip (desktop). 'backdrop' sinks the art behind the
+   *  narrative page (mobile) — no figures, no banner, just atmosphere. */
+  variant?: 'band' | 'backdrop';
+  className?: string;
 }
 
-export function AdventureScene({ location, chapterLocation, npcs, combat, language }: AdventureSceneProps) {
+/** One tappable presence in the scene: an enemy, an NPC, or a discovered prop.
+ *  `action` is the parser command the player would have typed for it. */
+export interface SceneEntity {
+  id: string;
+  src: string;
+  name: string;
+  kind: 'enemy' | 'npc' | 'prop';
+  hp?: number;
+  maxHp?: number;
+  action: string;
+}
+
+/** Resolve who and what is present. Shared by the band scene and the mobile
+ *  action scroll, so both agree on the cast without duplicating the rules. */
+export function getSceneEntities({ location, npcs, combat, language }: {
+  location: WorldLocation | null;
+  npcs: NPC[];
+  combat: CombatEncounter | null;
+  language: Language;
+}): SceneEntity[] {
+  const es = language === 'es';
+
+  // During combat the monsters replace idle scene NPCs so the battlefield is
+  // what dominates. Otherwise present the location's NPCs.
+  const enemies: SceneEntity[] = (combat ? combat.enemies : []).map(enemy => ({
+    id: enemy.id,
+    src: resolveEnemy(enemy.portrait, enemy.templateId),
+    name: es ? enemy.nameEs : enemy.name,
+    kind: 'enemy' as const,
+    hp: enemy.hp,
+    maxHp: enemy.maxHp,
+    // The parser reads English, so commands are built from the English name
+    // regardless of the language the player is reading in.
+    action: `attack ${enemy.name}`,
+  }));
+
+  const sceneNpcs: SceneEntity[] = (combat ? [] : npcs).map(npc => ({
+    id: npc.id,
+    src: resolveNpc(npc.portrait),
+    name: es ? npc.nameEs : npc.name,
+    kind: 'npc' as const,
+    action: `talk to ${npc.name}`,
+  }));
+
+  // Props derived from discovered, non-hidden objects — capped so a busy room
+  // never turns into a collage.
+  const props: SceneEntity[] = (location?.objects ?? [])
+    .filter(o => !o.hidden)
+    .slice(0, 4)
+    .map(prop => ({
+      id: prop.id,
+      src: resolveProp(prop.name),
+      name: es ? prop.nameEs : prop.name,
+      kind: 'prop' as const,
+      action: `examine ${prop.name}`,
+    }));
+
+  return [...enemies, ...sceneNpcs, ...props];
+}
+
+export function AdventureScene({
+  location, chapterLocation, npcs, combat, language, variant = 'band', className,
+}: AdventureSceneProps) {
   const es = language === 'es';
 
   // Semantic resolution — the resolver owns the filesystem, not us.
@@ -33,8 +99,6 @@ export function AdventureScene({ location, chapterLocation, npcs, combat, langua
     ? resolveEnvironment(envSpec.visualType, envSpec.ambiance, location?.name, location?.description)
     : null;
 
-  // Visible entities. During combat the monsters replace idle scene NPCs so
-  // the battlefield is what dominates. Otherwise present the location's NPCs.
   const enemies = combat ? combat.enemies : [];
   const sceneNpcs = combat ? [] : npcs;
 
@@ -46,9 +110,28 @@ export function AdventureScene({ location, chapterLocation, npcs, combat, langua
 
   if (!environment) return null;
 
+  // Backdrop: the art becomes the page's watermark. The cast moves to the
+  // action scroll's handle, where a 40px chip beats a 14px figure nobody can
+  // hit, and the location name lives in the header instead of being printed
+  // twice.
+  if (variant === 'backdrop') {
+    return (
+      <div className={`absolute inset-0 overflow-hidden pointer-events-none ${className ?? ''}`} aria-hidden="true">
+        <img
+          src={environment}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover select-none scene-slow-drift scene-backdrop-art"
+          draggable={false}
+          loading="eager"
+        />
+        <div className="absolute inset-0 scene-backdrop-scrim" />
+      </div>
+    );
+  }
+
   return (
     <section
-      className="relative w-full overflow-hidden border-b border-[var(--rpg-brass)] h-36 md:h-56 lg:h-64"
+      className={`relative w-full overflow-hidden border-b border-[var(--rpg-brass)] h-36 md:h-56 lg:h-64 ${className ?? ''}`}
       aria-label={es ? 'Escena del lugar' : 'Location scene'}
     >
       {/* Environment artwork */}

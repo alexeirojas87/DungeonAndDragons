@@ -22,9 +22,10 @@ interface InputBarProps {
   isTyping: boolean;
   suggestions?: Array<{ key: string; label: string; labelEs: string; action: string }>;
   puzzleView?: PuzzleView | null;
+  className?: string;
 }
 
-export function InputBar({ onSubmit, language, isTyping, suggestions = [], puzzleView = null }: InputBarProps) {
+export function InputBar({ onSubmit, language, isTyping, suggestions = [], puzzleView = null, className }: InputBarProps) {
   const [input, setInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -67,7 +68,7 @@ export function InputBar({ onSubmit, language, isTyping, suggestions = [], puzzl
     : (language === 'es' ? 'Escribe tu acción...' : 'Type your action...');
 
   return (
-    <div className="border-t border-[var(--color-border)] bg-[var(--color-bg-panel)] pb-14 md:pb-0 safe-area-bottom">
+    <div className={`border-t border-[var(--color-border)] bg-[var(--color-bg-panel)] safe-area-bottom ${className ?? ''}`}>
       {/* Puzzle panel — hints accumulate, attempts never cost anything */}
       {puzzleView && puzzle && (
         <div className="px-3 pt-2.5 md:px-4 border-b border-[var(--color-border)]">

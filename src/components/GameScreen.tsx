@@ -9,7 +9,8 @@ import { Terminal } from './Terminal';
 import { CharacterPanel } from './CharacterPanel';
 import { InputBar } from './InputBar';
 import { CombatView } from './CombatView';
-import { AdventureScene } from './AdventureScene';
+import { AdventureScene, getSceneEntities } from './AdventureScene';
+import { ActionScroll } from './ActionScroll';
 import { DebugPanel } from './DebugPanel';
 import { ChapterTransition } from './ChapterTransition';
 import { DeathScreen } from './DeathScreen';
@@ -82,6 +83,24 @@ export function GameScreen({
     status: gameState?.status,
   });
 
+  const inputLocked = isTyping || (!!gameState && gameState.status !== 'playing');
+
+  // The presences the action scroll puts within thumb's reach — the same cast
+  // the desktop scene draws as figures.
+  const sceneEntities = getSceneEntities({ location, npcs, combat, language });
+
+  // Look and Search used to be a permanent tab bar costing ~118px. They are
+  // ordinary game actions, so they belong with the other actions — but not
+  // while combat or a puzzle owns the input.
+  const mobileSuggestions =
+    suggestions.length > 0 && !combat && !puzzleView
+      ? [
+          ...suggestions,
+          { label: 'Look around', labelEs: 'Mirar alrededor', action: 'look around' },
+          { label: 'Search', labelEs: 'Buscar', action: 'search' },
+        ].map((s, index) => ({ ...s, key: String(index + 1) }))
+      : suggestions;
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && e.key === 'D') {
@@ -134,27 +153,32 @@ export function GameScreen({
               icon="icon-quest"
               label={language === 'es' ? 'Misiones' : 'Quests'}
               onClick={() => onToggleUI('showQuestLog')}
-              desktopOnly
             />
-            <button
-              onClick={() => onToggleUI('showDebug')}
-              className="p-2 rounded border border-[var(--color-border)] text-[var(--color-text-dim)] hover:text-[var(--color-accent-gold)] hover:border-[var(--color-accent-gold)] transition-colors"
-              title="Debug Panel (Ctrl+Shift+D)"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-              </svg>
-            </button>
+            {/* Dev only — Ctrl+Shift+D still opens it. It was shipping to
+                production and reading as part of the game's chrome. */}
+            {process.env.NODE_ENV !== 'production' && (
+              <button
+                onClick={() => onToggleUI('showDebug')}
+                className="p-2 rounded border border-[var(--color-border)] text-[var(--color-text-dim)] hover:text-[var(--color-accent-gold)] hover:border-[var(--color-accent-gold)] transition-colors"
+                title="Debug Panel (Ctrl+Shift+D)"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Adventure Scene — composed illustrated world */}
+        {/* Adventure Scene — the framed strip, desktop only. On mobile the same
+            art sinks behind the narrative as a backdrop instead. */}
         <AdventureScene
           location={location}
           chapterLocation={chapter?.locations?.[location?.id ?? ''] ?? null}
           npcs={npcs}
           combat={combat}
           language={language}
+          className="hidden md:block"
         />
 
         {/* Combat View */}
@@ -167,51 +191,47 @@ export function GameScreen({
           />
         )}
 
-        {/* Terminal */}
-        <Terminal
-          narrative={narrative}
-          language={language}
-          isTyping={isTyping}
-          onDialogueResponse={onDialogueResponse}
-        />
+        {/* The page: narrative over the location art */}
+        <div className="relative flex-1 min-h-0">
+          <AdventureScene
+            location={location}
+            chapterLocation={chapter?.locations?.[location?.id ?? ''] ?? null}
+            npcs={npcs}
+            combat={combat}
+            language={language}
+            variant="backdrop"
+            className="md:hidden"
+          />
+          <Terminal
+            narrative={narrative}
+            language={language}
+            isTyping={isTyping}
+            onDialogueResponse={onDialogueResponse}
+          />
+        </div>
 
-        {/* Input Bar */}
+        {/* Input Bar — desktop. Once the run is over the terminal sits behind a
+            full-screen overlay, so a refusal message printed into it is
+            invisible. Lock input instead of silently swallowing what is typed. */}
         <InputBar
           onSubmit={onProcessInput}
           language={language}
-          // Once the run is over the terminal sits behind a full-screen overlay,
-          // so a refusal message printed into it is invisible. Lock the input
-          // instead of silently swallowing what the player types.
-          isTyping={isTyping || (!!gameState && gameState.status !== 'playing')}
+          isTyping={inputLocked}
           suggestions={suggestions}
           puzzleView={puzzleView}
+          className="hidden md:block"
         />
-      </div>
 
-      {/* Mobile Bottom Action Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 mobile-bottom-bar mobile-input-wrapper">
-        <div className="flex items-center justify-around border-t border-[var(--color-border)] bg-[var(--color-bg-panel)] px-2 py-1">
-          <MobileActionBarBtn
-            icon={<img src={resolveIcon('icon-map')} alt="" className="w-5 h-5" />}
-            label={language === 'es' ? 'Mirar' : 'Look'}
-            onClick={() => onProcessInput('look around')}
-          />
-          <MobileActionBarBtn
-            icon={<img src={resolveIcon('icon-chest')} alt="" className="w-5 h-5" />}
-            label={language === 'es' ? 'Buscar' : 'Search'}
-            onClick={() => onProcessInput('search')}
-          />
-          <MobileActionBarBtn
-            icon={<img src={resolveIcon('icon-inventory')} alt="" className="w-5 h-5" />}
-            label={language === 'es' ? 'Inventario' : 'Inventory'}
-            onClick={() => onToggleUI('showInventory')}
-          />
-          <MobileActionBarBtn
-            icon={<img src={resolveIcon('icon-quest')} alt="" className="w-5 h-5" />}
-            label={language === 'es' ? 'Misiones' : 'Quests'}
-            onClick={() => onToggleUI('showQuestLog')}
-          />
-        </div>
+        {/* Action Scroll — mobile */}
+        <ActionScroll
+          onSubmit={onProcessInput}
+          language={language}
+          isTyping={inputLocked}
+          suggestions={mobileSuggestions}
+          puzzleView={puzzleView}
+          entities={sceneEntities}
+          className="md:hidden"
+        />
       </div>
 
       {/* Mobile Character Sheet Overlay - Slide-in from left */}
@@ -300,18 +320,6 @@ export function GameScreen({
         lastRawInput={lastRawInput}
       />
     </div>
-  );
-}
-
-function MobileActionBarBtn({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded text-[var(--color-text-dim)] active:text-[var(--color-accent-gold)] active:bg-[var(--color-bg-tertiary)] transition-colors min-w-[60px]"
-    >
-      {icon}
-      <span className="font-[var(--font-mono)] text-[13px] uppercase tracking-wider">{label}</span>
-    </button>
   );
 }
 

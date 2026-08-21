@@ -17,6 +17,10 @@ interface TerminalProps {
 export function Terminal({ narrative, language, isTyping, onDialogueResponse }: TerminalProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // The first narration of a chapter opens with a versal, the way a printed
+  // adventure book does. Costs CSS, not vertical space.
+  const firstNarrationId = narrative.find(e => e.type === 'narration')?.id;
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -24,10 +28,10 @@ export function Terminal({ narrative, language, isTyping, onDialogueResponse }: 
   }, [narrative]);
 
   return (
-    <div className="relative flex-1 overflow-hidden crt-scanlines">
+    <div className="relative h-full overflow-hidden crt-scanlines page-fade">
       <div
         ref={scrollRef}
-        className="h-full overflow-y-auto px-4 py-4 md:px-7 md:py-7 terminal-scroll"
+        className="relative z-10 h-full overflow-y-auto px-4 py-4 md:px-7 md:py-7 terminal-scroll"
       >
         {narrative.map((entry) => (
           <NarrativeLine
@@ -35,6 +39,7 @@ export function Terminal({ narrative, language, isTyping, onDialogueResponse }: 
             entry={entry}
             language={language}
             isLatestDialogue={entry.id === narrative[narrative.length - 1]?.id && entry.type === 'dialogue'}
+            isFirstNarration={entry.id === firstNarrationId}
             onDialogueResponse={onDialogueResponse}
           />
         ))}
@@ -50,7 +55,7 @@ export function Terminal({ narrative, language, isTyping, onDialogueResponse }: 
   );
 }
 
-function NarrativeLine({ entry, language, isLatestDialogue, onDialogueResponse }: { entry: NarrativeEntry; language: Language; isLatestDialogue: boolean; onDialogueResponse: (responseIndex: number) => void }) {
+function NarrativeLine({ entry, language, isLatestDialogue, isFirstNarration, onDialogueResponse }: { entry: NarrativeEntry; language: Language; isLatestDialogue: boolean; isFirstNarration: boolean; onDialogueResponse: (responseIndex: number) => void }) {
   const speaker = entry.type === 'dialogue'
     ? (language === 'es' ? entry.speakerEs : entry.speaker)
     : null;
@@ -84,7 +89,7 @@ function NarrativeLine({ entry, language, isLatestDialogue, onDialogueResponse }
 
       {entry.type === 'narration' && (
         <p
-          className="text-[var(--color-text-primary)] font-semibold leading-[1.72] md:leading-[1.8] text-[17px] md:text-[19px]"
+          className={`text-[var(--color-text-primary)] leading-[1.78] md:leading-[1.8] text-[19px] max-w-[62ch] ${isFirstNarration ? 'dropcap' : ''}`}
           style={{ color: moodColor || 'var(--color-text-primary)' }}
         >
           {entry.content}
@@ -99,7 +104,7 @@ function NarrativeLine({ entry, language, isLatestDialogue, onDialogueResponse }
             </span>
             <span className="text-[var(--color-border-light)] text-sm">—</span>
           </div>
-          <p className="text-[var(--color-text-primary)] font-semibold leading-[1.72] text-[17px] md:text-[19px] italic pl-4 border-l border-[var(--color-accent-gold)] border-opacity-30" style={{ borderLeftColor: 'rgba(255, 218, 120, 0.8)' }}>
+          <p className="text-[var(--color-text-primary)] leading-[1.78] text-[18px] md:text-[19px] italic pl-4 border-l border-[var(--color-accent-gold)] border-opacity-30" style={{ borderLeftColor: 'rgba(255, 218, 120, 0.8)' }}>
             &ldquo;{entry.content}&rdquo;
           </p>
           {isLatestDialogue && entry.dialogueResponses && entry.dialogueResponses.length > 0 && (

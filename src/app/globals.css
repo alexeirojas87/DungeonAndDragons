@@ -16,8 +16,11 @@
   --color-accent-gold: #d6b25a;
   --color-accent-amber: #c69a46;
   --color-accent-crimson: #c4634f;
-  --color-accent-blue: #79a0c2;
-  --color-accent-purple: #a88fc0;
+  /* Nudged up a few percent so the 'mystery' and 'horror' narrative moods clear
+     7:1 against the page — including the worst-case bright patch of a location
+     backdrop. They fell just short of it even on the flat background before. */
+  --color-accent-blue: #7da6c9;
+  --color-accent-purple: #b197ca;
   --color-border: #433623;
   --color-border-light: #6b5938;
   --color-danger: #c4634f;
@@ -338,9 +341,9 @@ select {
 
 /* Touch-friendly tap targets */
 @media (pointer: coarse) {
-  button,
-  a,
-  [role="button"] {
+  button:not([data-compact]),
+  a:not([data-compact]),
+  [role="button"]:not([data-compact]) {
     min-height: 44px;
     min-width: 44px;
   }
@@ -371,18 +374,6 @@ select {
   @keyframes slideOutLeft {
     from { transform: translateX(0); }
     to { transform: translateX(-100%); }
-  }
-
-  /* Bottom action bar */
-  .mobile-bottom-bar {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-
-  /* Ensure input stays above keyboard */
-  .mobile-input-wrapper {
-    position: sticky;
-    bottom: 0;
-    z-index: 20;
   }
 
   /* Overlay backdrop blur */
@@ -475,4 +466,74 @@ select {
 @keyframes sceneDrift {
   0%, 100% { transform: scale(1) translateX(0); }
   50% { transform: scale(1.06) translateX(-1.5%); }
+}
+
+/* ==================== The Open Book (mobile page) ==================== */
+
+/* The location art as the page's watermark. Two layers do the work: the art is
+   knocked back, then a full scrim guarantees the serif stays readable no matter
+   how bright a given environment plate happens to be. */
+.scene-backdrop-art {
+  opacity: 0.34;
+  filter: saturate(0.72);
+}
+.scene-backdrop-scrim {
+  background:
+    linear-gradient(180deg, rgba(13, 10, 6, 0.86) 0%, rgba(13, 10, 6, 0.94) 100%);
+}
+
+/* Text cut by the fold should read as "there is more", not as a bug. */
+.page-fade::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 24px;
+  z-index: 15;
+  pointer-events: none;
+  background: linear-gradient(to bottom, var(--color-bg-primary), transparent);
+}
+
+.page-fade::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 56px;
+  z-index: 15;
+  pointer-events: none;
+  background: linear-gradient(to top, var(--color-bg-primary), transparent);
+}
+
+/* The versal that opens a chapter. */
+.dropcap::first-letter {
+  float: left;
+  font-family: var(--font-display);
+  font-size: 3.1em;
+  line-height: 0.82;
+  padding: 0.06em 0.12em 0 0;
+  color: var(--rpg-gold);
+}
+
+/* The scroll's brass handle. */
+.scroll-handle {
+  background:
+    linear-gradient(180deg, rgba(138, 109, 59, 0.22) 0%, rgba(23, 18, 9, 0) 100%);
+}
+
+@keyframes scrollUnfurl {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.action-scroll-sheet {
+  animation: scrollUnfurl 0.22s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .action-scroll-sheet {
+    animation: none;
+  }
 }
