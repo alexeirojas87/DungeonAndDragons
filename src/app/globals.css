@@ -55,7 +55,9 @@ html, body {
   font-family: var(--font-narrative);
   font-size: 17px;
   font-weight: 500;
-  overflow: hidden;
+  /* Was overflow:hidden — that disabled page scrolling anywhere content grows
+     past the viewport (functional on touch). Let the document scroll; screens
+     needing trapped scroll (game) control it on their own container. */
 }
 
 /* Scrollbar */
