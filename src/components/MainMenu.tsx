@@ -35,7 +35,7 @@ export function MainMenu({ onSelectLanguage, onContinue }: MainMenuProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-[100dvh] bg-[var(--color-bg-primary)] flex relative overflow-hidden">
       {/* Full-bleed environment backdrop — the menu opens onto the world */}
       <img
         src={resolveEnvironment('tavern')}
@@ -46,7 +46,7 @@ export function MainMenu({ onSelectLanguage, onContinue }: MainMenuProps) {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(13,10,6,0.2),rgba(13,10,6,0.9))]" />
       <div className="absolute inset-0 rpg-scrim-bottom" />
 
-      <div className="text-center max-w-lg relative z-10 rpg-panel rounded px-8 py-10 bg-[rgba(23,18,9,0.72)]">
+      <div className="m-auto text-center max-w-lg relative z-10 rpg-panel rounded px-8 py-10 bg-[rgba(23,18,9,0.72)] w-full mx-4">
         {/* Logo */}
         <div className="mb-8">
           <h1 className="font-[var(--font-display)] text-[var(--color-accent-gold)] text-4xl md:text-5xl tracking-[0.3em] uppercase mb-2 title-glow">

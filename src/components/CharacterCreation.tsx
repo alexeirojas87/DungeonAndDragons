@@ -23,8 +23,8 @@ export function CharacterCreation({ language, onComplete }: CharacterCreationPro
   const canProceed = name.trim().length > 0;
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center p-4">
-      <div className="w-full max-w-3xl">
+    <div className="min-h-[100dvh] bg-[var(--color-bg-primary)] flex">
+      <div className="m-auto w-full max-w-3xl p-4">
         {/* Title */}
         <div className="text-center mb-8">
           <h1 className="font-[var(--font-display)] text-[var(--color-accent-gold)] text-2xl md:text-3xl tracking-[0.2em] uppercase">
