@@ -183,9 +183,9 @@ function Overlay({ title, icon, onClose, children }: {
   title: string; icon: string; onClose: () => void; children: React.ReactNode;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+    <div className="fixed inset-0 z-50 flex overflow-y-auto px-4 py-4">
       <div className="absolute inset-0 bg-black/70 overlay-backdrop" onClick={onClose} />
-      <div className="relative w-full max-w-lg max-h-[80vh] overflow-y-auto rounded border border-[var(--rpg-brass)] bg-[var(--color-bg-panel)] p-5 rpg-panel">
+      <div className="relative m-auto w-full max-w-lg max-h-[90dvh] overflow-y-auto rounded border border-[var(--rpg-brass)] bg-[var(--color-bg-panel)] p-5 rpg-panel">
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-[var(--font-display)] text-[14px] uppercase tracking-[0.25em] text-[var(--color-accent-gold)] flex items-center gap-2">
             <img src={resolveIcon(icon)} alt="" className="w-5 h-5 opacity-80" />

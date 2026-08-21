@@ -97,7 +97,7 @@ export function GameScreen({
   const locationNameEs = location?.nameEs || 'Desconocido';
 
   return (
-    <div className="h-screen flex flex-col md:flex-row bg-[var(--color-bg-primary)] overflow-hidden noise-overlay scanlines vignette">
+    <div className="h-[100dvh] flex flex-col md:flex-row bg-[var(--color-bg-primary)] overflow-hidden noise-overlay scanlines vignette">
       {/* Character Panel - Desktop */}
       <div className="hidden md:block w-72 lg:w-80 flex-shrink-0">
         <CharacterPanel
@@ -109,9 +109,9 @@ export function GameScreen({
       </div>
 
       {/* Main Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 h-full">
         {/* Location Header - Compact on mobile */}
-        <div className="px-3 py-1.5 md:px-4 md:py-3 border-b border-[var(--color-border)] bg-[var(--color-bg-panel)] flex items-center justify-between safe-area-top">
+        <div className="px-3 py-1.5 md:px-4 md:py-3 border-b border-[var(--color-border)] bg-[var(--color-bg-panel)] flex items-center justify-between safe-area-top flex-shrink-0">
           <div className="flex items-center gap-2 min-w-0">
             <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent-green)] flex-shrink-0" />
             <h2 className="font-[var(--font-mono)] text-[13px] md:text-[14px] text-[var(--color-accent-green)] uppercase tracking-widest truncate">

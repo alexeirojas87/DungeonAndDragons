@@ -60,8 +60,8 @@ export function ChapterTransition({
   }, [isGenerating]);
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/85 px-4">
-      <div className="w-full max-w-xl rounded border border-[var(--color-border)] bg-[var(--color-bg-panel)] p-5 md:p-7">
+<div className="fixed inset-0 z-[60] flex overflow-y-auto bg-black/85 px-4 py-4">
+    <div className="relative m-auto w-full max-w-xl rounded border border-[var(--color-border)] bg-[var(--color-bg-panel)] p-5 md:p-7">
         {isGenerating ? (
           <div className="text-center">
             <div className="font-[var(--font-mono)] text-[13px] uppercase tracking-[0.3em] text-[var(--color-accent-gold)]">
