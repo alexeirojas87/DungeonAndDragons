@@ -5,10 +5,34 @@
 
 import { registerCarriedFlags, type Chapter } from '../../engine/chapter';
 import { CHAPTER_ONE } from './chapter-01';
+import { CHAPTER_TWO } from './chapter-02';
+import { CHAPTER_THREE } from './chapter-03';
+import { CHAPTER_FOUR } from './chapter-04';
+import { CHAPTER_FIVE } from './chapter-05';
+import { CHAPTER_SIX } from './chapter-06';
+import { CHAPTER_SEVEN } from './chapter-07';
+import { CHAPTER_EIGHT } from './chapter-08';
+import { CHAPTER_NINE } from './chapter-09';
+import { CHAPTER_TEN } from './chapter-10';
 
-export { CHAPTER_ONE };
+export {
+  CHAPTER_ONE, CHAPTER_TWO, CHAPTER_THREE, CHAPTER_FOUR, CHAPTER_FIVE,
+  CHAPTER_SIX, CHAPTER_SEVEN, CHAPTER_EIGHT, CHAPTER_NINE, CHAPTER_TEN,
+};
 
-export const AUTHORED_CHAPTERS: readonly Chapter[] = [CHAPTER_ONE];
+/** Every authored chapter, in order, for the validation and playthrough harnesses. */
+export const AUTHORED_CHAPTERS: readonly Chapter[] = [
+  CHAPTER_ONE,
+  CHAPTER_TWO,
+  CHAPTER_THREE,
+  CHAPTER_FOUR,
+  CHAPTER_FIVE,
+  CHAPTER_SIX,
+  CHAPTER_SEVEN,
+  CHAPTER_EIGHT,
+  CHAPTER_NINE,
+  CHAPTER_TEN,
+];
 
 /** The opening chapter every campaign starts from. */
 export function getFirstChapter(): Chapter {

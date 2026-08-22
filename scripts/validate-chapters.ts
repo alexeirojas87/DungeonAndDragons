@@ -1,7 +1,7 @@
 // ============================================================
 // Chapter validation harness
-//   node --experimental-strip-types scripts/validate-chapters.ts
-// Fails loudly if the authored chapter stops satisfying the same
+//   npx tsx scripts/validate-chapters.ts
+// Fails loudly if any authored chapter stops satisfying the
 // contract every authored campaign chapter has to satisfy.
 // ============================================================
 
@@ -23,31 +23,34 @@ function report(label: string, errors: string[]): void {
   for (const error of errors) console.log(`    ${error}`);
 }
 
-const shape = ChapterSchema.safeParse(CHAPTER_ONE);
-report(
-  `${CHAPTER_ONE.id} schema`,
-  shape.success ? [] : shape.error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`),
-);
+// ---- Validate every authored chapter individually ----
+for (const chapter of AUTHORED_CHAPTERS) {
+  const shape = ChapterSchema.safeParse(chapter);
+  report(
+    `${chapter.id} schema`,
+    shape.success ? [] : shape.error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`),
+  );
 
-report(`${CHAPTER_ONE.id} structure`, validateChapter(CHAPTER_ONE));
+  report(`${chapter.id} structure`, validateChapter(chapter));
 
-// Coercion supports imported authored data before the schema, so it must
-// leave a correct chapter byte-identical.
-report(
-  `${CHAPTER_ONE.id} coercion is a no-op`,
-  JSON.stringify(coerceChapterShape(CHAPTER_ONE)) === JSON.stringify(CHAPTER_ONE)
-    ? []
-    : ['coerceChapterShape changed an already-valid chapter'],
-);
+  // Coercion supports imported authored data before the schema, so it must
+  // leave a correct chapter byte-identical.
+  report(
+    `${chapter.id} coercion is a no-op`,
+    JSON.stringify(coerceChapterShape(chapter)) === JSON.stringify(chapter)
+      ? []
+      : ['coerceChapterShape changed an already-valid chapter'],
+  );
 
-// The normaliser supports imported authored data, so it must be a no-op on a
-// chapter that is already correct — otherwise it is quietly deleting content.
-const { chapter: normalized, notes } = normalizeChapter(CHAPTER_ONE);
-report(
-  `${CHAPTER_ONE.id} normaliser is a no-op`,
-  notes.map(note => `unexpected change: ${note}`),
-);
-report(`${CHAPTER_ONE.id} still valid after normalising`, validateChapter(normalized));
+  // The normaliser supports imported authored data, so it must be a no-op on a
+  // chapter that is already correct — otherwise it is quietly deleting content.
+  const { chapter: normalized, notes } = normalizeChapter(chapter);
+  report(
+    `${chapter.id} normaliser is a no-op`,
+    notes.map(note => `unexpected change: ${note}`),
+  );
+  report(`${chapter.id} still valid after normalising`, validateChapter(normalized));
+}
 
 if (AUTHORED_CHAPTERS.length === 10) {
   report('complete authored campaign release gate', validateAuthoredCampaign(AUTHORED_CHAPTERS));

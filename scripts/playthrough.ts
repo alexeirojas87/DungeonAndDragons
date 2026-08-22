@@ -187,9 +187,8 @@ function runAftermath(archetype: Archetype, origin: Origin): string[] {
   const chapter = engine.getChapter()!;
   const state = engine.getState();
   // Stand the hero where the boss dies, with the flags a real run could carry.
-  state.flags.has_sealing_vial = true;
-  state.flags.intends_destroy_door = true;
-  state.flags.shadowfen_dead_voices = origin === 'shadowfen';
+  state.flags.c01_has_vial = true;
+  state.flags.c01_intends_destroy = true;
   state.story.currentNodeId = chapter.hooks.aftermathNodeId;
   state.story.completed = false;
 
@@ -222,7 +221,7 @@ function runAftermath(archetype: Archetype, origin: Origin): string[] {
   if (!sawRunePuzzle) {
     failures.push(`${archetype}/${origin}: the aftermath rune puzzle was never offered`);
   }
-  if (!engine.getState().worldState.solvedPuzzles.includes('c1_drowned_door_runes')) {
+  if (!engine.getState().worldState.solvedPuzzles.includes('c01_drowned_door_runes')) {
     failures.push(`${archetype}/${origin}: the rune puzzle never resolved`);
   }
   return failures;
@@ -311,7 +310,7 @@ function runHealingInCombat(): string[] {
   const engine = newEngine('cleric', 'shadowfen');
   const state = engine.getState();
   state.story.completed = true;
-  state.location = 'crypt_antechamber';
+  state.location = 'c01_crypt_antechamber';
   engine.processInputRaw('go forward');
 
   const encounter = engine.getState().combat;
@@ -444,7 +443,7 @@ function runCheckpointIsSafe(): string[] {
   const engine = newEngine('cleric', 'shadowfen');
   const state = engine.getState();
   state.story.completed = true;
-  state.location = 'crypt_antechamber';
+  state.location = 'c01_crypt_antechamber';
 
   // The last safe snapshot is taken before the input that starts the fight.
   const safe = JSON.parse(JSON.stringify(engine.getState()));
