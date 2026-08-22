@@ -40,6 +40,8 @@ export function validateAuthoredCampaign(chapters: readonly Chapter[]): string[]
 
   for (let offset = 0; offset < ordered.length; offset++) {
     const chapter = ordered[offset];
+    const priorCanonicalKeys = new Set(canonicalWrites.keys());
+    const priorValueKeys = new Set(valueWrites.keys());
     const expectedIndex = offset + 1;
     const prefix = `c${String(chapter.index).padStart(2, '0')}_`;
     if (chapter.index !== expectedIndex) errors.push(`${chapter.id} has index ${chapter.index}; expected ${expectedIndex}`);
@@ -102,6 +104,12 @@ export function validateAuthoredCampaign(chapters: readonly Chapter[]): string[]
     }
 
     if (!hasEarlyConsequence(chapter)) errors.push(`${chapter.id} needs a consequential choice within its first five nodes`);
+    if (!hasThreeSustainedBranches(chapter)) {
+      errors.push(`${chapter.id} needs three branches that remain separate for at least two nodes`);
+    }
+    if (chapter.index > 1 && !consumesPriorState(chapter, priorCanonicalKeys, priorValueKeys)) {
+      errors.push(`${chapter.id} needs a gated choice that consumes an earlier chapter consequence`);
+    }
 
     for (const id of collectChapterIds(chapter)) usedIds.add(id);
     registerCarriedFlags(chapter.summaryFlags ?? []);
@@ -129,6 +137,47 @@ export function validateAuthoredCampaign(chapters: readonly Chapter[]): string[]
   if (finalEndingIds.length !== finalEndings.size) errors.push('Chapter 10 global ending IDs must be unique');
 
   return [...new Set(errors)];
+}
+
+function consumesPriorState(
+  chapter: Chapter,
+  priorCanonicalKeys: ReadonlySet<string>,
+  priorValueKeys: ReadonlySet<string>,
+): boolean {
+  return Object.values(chapter.nodes).some(node => node.choices.some(choice =>
+    choice.requires?.some(condition => priorCanonicalKeys.has(condition.flag))
+    || choice.requiresValues?.some(condition => priorValueKeys.has(condition.key)),
+  ));
+}
+
+function hasThreeSustainedBranches(chapter: Chapter): boolean {
+  for (const node of Object.values(chapter.nodes)) {
+    const starts = [...new Set(node.choices.map(choice => choice.nextNodeId))];
+    if (starts.length < 3) continue;
+
+    const candidates = starts.map(start => {
+      const branchNode = chapter.nodes[start];
+      if (!branchNode) return [] as Array<readonly [string, string]>;
+      return [...new Set(branchNode.choices.map(choice => choice.nextNodeId))]
+        .filter(next => next !== start && chapter.nodes[next])
+        .map(next => [start, next] as const);
+    });
+
+    const chooseDisjoint = (branchIndex: number, used: Set<string>, chosen: number): boolean => {
+      if (chosen >= 3) return true;
+      if (branchIndex >= candidates.length || chosen + candidates.length - branchIndex < 3) return false;
+      for (const path of candidates[branchIndex]) {
+        if (path.some(id => used.has(id))) continue;
+        const nextUsed = new Set(used);
+        path.forEach(id => nextUsed.add(id));
+        if (chooseDisjoint(branchIndex + 1, nextUsed, chosen + 1)) return true;
+      }
+      return chooseDisjoint(branchIndex + 1, used, chosen);
+    };
+
+    if (chooseDisjoint(0, new Set(), 0)) return true;
+  }
+  return false;
 }
 
 function hasEarlyConsequence(chapter: Chapter): boolean {
