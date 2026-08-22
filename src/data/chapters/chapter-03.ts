@@ -65,8 +65,8 @@ const NODES: Record<string, StoryNode> = {
   c03_arrival: {
     id: 'c03_arrival', kind: 'beat', locationId: 'c03_syrva_gate', externalEntry: true,
     title: 'The Silent Gate', titleEs: 'La puerta muda',
-    text: 'Syrva is a city of bells — or it was. Now every bell is mute, and every mute bell is a cell. The keeper Vane holds one bell per stolen voice. If you wait, an entire district goes silent forever.',
-    textEs: 'Sirva es una ciudad de campanas — o lo era. Ahora cada campana está muda, y cada campana muda es una celda. La campanera Vane guarda una campana por cada voz robada. Si te demoras, un distrito entero callará para siempre.',
+    text: 'Syrva was a city of bells. Now every bell is mute, and every mute bell is a cell. Vane, the campanera, holds one bell per stolen voice. If you wait, an entire district goes silent forever.',
+    textEs: 'Sirva era una ciudad de campanas. Ahora cada campana está muda, y cada campana muda es una celda. Vane, la campanera, guarda una campana por cada voz robada. Si te demoras, un distrito entero callará para siempre.',
     choices: [
       { id: 'c03_enter_gate', label: 'Enter the city through the silent gate', labelEs: 'Entrar en la ciudad por la puerta muda', nextNodeId: 'c03_silent_gate', result: 'You pass beneath the silent gate. The bells hang above you, dumb.', resultEs: 'Pasas bajo la puerta muda. Las campanas cuelgan encima, enmudecidas.' },
       { id: 'c03_recall_greta', label: 'Recall the voice the Drowned Door stole from Greta', labelEs: 'Recordar la voz que la Puerta Ahogada le robó a Greta', nextNodeId: 'c03_silent_gate', requires: [{ flag: 'canon:c01_greta_voice' }, { flag: 'canon:c01_rescue_oath' }], adjustsValues: { conviction_truth: 1, conviction_compassion: 1 }, result: 'You remember Greta\'s stolen voice — the one the Drowned Door took in Blackmere. It may answer a bell here.', resultEs: 'Recuerdas la voz robada de Greta — la que la Puerta Ahogada tomó en Blackmere. Puede responder a una campana aquí.' },
@@ -76,8 +76,8 @@ const NODES: Record<string, StoryNode> = {
   c03_silent_gate: {
     id: 'c03_silent_gate', kind: 'beat', locationId: 'c03_syrva_gate',
     title: 'The Oldest Bell', titleEs: 'La campana más vieja',
-    text: 'At the center of the gate hangs the oldest bell in Syrva. Vane stands beneath it, watching. "Every bell is a cell of voices," she says. "The oldest one held the first voice the city ever took. You may break it, keep it, or sell it — but the city will hear which you chose." She is the campanera, the mute-keeper, and she does not look away.',
-    textEs: 'En el centro de la puerta cuelga la campana más vieja de Sirva. Vane está debajo, observando. «Cada campana es una celda de voces», dice. «La más vieja guardaba la primera voz que la ciudad tomó. Puedes romperla, guardarla o venderla — pero la ciudad oirá cuál elegiste». Es la campanera, la guardiana muda, y no aparta la mirada.',
+    text: 'At the center of the gate hangs the oldest bell in Syrva. Vane stands beneath it. "Every bell is a cell of voices," she says. "The oldest one held the first voice the city ever took. Break it, keep it, or sell it — the city will hear which you chose."',
+    textEs: 'En el centro de la puerta cuelga la campana más vieja de Sirva. Vane está debajo. «Cada campana es una celda de voces», dice. «La más vieja guardaba la primera voz que la ciudad tomó. Rómpela, guárdala o véndela: la ciudad oirá cuál elegiste».',
     choices: [
       { id: 'c03_break_bell', label: 'Break the oldest bell', labelEs: 'Romper la campana más vieja', nextNodeId: 'c03_market_district', setsFlags: { c03_broke_bell: true }, adjustsValues: { faction_bellwardens: -1, conviction_freedom: 1 }, result: 'You strike the oldest bell. It cracks; a thin voice escapes and fades. Vane flinches.', resultEs: 'Golpeas la campana más vieja. Se agrieta; una voz delgada escapa y se desvanece. Vane se estremece.' },
       { id: 'c03_keep_bell', label: 'Keep the oldest bell whole', labelEs: 'Guardar la campana más vieja intacta', nextNodeId: 'c03_bell_tower', setsFlags: { c03_kept_bell: true }, adjustsValues: { faction_bellwardens: 1, conviction_duty: 1 }, result: 'You leave the bell whole. Vane nods; the tower keep opens to you.', resultEs: 'Dejas la campana intacta. Vane asiente; la torre se te abre.' },
@@ -89,8 +89,8 @@ const NODES: Record<string, StoryNode> = {
   c03_market_district: {
     id: 'c03_market_district', kind: 'beat', locationId: 'c03_market_district',
     title: 'The Market District', titleEs: 'El distrito del mercado',
-    text: 'The market district is half-silent. The stalls that sold bells now sell silence — cloth, wax, plugs for ears. The stall-keepers remember when every bell rang at noon. Now they ring at nothing. One stall-keeper tells you Vane took the voices one by one, starting with the youngest.',
-    textEs: 'El distrito del mercado está medio en silencio. Los puestos que vendían campanas ahora venden silencio — tela, cera, tapones para los oídos. Los tenderos recuerdan cuando cada campana sonaba al mediodía. Ahora no suenan a nada. Un tendero te dice que Vane tomó las voces una por una, empezando por la más joven.',
+    text: 'The market district is half-silent. Stalls that sold bells now sell silence — cloth, wax, earplugs. One stall-keeper remembers when the bells rang at noon. He tells you Vane took the voices one by one, starting with the youngest.',
+    textEs: 'El distrito del mercado está medio en silencio. Los puestos que vendían campanas ahora venden silencio — tela, cera, tapones para los oídos. Un tendero recuerda cuando las campanas sonaban al mediodía. Te dice que Vane tomó las voces una por una, empezando por la más joven.',
     choices: [
       { id: 'c03_market_stalls', label: 'Search the stalls for the voice-tally', labelEs: 'Registrar los puestos en busca del recuento de voces', nextNodeId: 'c03_market_stalls', setsFlags: { c03_searched_market: true }, adjustsValues: { conviction_truth: 1 }, result: 'You search the stalls. One keeper has a tally of the voices Vane took.', resultEs: 'Registras los puestos. Un tendero tiene un recuento de las voces que Vane tomó.' },
     ],
@@ -99,8 +99,8 @@ const NODES: Record<string, StoryNode> = {
   c03_market_stalls: {
     id: 'c03_market_stalls', kind: 'beat',
     title: 'The Voice Tally', titleEs: 'El recuento de voces',
-    text: 'The tally is stamped with the same second ink that stained the chapel ledger and Olen\'s cargo ledger — the oath-bank is the same. Three voices were paid from this city: a farmer, a keeper, and a child. One voice is still owed. The tally says the city pays the Door with voices — and Vane is the collector.',
-    textEs: 'El recuento lleva el sello de la misma segunda tinta que manchó el registro de la capilla y el de Olen — el registro de juramentos es el mismo. Tres voces se pagaron desde esta ciudad: un granjero, un guardián y un niño. Una voz aún se debe. El recuento dice que la ciudad paga a la Puerta con voces — y Vane es la cobradora.',
+    text: 'The tally is stamped with the same second ink that stained the chapel ledger and Olen\'s cargo manifest — the oath-bank is the same. Three voices were paid from this city: a farmer, a keeper, and a child. One is still owed. The city pays the Door with voices, and Vane is the collector.',
+    textEs: 'El recuento lleva el sello de la misma segunda tinta que manchó el registro de la capilla y el manifiesto de Olen — el registro de juramentos es el mismo. Tres voces se pagaron desde esta ciudad: un granjero, un guardián y un niño. Una aún se debe. La ciudad paga a la Puerta con voces, y Vane es la cobradora.',
     choices: [
       { id: 'c03_stalls_to_reveal', label: 'Bring the tally to the bell-tower', labelEs: 'Llevar el recuento a la torre', nextNodeId: 'c03_vane_reveal', setsFlags: { c03_market_tally: true }, adjustsValues: { conviction_truth: 2 }, result: 'You carry the tally toward the bell-tower. The evidence is in your hands.', resultEs: 'Llevas el recuento hacia la torre. La prueba está en tus manos.' },
     ],
@@ -110,8 +110,8 @@ const NODES: Record<string, StoryNode> = {
   c03_bell_tower: {
     id: 'c03_bell_tower', kind: 'beat', locationId: 'c03_bell_tower',
     title: 'The Bell-Tower Keep', titleEs: 'La torre de las campanas',
-    text: 'The bell-tower keep is a spiral of stone and iron. Three bells hang in the lower chamber, each one a cell of stolen voice. Vane stands at the top of the stair. "The voices are the city\'s payment to the Door," she says. "I hold one bell per stolen voice. If you can ring them in the order they were taken, the tower opens onto the belfry — and the truth."',
-    textEs: 'La torre de las campanas es una espiral de piedra y hierro. Tres campanas cuelgan en la cámara inferior, cada una una celda de voz robada. Vane está en lo alto de la escalera. «Las voces son el pago de la ciudad a la Puerta», dice. «Guardo una campana por cada voz robada. Si puedes tocarlas en el orden en que fueron tomadas, la torre se abre al campanario — y a la verdad».',
+    text: 'The bell-tower keep is a spiral of stone and iron. Three bells hang in the lower chamber, each one holding a stolen voice. Vane waits at the top of the stair.\n\n"The voices are the city\'s payment to the Door," she says. "I hold one bell per stolen voice. Ring them in the order they were taken, and the tower opens onto the belfry — and the truth."',
+    textEs: 'La torre de las campanas es una espiral de piedra y hierro. Tres campanas cuelgan en la cámara inferior, y cada una encierra una voz robada. Vane espera en lo alto de la escalera.\n\n«Las voces son el pago de la ciudad a la Puerta», dice. «Guardo una campana por cada voz robada. Tócalas en el orden en que fueron tomadas, y la torre se abrirá al campanario — y a la verdad».',
     choices: [
       { id: 'c03_climb_tower', label: 'Climb to the three-bell chamber', labelEs: 'Subir a la cámara de las tres campanas', nextNodeId: 'c03_tower_keep', result: 'You climb the spiral stair. The bells hang above.', resultEs: 'Subes la escalera en espiral. Las campanas cuelgan arriba.' },
     ],
@@ -120,8 +120,8 @@ const NODES: Record<string, StoryNode> = {
   c03_tower_keep: {
     id: 'c03_tower_keep', kind: 'beat', locationId: 'c03_bell_chamber',
     title: 'The Three Bells', titleEs: 'Las tres campanas',
-    text: 'Three bells hang in the keep: the young bell, bright and thin; the middle bell, steady and plain; and the oldest bell, deep and slow. Vane stands at the top of the stair. "Ring them in the order the city paid them," she says, "and the belfry opens."',
-    textEs: 'Tres campanas cuelgan en la torre: la joven, brillante y delgada; la mediana, firme y sencilla; y la más vieja, grave y lenta. Vane está en lo alto de la escalera. «Tócalas en el orden en que la ciudad las pagó», dice, «y el campanario se abre».',
+    text: 'Three bells hang in the keep: the young bell, bright and thin; the middle bell, steady and plain; and the oldest, deep and slow. Vane watches from the top of the stair.\n\n"Ring them in the order the city paid them," she says, "and the belfry opens."',
+    textEs: 'Tres campanas cuelgan en la torre: la joven, brillante y delgada; la mediana, firme y sencilla; y la más vieja, grave y lenta. Vane observa desde lo alto de la escalera.\n\n«Tócalas en el orden en que la ciudad las pagó», dice, «y el campanario se abrirá».',
     choices: [
       { id: 'c03_ring_bells', label: 'Ring the three bells in order', labelEs: 'Tocar las tres campanas en orden', nextNodeId: 'c03_puzzle_voice', setsFlags: { c03_attempted_sequence: true }, result: 'You approach the three bells. The order is the question.', resultEs: 'Te acercas a las tres campanas. El orden es la cuestión.' },
     ],
@@ -138,8 +138,8 @@ const NODES: Record<string, StoryNode> = {
   c03_voice_solved: {
     id: 'c03_voice_solved', kind: 'beat',
     title: 'The Belfry Opens', titleEs: 'El campanario se abre',
-    text: 'The third bell rings true and the belfry opens above you. The voices the bells held fall back into the air — thin, but alive. Vane stands at the top of the stair. "You rang them in the order they were taken," she says. "Now the belfry is yours. The district may ring again — or it may not. That is the choice the city always makes."',
-    textEs: 'La tercera campana suena verdadera y el campanario se abre sobre ti. Las voces que las campanas guardaban vuelven al aire — delgadas, pero vivas. Vane está en lo alto de la escalera. «Las tocaste en el orden en que fueron tomadas», dice. «Ahora el campanario es tuyo. El distrito puede volver a sonar — o no. Esa es la elección que la ciudad siempre hace».',
+    text: 'The third bell rings true. The belfry opens above you, and the voices the bells held spill back into the air — thin, but alive. Vane lowers her head.\n\n"You rang them in the order they were taken," she says. "Now the belfry is yours. The district may ring again — or it may not. That is the choice the city always makes."',
+    textEs: 'La tercera campana suena verdadera. El campanario se abre sobre ti, y las voces que las campanas guardaban vuelven al aire — delgadas, pero vivas. Vane baja la cabeza.\n\n«Las tocaste en el orden en que fueron tomadas», dice. «Ahora el campanario es tuyo. El distrito puede volver a sonar — o no. Esa es la elección que la ciudad siempre hace».',
     choices: [
       { id: 'c03_voice_to_reveal', label: 'Climb to the belfry', labelEs: 'Subir al campanario', nextNodeId: 'c03_vane_reveal', setsFlags: { c03_voices_freed: true, 'canon:c03_evidence_bell': true }, adjustsValues: { conviction_compassion: 2 }, result: 'You climb into the belfry. The freed voices circle the tower.', resultEs: 'Subes al campanario. Las voces liberadas rodean la torre.' },
     ],
@@ -148,8 +148,8 @@ const NODES: Record<string, StoryNode> = {
   c03_voice_skipped: {
     id: 'c03_voice_skipped', kind: 'beat',
     title: 'The Bells Left Unrung', titleEs: 'Las campanas sin tocar',
-    text: 'You leave the bells unrung. The voices stay sealed in iron. Vane watches you descend. "The district will go silent," she says. "It always does, when no one rings the bells."',
-    textEs: 'Dejas las campanas sin tocar. Las voces siguen selladas en hierro. Vane te ve bajar. «El distrito quedará mudo», dice. «Siempre queda, cuando nadie toca las campanas».',
+    text: 'You leave the bells unrung. The voices stay sealed in iron.\n\nVane watches you descend. "The district will go silent," she says. "It always does, when no one rings the bells."',
+    textEs: 'Dejas las campanas sin tocar. Las voces siguen selladas en hierro.\n\nVane te ve bajar. «El distrito quedará mudo», dice. «Siempre pasa, cuando nadie toca las campanas».',
     choices: [
       { id: 'c03_voice_skip_to_reveal', label: 'Descend to the gate', labelEs: 'Bajar a la puerta', nextNodeId: 'c03_vane_reveal', result: 'You leave the bells and descend to the gate.', resultEs: 'Dejas las campanas y bajas a la puerta.' },
     ],
@@ -159,8 +159,8 @@ const NODES: Record<string, StoryNode> = {
   c03_foundry: {
     id: 'c03_foundry', kind: 'beat', locationId: 'c03_foundry',
     title: 'The Foundry', titleEs: 'La fundición',
-    text: 'The foundry casts bells for voices the city never collected — bells that never rang. The foundry-keeper stamps each crate with the second ink, the same ink that stained the chapel ledger and the cargo ledger. The foundry knows which voice the city already paid for, and which it still owes.',
-    textEs: 'La fundición funde campanas para voces que la ciudad nunca cobró — campanas que nunca sonaron. El guardián de la fundición estampa cada caja con la segunda tinta, la misma que manchó el registro de la capilla y el de la carga. La fundición sabe qué voz ya pagó la ciudad y cuál aún debe.',
+    text: 'The foundry casts bells for voices the city never collected — bells that never rang. The foundry-keeper stamps each crate with the second ink, the same ink that stained the chapel ledger and Olen\'s manifest. The foundry knows which voice the city already paid for, and which it still owes.',
+    textEs: 'La fundición funde campanas para voces que la ciudad nunca cobró — campanas que nunca sonaron. El guardián de la fundición estampa cada caja con la segunda tinta, la misma que manchó el registro de la capilla y el manifiesto de Olen. La fundición sabe qué voz ya pagó la ciudad y cuál aún debe.',
     choices: [
       { id: 'c03_foundry_floor', label: 'Enter the foundry floor', labelEs: 'Entrar en el piso de la fundición', nextNodeId: 'c03_foundry_floor', setsFlags: { c03_entered_foundry: true }, result: 'You step onto the foundry floor. The furnaces glow.', resultEs: 'Pisas el piso de la fundición. Los hornos brillan.' },
     ],
@@ -169,8 +169,8 @@ const NODES: Record<string, StoryNode> = {
   c03_foundry_floor: {
     id: 'c03_foundry_floor', kind: 'beat',
     title: 'The Crate of Unrung Bells', titleEs: 'La caja de campanas mudas',
-    text: 'The foundry-keeper shows you a crate of unrung bells. "The city paid three voices," she says. "One is still owed. The crate has the tally — read it and you\'ll know which voice the city already spent, and which it still carries as a debt." The crate is stamped with the same second ink as every ledger this campaign has carried.',
-    textEs: 'El guardián de la fundición te muestra una caja de campanas que nunca sonaron. «La ciudad pagó tres voces», dice. «Una aún se debe. La caja tiene el recuento — léelo y sabrás qué voz gastó ya la ciudad y cuál lleva aún como deuda». La caja lleva la misma segunda tinta que cada registro de esta campaña.',
+    text: 'The foundry-keeper shows you a crate of unrung bells.\n\n"The city paid three voices," she says. "One is still owed. The crate has the tally — read it and you\'ll know which voice the city already spent, and which it still carries as a debt."\n\nThe crate is stamped with the same second ink as every ledger this campaign has carried.',
+    textEs: 'El guardián de la fundición te muestra una caja de campanas que nunca sonaron.\n\n«La ciudad pagó tres voces», dice. «Una aún se debe. La caja tiene el recuento — léelo y sabrás qué voz gastó ya la ciudad y cuál lleva aún como deuda».\n\nLa caja lleva la misma segunda tinta que cada registro de esta campaña.',
     choices: [
       { id: 'c03_open_foundry_crate', label: 'Open the crate and read the tally', labelEs: 'Abrir la caja y leer el recuento', nextNodeId: 'c03_puzzle_foundry', result: 'You approach the crate. The second ink waits.', resultEs: 'Te acercas a la caja. La segunda tinta espera.' },
     ],
@@ -187,8 +187,8 @@ const NODES: Record<string, StoryNode> = {
   c03_foundry_solved: {
     id: 'c03_foundry_solved', kind: 'beat',
     title: 'The Tally Read', titleEs: 'El recuento leído',
-    text: 'The crate opens and the tally is plain: three voices paid — a farmer, a keeper, a child — and one still owed. The city pays the Door with voices, and Vane is the collector. The foundry-keeper nods. "Now you know what the city owes. The question is whether you can make it stop."',
-    textEs: 'La caja se abre y el recuento queda claro: tres voces pagadas — un granjero, un guardián, un niño — y una aún debida. La ciudad paga a la Puerta con voces, y Vane es la cobradora. El guardián de la fundición asiente. «Ahora sabes lo que debe la ciudad. La pregunta es si puedes hacer que pare».',
+    text: 'The crate opens. The tally is plain: three voices paid — a farmer, a keeper, a child — and one still owed. The city pays the Door with voices, and Vane is the collector.\n\nThe foundry-keeper nods. "Now you know what the city owes. The question is whether you can make it stop."',
+    textEs: 'La caja se abre. El recuento queda claro: tres voces pagadas — un granjero, un guardián, un niño — y una aún debida. La ciudad paga a la Puerta con voces, y Vane es la cobradora.\n\nEl guardián de la fundición asiente. «Ahora sabes lo que debe la ciudad. La pregunta es si puedes hacer que pare».',
     choices: [
       { id: 'c03_foundry_to_reveal', label: 'Bring the tally to the bell-tower', labelEs: 'Llevar el recuento a la torre', nextNodeId: 'c03_vane_reveal', setsFlags: { c03_foundry_evidence: true, 'canon:c03_evidence_bell': true }, adjustsValues: { conviction_truth: 2 }, result: 'You carry the foundry tally toward the bell-tower.', resultEs: 'Llevas el recuento de la fundición hacia la torre.' },
     ],
@@ -197,8 +197,8 @@ const NODES: Record<string, StoryNode> = {
   c03_foundry_skipped: {
     id: 'c03_foundry_skipped', kind: 'beat',
     title: 'The Crate Left Shut', titleEs: 'La caja dejada cerrada',
-    text: 'You leave the crate sealed. The foundry-keeper shrugs. "The city will keep paying, then. One voice per season, until someone reads the tally."',
-    textEs: 'Dejas la caja cerrada. El guardián de la fundición se encoge de hombros. «La ciudad seguirá pagando, entonces. Una voz por estación, hasta que alguien lea el recuento».',
+    text: 'You leave the crate sealed.\n\nThe foundry-keeper shrugs. "The city will keep paying, then. One voice per season, until someone reads the tally."',
+    textEs: 'Dejas la caja cerrada.\n\nEl guardián de la fundición se encoge de hombros. «La ciudad seguirá pagando, entonces. Una voz por estación, hasta que alguien lea el recuento».',
     choices: [
       { id: 'c03_foundry_skip_to_reveal', label: 'Head to the bell-tower', labelEs: 'Ir a la torre', nextNodeId: 'c03_vane_reveal', result: 'You leave the foundry and head toward the bell-tower.', resultEs: 'Dejas la fundición y te diriges a la torre.' },
     ],
@@ -208,8 +208,8 @@ const NODES: Record<string, StoryNode> = {
   c03_vane_reveal: {
     id: 'c03_vane_reveal', kind: 'beat', locationId: 'c03_bell_tower',
     title: 'Vane\'s Revelation', titleEs: 'La revelación de Vane',
-    text: 'Vane stands at the top of the bell-tower stair. "The voices are the city\'s payment to the Door," she says. "I did not choose this. The pact chose it, a hundred years ago. Every season the city gives one voice, and the Door stays closed for another year. If you stop the payment, the Door opens. If you keep the payment, the district goes silent forever. The city chose this bargain. I am only the bell-keeper." She watches you. "But if you carry a voice the Door already took — one that was stolen, not paid — you might return it. The bell is the witness, the pod is the vessel, the price is a voice."',
-    textEs: 'Vane está en lo alto de la escalera de la torre. «Las voces son el pago de la ciudad a la Puerta», dice. «Yo no elegí esto. Lo eligió el pacto, hace cien años. Cada estación la ciudad da una voz, y la Puerta se mantiene cerrada otro año. Si detienes el pago, la Puerta se abre. Si mantienes el pago, el distrito queda mudo para siempre. La ciudad eligió este trato. Yo soy solo la campanera». Te observa. «Pero si llevas una voz que la Puerta ya tomó — una que fue robada, no pagada — quizás puedas devolverla. La campana es el testigo, la vasija es el recipiente, el precio es una voz».',
+    text: 'Vane stands at the top of the bell-tower stair.\n\n"The voices are the city\'s payment to the Door," she says. "I did not choose this. The pact chose it, a hundred years ago. Every season the city gives one voice, and the Door stays closed for another year. Stop the payment, and the Door opens. Keep the payment, and the district goes silent forever. The city chose this bargain. I am only the bell-keeper."\n\nShe watches you. "But if you carry a voice the Door already took — one stolen, not paid — you might return it. The bell is the witness, the pod is the vessel, the price is a voice."',
+    textEs: 'Vane está en lo alto de la escalera de la torre.\n\n«Las voces son el pago de la ciudad a la Puerta», dice. «Yo no elegí esto. Lo eligió el pacto, hace cien años. Cada estación, la ciudad entrega una voz, y la Puerta se mantiene cerrada otro año. Detén el pago, y la Puerta se abre. Mantén el pago, y el distrito queda mudo para siempre. La ciudad eligió este trato. Yo soy solo la campanera».\n\nTe observa. «Pero si llevas una voz que la Puerta ya tomó — una robada, no pagada — quizás puedas devolverla. La campana es el testigo, la vasija es el recipiente, el precio es una voz».',
     choices: [
       { id: 'c03_return_greta_voice', label: 'Return Greta\'s stolen voice to a bell', labelEs: 'Devolver la voz robada de Greta a una campana', nextNodeId: 'c03_greta_voice', requires: [{ flag: 'canon:c01_greta_voice' }], setsFlags: { 'canon:c03_greta_voice_returned': true }, adjustsValues: { conviction_compassion: 3, faction_bellwardens: 2 }, result: 'You carry Greta\'s stolen voice — the voice the Drowned Door took in Chapter 1 — and speak it into the oldest bell. The bell rings true for the first time in a hundred years.', resultEs: 'Llevas la voz robada de Greta — la voz que tomó la Puerta Ahogada en el Capítulo 1 — y la hablas en la campana más vieja. La campana suena verdadera por primera vez en cien años.' },
       { id: 'c03_face_wardens', label: 'Face the Chiming Wardens', labelEs: 'Enfrentar a los Guardianes Retintines', nextNodeId: 'c03_chiming_wardens', setsFlags: { c03_faced_wardens: true }, adjustsValues: { conviction_freedom: 1 }, result: 'You stride toward the belfry. The Chiming Wardens rise to block the stair.', resultEs: 'Te diriges al campanario. Los Guardianes Retintines se alzan para bloquear la escalera.' },
@@ -220,8 +220,8 @@ const NODES: Record<string, StoryNode> = {
   c03_greta_voice: {
     id: 'c03_greta_voice', kind: 'beat',
     title: 'Greta\'s Voice Returned', titleEs: 'La voz de Greta devuelta',
-    text: 'You speak Greta\'s voice into the oldest bell. It rings — clear, deep, and alive. The voice the Drowned Door took in Blackmere has come home to a bell in Syrva. Vane lowers her head. "The rescue oath is fulfilled," she says. "The voice the Door stole is returned. The city\'s debt is lighter by one." The bell still rings. The district remembers.',
-    textEs: 'Hablas la voz de Greta en la campana más vieja. Suena — clara, grave y viva. La voz que la Puerta Ahogada tomó en Blackmere ha vuelto a una campana en Sirva. Vane baja la cabeza. «El juramento de rescate está cumplido», dice. «La voz que la Puerta robó ha sido devuelta. La deuda de la ciudad es más ligera en una». La campana sigue sonando. El distrito recuerda.',
+    text: 'You speak Greta\'s voice into the oldest bell. It rings — clear, deep, and alive. The voice the Drowned Door took in Blackmere has come home to a bell in Syrva.\n\nVane lowers her head. "The rescue oath is fulfilled," she says. "The voice the Door stole is returned. The city\'s debt is lighter by one."\n\nThe bell still rings. The district remembers.',
+    textEs: 'Hablas la voz de Greta en la campana más vieja. Suena — clara, grave y viva. La voz que la Puerta Ahogada tomó en Blackmere ha vuelto a una campana en Sirva.\n\nVane baja la cabeza. «El juramento de rescate está cumplido», dice. «La voz que la Puerta robó ha sido devuelta. La deuda de la ciudad es más ligera en una».\n\nLa campana sigue sonando. El distrito recuerda.',
     choices: [
       { id: 'c03_greta_to_threshold', label: 'Descend to the threshold', labelEs: 'Bajar al umbral', nextNodeId: 'c03_threshold', setsFlags: { 'canon:c03_greta_voice_returned': true }, adjustsValues: { conviction_compassion: 2 }, result: 'You carry the ringing bell\'s promise down to the threshold.', resultEs: 'Llevas la promesa de la campana que suena hasta el umbral.' },
     ],
@@ -231,8 +231,8 @@ const NODES: Record<string, StoryNode> = {
   c03_chiming_wardens: {
     id: 'c03_chiming_wardens', kind: 'beat', locationId: 'c03_bell_chamber',
     title: 'The Chiming Wardens', titleEs: 'Los Guardianes Retintines',
-    text: 'The Chiming Wardens rise from the bell-pits — iron shapes in the form of bell-ringers, each one carrying a silenced bell as a shield. They do not speak; they ring. The stair to the belfry is behind them, and the district\'s last voice is above.',
-    textEs: 'Los Guardianes Retintines se alzan de los fosos de las campanas — figuras de hierro en forma de campaneros, cada una con una campana silenciada como escudo. No hablan; repican. La escalera al campanario está detrás de ellos, y la última voz del distrito está arriba.',
+    text: 'The Chiming Wardens rise from the bell-pits — iron shapes in the form of bell-ringers, each carrying a silenced bell as a shield. They do not speak; they ring. The stair to the belfry is behind them, and the district\'s last voice is above.',
+    textEs: 'Los Guardianes Retintines se alzan de los fosos de las campanas — figuras de hierro con forma de campaneros, cada una con una campana silenciada como escudo. No hablan; repican. La escalera al campanario está detrás de ellos, y la última voz del distrito está arriba.',
     choices: [
       { id: 'c03_fight_wardens', label: 'Fight through the Chiming Wardens', labelEs: 'Luchar contra los Guardianes Retintines', nextNodeId: 'c03_wardens_aftermath', setsFlags: { c03_fought_wardens: true }, adjustsValues: { conviction_freedom: 2 }, result: 'You raise your weapon. The wardens ring their shields.', resultEs: 'Levantas tu arma. Los guardianes hacen sonar sus escudos.' },
     ],
@@ -261,8 +261,8 @@ const NODES: Record<string, StoryNode> = {
   c03_witnessing_rite: {
     id: 'c03_witnessing_rite', kind: 'beat',
     title: 'The Witnessing Rite', titleEs: 'El rito de testimonio',
-    text: 'You stand before the bells and perform the rite the city forgot — a witnessing, spoken and sung. The bells do not ring, but they listen. Vane watches from the stair. "The rite does not free the voices," she says. "But it records them. The court will hear that the city paid, and what it paid with. That is evidence."',
-    textEs: 'Te yergues ante las campanas y realizas el rito que la ciudad olvidó — un testimonio, hablado y cantado. Las campanas no suenan, pero escuchan. Vane observa desde la escalera. «El rito no libera las voces», dice. «Pero las registra. La corte oirá que la ciudad pagó, y con qué. Eso es evidencia».',
+    text: 'You stand before the bells and perform the rite the city forgot — a witnessing, spoken and sung. The bells do not ring, but they listen.\n\nVane watches from the stair. "The rite does not free the voices," she says. "But it records them. The court will hear that the city paid, and what it paid with. That is evidence."',
+    textEs: 'Te yergues ante las campanas y realizas el rito que la ciudad olvidó — un testimonio, hablado y cantado. Las campanas no suenan, pero escuchan.\n\nVane observa desde la escalera. «El rito no libera las voces», dice. «Pero las registra. La corte oirá que la ciudad pagó, y con qué. Eso es evidencia».',
     choices: [
       { id: 'c03_rite_to_threshold', label: 'Carry the rite\'s record to the threshold', labelEs: 'Llevar el registro del rito al umbral', nextNodeId: 'c03_threshold', setsFlags: { 'canon:c03_evidence_bell': true }, adjustsValues: { conviction_truth: 2 }, result: 'You carry the witnessing record toward the threshold.', resultEs: 'Llevas el registro del testimonio hacia el umbral.' },
     ],
@@ -272,8 +272,8 @@ const NODES: Record<string, StoryNode> = {
   c03_threshold: {
     id: 'c03_threshold', kind: 'beat', locationId: 'c03_bell_tower',
     title: 'The Bell-Showdown', titleEs: 'El cara a cara de las campanas',
-    text: 'You stand at the top of the bell-tower. The district stretches below — half-silent, half-alive. Vane stands beside you. "The city chose this bargain a hundred years ago," she says. "One voice per season, and the Door stays closed. You can ring the bells and free the district — the Door will open, but the voices will live. You can liburn them — ring them softly, keep the district alive and the Door half-closed. You can sell them — the Iron Parliament will take the bells and the voices. Or you can take flight, and let the district go silent. The choice is the city\'s. But you are the one standing here."',
-    textEs: 'Estás en lo alto de la torre. El distrito se extiende abajo — medio mudo, medio vivo. Vane está a tu lado. «La ciudad eligió este trato hace cien años», dice. «Una voz por estación, y la Puerta se mantiene cerrada. Puedes tocar las campanas y liberar el distrito — la Puerta se abrirá, pero las voces vivirán. Puedes hacerlas repicar suavemente — mantener el distrito vivo y la Puerta medio cerrada. Puedes venderlas — el Parlamento de Hierro se llevará las campanas y las voces. O puedes huir, y dejar que el distrito quede mudo. La elección es de la ciudad. Pero tú eres quien está aquí».',
+    text: 'You stand at the top of the bell-tower. The district stretches below — half-silent, half-alive. Vane stands beside you.\n\n"The city chose this bargain a hundred years ago," she says. "One voice per season, and the Door stays closed. Ring the bells and free the district — the Door will open, but the voices will live. Liburn them — ring them softly, keep the district alive and the Door half-closed. Sell them — the Iron Parliament will take the bells and the voices. Or take flight, and let the district go silent. The choice is the city\'s. But you are the one standing here."',
+    textEs: 'Estás en lo alto de la torre. El distrito se extiende abajo — medio mudo, medio vivo. Vane está a tu lado.\n\n«La ciudad eligió este trato hace cien años», dice. «Una voz por estación, y la Puerta se mantiene cerrada. Toca las campanas y libera el distrito — la Puerta se abrirá, pero las voces vivirán. Repícalas suavemente — mantén el distrito vivo y la Puerta medio cerrada. Véndelas — el Parlamento de Hierro se llevará las campanas y las voces. O huye, y deja que el distrito quede mudo. La elección es de la ciudad. Pero tú eres quien está aquí».',
     choices: [
       { id: 'c03_to_ending_ring', label: 'Ring the bells — free the district, open the Door', labelEs: 'Tocar las campanas — liberar el distrito, abrir la Puerta', nextNodeId: 'c03_ending_ring', setsFlags: { 'canon:c03_district_saved': true }, adjustsValues: { conviction_freedom: 3, faction_bellwardens: 2 }, result: 'You ring every bell in the tower. The voices pour out. The district rings alive; the Door opens somewhere far below.', resultEs: 'Tocas cada campana de la torre. Las voces se derraman. El distrito resuena vivo; la Puerta se abre en algún lugar muy abajo.' },
       { id: 'c03_to_ending_liburn', label: 'Liburn the bells — keep the district alive softly', labelEs: 'Repicar suavemente — mantener el distrito vivo quedamente', nextNodeId: 'c03_ending_liburn', setsFlags: { 'canon:c03_district_saved': true }, adjustsValues: { conviction_compassion: 2, faction_bellwardens: 1 }, result: 'You liburn the bells — a soft, steady ringing that keeps the voices in the air without setting them free. The Door stays half-closed.', resultEs: 'Haces repicar suavemente las campanas — un repique constante y quedo que mantiene las voces en el aire sin soltarlas. La Puerta queda medio cerrada.' },
@@ -287,29 +287,29 @@ const NODES: Record<string, StoryNode> = {
     id: 'c03_ending_ring', kind: 'ending', terminal: true, choices: [],
     outcome: 'success', survivors: ['c03_vane'], casualties: [],
     title: 'The District Rings', titleEs: 'El distrito resuena',
-    text: 'Every bell in Syrva rings at once. The voices pour into the streets like rain after a drought. The district is saved — alive, loud, and free. The Door opens somewhere far below, but the voices that were its payment are in the air now, not in the iron. Vane stands in the tower and listens. "The city chose," she says. "It chose to ring."',
-    textEs: 'Cada campana de Sirva suena a la vez. Las voces se derraman por las calles como lluvia tras una sequía. El distrito está a salvo — vivo, ruidoso y libre. La Puerta se abre en algún lugar muy abajo, pero las voces que eran su pago están en el aire ahora, no en el hierro. Vane está en la torre y escucha. «La ciudad eligió», dice. «Eligió sonar».',
+    text: 'Every bell in Syrva rings at once. The voices pour into the streets like rain after a drought. The district is saved — alive, loud, and free.\n\nThe Door opens somewhere far below, but the voices that were its payment are in the air now, not in the iron.\n\nVane stands in the tower and listens. "The city chose," she says. "It chose to ring."',
+    textEs: 'Cada campana de Sirva suena a la vez. Las voces se derraman por las calles como lluvia tras una sequía. El distrito está a salvo — vivo, ruidoso y libre.\n\nLa Puerta se abre en algún lugar muy abajo, pero las voces que eran su pago están en el aire ahora, no en el hierro.\n\nVane está en la torre y escucha. «La ciudad eligió», dice. «Eligió sonar».',
   },
   c03_ending_liburn: {
     id: 'c03_ending_liburn', kind: 'ending', terminal: true, choices: [],
     outcome: 'ambiguous', survivors: ['c03_vane'], casualties: [],
     title: 'The Soft Bells', titleEs: 'Las campanas quedas',
-    text: 'You liburn the bells — a soft, steady ringing that keeps the voices in the air without setting them fully free. The district lives, quietly. The Door stays half-closed. The bargain holds, but gently. Vane nods. "The city chose to keep its voices and its door both. That is the hardest choice, and the slowest."',
-    textEs: 'Haces repicar suavemente las campanas — un repique constante y quedo que mantiene las voces en el aire sin soltarlas del todo. El distrito vive, quedamente. La Puerta queda medio cerrada. El trato se mantiene, pero suavemente. Vane asiente. «La ciudad eligió guardar sus voces y su puerta a la vez. Es la elección más difícil, y la más lenta».',
+    text: 'You liburn the bells — a soft, steady ringing that keeps the voices in the air without setting them fully free. The district lives, quietly. The Door stays half-closed. The bargain holds, but gently.\n\nVane nods. "The city chose to keep its voices and its door both. That is the hardest choice, and the slowest."',
+    textEs: 'Haces repicar suavemente las campanas — un repique constante y quedo que mantiene las voces en el aire sin soltarlas del todo. El distrito vive, quedamente. La Puerta queda medio cerrada. El trato se mantiene, pero suavemente.\n\nVane asiente. «La ciudad eligió guardar sus voces y su puerta a la vez. Es la elección más difícil, y la más lenta».',
   },
   c03_ending_sold: {
     id: 'c03_ending_sold', kind: 'ending', terminal: true, choices: [],
     outcome: 'failure', survivors: [], casualties: ['c03_vane'],
     title: 'The Bells Sold', titleEs: 'Las campanas vendidas',
-    text: 'You sell the bells to the Iron Parliament. They take the bells and the voices they hold — every one. The district goes silent. The Parliament pays well, and the city pockets the silver, and the voices disappear into the continental register. Vane is gone. The tower is empty. The Door stays closed, but the price was every voice the city had left.',
-    textEs: 'Vendes las campanas al Parlamento de Hierro. Se llevan las campanas y las voces que guardan — todas. El distrito queda mudo. El Parlamento paga bien, la ciudad se guarda la plata, y las voces desaparecen en el registro continental. Vane se ha ido. La torre está vacía. La Puerta se mantiene cerrada, pero el precio fue cada voz que le quedaba a la ciudad.',
+    text: 'You sell the bells to the Iron Parliament. They take the bells and the voices they hold — every one. The district goes silent.\n\nThe Parliament pays well. The city pockets the silver. The voices disappear into the continental register.\n\nVane is gone. The tower is empty. The Door stays closed, but the price was every voice the city had left.',
+    textEs: 'Vendes las campanas al Parlamento de Hierro. Se llevan las campanas y las voces que guardan — todas. El distrito queda mudo.\n\nEl Parlamento paga bien. La ciudad se guarda la plata. Las voces desaparecen en el registro continental.\n\nVane se ha ido. La torre está vacía. La Puerta se mantiene cerrada, pero el precio fue cada voz que le quedaba a la ciudad.',
   },
   c03_ending_flight: {
     id: 'c03_ending_flight', kind: 'ending', terminal: true, choices: [],
     outcome: 'failure', survivors: [], casualties: ['c03_vane'],
     title: 'The Silent District', titleEs: 'El distrito mudo',
-    text: 'You leave the tower. Behind you, the district goes silent — not all at once, but one bell at a time, until the last one stops. Vane is still up there, tending the mute bells. The Door stays closed. The city pays its voice next season, and the next, and the next. You chose not to choose, and the silence chose for you.',
-    textEs: 'Dejas la torre. A tus espaldas, el distrito queda mudo — no de golpe, sino campana por campana, hasta que la última se detiene. Vane sigue arriba, cuidando las campanas mudas. La Puerta se mantiene cerrada. La ciudad paga su voz la próxima estación, y la siguiente, y la siguiente. Elegiste no elegir, y el silencio eligió por ti.',
+    text: 'You leave the tower. Behind you, the district goes silent — not all at once, but one bell at a time, until the last one stops.\n\nVane is still up there, tending the mute bells. The Door stays closed. The city pays its voice next season, and the next, and the next.\n\nYou chose not to choose, and the silence chose for you.',
+    textEs: 'Dejas la torre. A tus espaldas, el distrito queda mudo — no de golpe, sino campana por campana, hasta que la última se detiene.\n\nVane sigue arriba, cuidando las campanas mudas. La Puerta se mantiene cerrada. La ciudad paga su voz la próxima estación, y la siguiente, y la siguiente.\n\nElegiste no elegir, y el silencio eligió por ti.',
   },
 };
 
