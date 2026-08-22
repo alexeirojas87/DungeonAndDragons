@@ -445,7 +445,7 @@ const MONSTERS: Record<string, Omit<Enemy, 'id'>> = {
     templateId: 'c01_skeleton_guard', name: 'Skeletal Guard', nameEs: 'Guardia Esquelético', portrait: 'skeleton', hp: 8, maxHp: 8, ac: 12, attack: 13, damage: '1d8', damageType: 'slashing', abilities: ['Undead Fortitude'], abilitiesEs: ['Fortaleza No-Muerta'], xpValue: 60, loot: [], intelligence: 6, morale: 100, conditions: [],
   },
   c01_warden: {
-    templateId: 'c01_warden', name: 'The Crypt Warden', nameEs: 'El Guardián de la Cripta', portrait: 'warden', hp: 26, maxHp: 26, ac: 14, attack: 16, damage: '2d10', damageType: 'necrotic', abilities: ['Bone Shield', 'Fear Aura', 'Summon Skeletons', 'Life Drain'], abilitiesEs: ['Escudo de Huesos', 'Aura de Miedo', 'Invocar Esqueletos', 'Drenaje de Vida'], xpValue: 500, loot: [], intelligence: 12, morale: 100, conditions: [],
+    templateId: 'c01_warden', name: 'The Crypt Warden', nameEs: 'El Guardián de la Cripta', portrait: 'warden', hp: 18, maxHp: 18, ac: 12, attack: 6, damage: '1d8', damageType: 'necrotic', abilities: ['Bone Shield', 'Fear Aura', 'Summon Skeletons', 'Life Drain'], abilitiesEs: ['Escudo de Huesos', 'Aura de Miedo', 'Invocar Esqueletos', 'Drenaje de Vida'], xpValue: 500, loot: [], intelligence: 12, morale: 100, conditions: [],
   },
 };
 
