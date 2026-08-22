@@ -13,7 +13,22 @@ import { foldLegacyCampaignProgress } from '../engine/campaign';
 const SAVE_KEY = 'gauntlet_save';
 const CHECKPOINT_KEY = 'gauntlet_checkpoint';
 const SETTINGS_KEY = 'gauntlet_settings';
-const SAVE_VERSION = 4;
+const SAVE_VERSION = 5;
+
+const LEGACY_CHAPTER_ONE_ENDINGS = new Set([
+  'ending_rescue',
+  'ending_sealed',
+  'ending_destroyed',
+  'ending_remembered',
+  'ending_relic',
+]);
+
+function authoredChapterOneEndingId(legacyEndingNodeId: string): string {
+  const authoredEndingNodeId = `c01_${legacyEndingNodeId}`;
+  return CHAPTER_ONE.nodes[authoredEndingNodeId]
+    ? authoredEndingNodeId
+    : legacyEndingNodeId;
+}
 
 export interface SaveData {
   version: number;
@@ -100,13 +115,17 @@ export function saveCheckpoint(gameState: GameState, narrative: NarrativeEntry[]
 }
 
 function migrate(data: SaveData): SaveData | null {
-  if (![1, 2, 3, SAVE_VERSION].includes(data.version)) return null;
+  if (![1, 2, 3, 4, SAVE_VERSION].includes(data.version)) return null;
 
   const state = data.gameState;
   if (!state.story) state.story = createInitialStoryState();
 
   const legacyGeneratedSave = data.version <= 3
     && (state.activeChapterIndex > 0 || (state.chapters?.some(chapter => chapter.index > 1) ?? false));
+  const legacyChapterOneGraphSave = data.version <= 4
+    && !legacyGeneratedSave
+    && (state.activeChapterIndex ?? 0) === 0
+    && !CHAPTER_ONE.nodes[state.story.currentNodeId];
 
   if (!state.campaignProgress) {
     const retainedLegacyFlags = Object.fromEntries(
@@ -134,10 +153,7 @@ function migrate(data: SaveData): SaveData | null {
           : state.flags.sealed_drowned_door
             ? 'ending_sealed'
             : 'ending_rescue';
-    const authoredEndingNodeId = `c01_${legacyEndingNodeId}`;
-    const endingNodeId = CHAPTER_ONE.nodes[authoredEndingNodeId]
-      ? authoredEndingNodeId
-      : legacyEndingNodeId;
+    const endingNodeId = authoredChapterOneEndingId(legacyEndingNodeId);
     state.chapters = [CHAPTER_ONE];
     state.activeChapterIndex = 0;
     state.story = {
@@ -162,10 +178,43 @@ function migrate(data: SaveData): SaveData | null {
     state.status = 'chapter_complete';
   }
 
+  if (legacyChapterOneGraphSave) {
+    for (const [flag, value] of Object.entries(state.flags ?? {})) {
+      if (value) state.campaignProgress.legacyFlags[flag] = true;
+    }
+    const legacyNodeId = state.story.currentNodeId;
+    const mappedEndingId = LEGACY_CHAPTER_ONE_ENDINGS.has(legacyNodeId)
+      ? authoredChapterOneEndingId(legacyNodeId)
+      : null;
+    state.chapters = [CHAPTER_ONE];
+    state.activeChapterIndex = 0;
+    state.combat = null;
+    state.activeDialogue = null;
+    state.puzzles = createPuzzleRuntime();
+    if (mappedEndingId) {
+      state.story = {
+        ...createInitialStoryState(),
+        currentNodeId: mappedEndingId,
+        visitedNodeIds: [mappedEndingId],
+        values: { ...state.story.values },
+        completed: true,
+      };
+      state.status = 'chapter_complete';
+    } else {
+      state.story = {
+        ...createInitialStoryState(),
+        currentNodeId: CHAPTER_ONE.startNodeId,
+        visitedNodeIds: [CHAPTER_ONE.startNodeId],
+      };
+      state.chronicle = (state.chronicle ?? []).filter(summary => summary.chapterId !== CHAPTER_ONE.id);
+      state.status = 'playing';
+    }
+  }
+
   // v1/v2 saves predate chapters-as-data: they can only have been playing the
   // authored chapter, so give them that one and an empty chronicle.
   if (typeof state.activeChapterIndex !== 'number' || state.activeChapterIndex < 0) state.activeChapterIndex = 0;
-  if (!legacyGeneratedSave) {
+  if (!legacyGeneratedSave && !legacyChapterOneGraphSave) {
     const activeChapterNumber = state.activeChapterIndex + 1;
     state.chapters = getCampaignChaptersThrough(activeChapterNumber);
     if (!state.chapters[state.activeChapterIndex]) {

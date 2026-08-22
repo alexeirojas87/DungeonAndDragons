@@ -98,6 +98,26 @@ function validateStaticSaveAndLegacyMigration(): void {
   assert(refolded);
   assert.equal(refolded.gameState.campaignProgress.factionReputation.veiled_court, 5);
   assert.equal(refolded.gameState.campaignProgress.factionReputation.ashen_veil, undefined);
+
+  const inProgressLegacy = structuredClone(engine.getState());
+  inProgressLegacy.story.currentNodeId = 'removed_chapter_one_node';
+  inProgressLegacy.story.visitedNodeIds = ['removed_chapter_one_node'];
+  inProgressLegacy.flags.old_unmapped_decision = true;
+  localStorage.setItem('gauntlet_save', JSON.stringify({
+    version: 4,
+    gameState: inProgressLegacy,
+    narrative: engine.getNarrative(),
+    language: 'es',
+    savedAt: Date.now(),
+  }));
+  const restarted = loadGame();
+  assert(restarted);
+  assert.equal(restarted.gameState.story.currentNodeId, CHAPTER_ONE.startNodeId);
+  assert.equal(restarted.gameState.status, 'playing');
+  assert.equal(restarted.gameState.party[0].name, 'Iria');
+  assert.equal(restarted.gameState.party[0].inventory.length, engine.getState().party[0].inventory.length);
+  assert.equal(restarted.language, 'es');
+  assert.equal(restarted.gameState.campaignProgress.legacyFlags.old_unmapped_decision, true);
   console.log('✓ static saves rehydrate and generated saves migrate to Chapter 1 ending');
 }
 
