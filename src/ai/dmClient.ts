@@ -149,6 +149,7 @@ export async function callDM(context: DMContext): Promise<string> {
     const res = await fetch('/api/dm', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(8000),
       body: JSON.stringify({
         messages,
         temperature: 0.7,

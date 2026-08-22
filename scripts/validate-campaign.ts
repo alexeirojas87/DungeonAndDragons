@@ -6,6 +6,7 @@ import { GameEngine } from '../src/engine/gameEngine';
 import { MONSTER_TEMPLATES } from '../src/data/monsters';
 import { loadGame, saveGame } from '../src/lib/persistence';
 import type { Archetype, Difficulty, Origin } from '../src/engine/types';
+import { ACTION_SCROLL_DEFAULT_OPEN } from '../src/components/ActionScroll';
 
 const archetypes: Archetype[] = ['warrior', 'rogue', 'ranger', 'mage', 'cleric'];
 const origins: Origin[] = ['ashenvale', 'ironcoast', 'shadowfen', 'stormreach', 'deephollow'];
@@ -91,3 +92,5 @@ function validateStaticSaveAndLegacyMigration(): void {
 
 validateDifficultyMatrix();
 validateStaticSaveAndLegacyMigration();
+assert.equal(ACTION_SCROLL_DEFAULT_OPEN, false);
+console.log('✓ mobile action scroll starts closed and opens only by player selection');

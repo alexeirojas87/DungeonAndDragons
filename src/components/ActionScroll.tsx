@@ -24,6 +24,8 @@ interface ActionScrollProps {
   className?: string;
 }
 
+export const ACTION_SCROLL_DEFAULT_OPEN = false;
+
 export function ActionScroll({
   onSubmit,
   language,
@@ -34,7 +36,7 @@ export function ActionScroll({
   className,
 }: ActionScrollProps) {
   const es = language === 'es';
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(ACTION_SCROLL_DEFAULT_OPEN);
   const [typingMode, setTypingMode] = useState(false);
   const [input, setInput] = useState('');
   const [focusedEntity, setFocusedEntity] = useState<string | null>(null);

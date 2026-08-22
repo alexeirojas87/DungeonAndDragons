@@ -33,6 +33,7 @@ The document must contain:
 - Numeric gates use `requiresValues` with a namespaced `key` plus `min` and/or `max`; they must always leave at least one ungated route forward.
 - Every introduced non-local flag is consumed by a later condition, summary, or ending rule.
 - No direct imports from another chapter file. Shared canon belongs in campaign state/contracts.
+- Returning NPCs keep their original stable ID through `returningNpcIds` and may be placed in locations without redeclaring their full NPC object.
 - No LLM calls, randomness in graph topology, or difficulty-dependent story branches.
 
 ## Consequence notation

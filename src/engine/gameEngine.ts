@@ -1150,11 +1150,12 @@ export class GameEngine {
 
     const extraEffects: string[] = [];
 
-    const destination = route === 'secret_tunnel'
-      ? 'crypt_antechamber'
-      : route === 'varen'
-        ? 'crypt_entrance'
-        : 'crypt_path';
+    const destination = this.chapter().hooks.routeDestinations?.[route]
+      ?? (route === 'secret_tunnel'
+        ? 'crypt_antechamber'
+        : route === 'varen'
+          ? 'crypt_entrance'
+          : 'crypt_path');
 
     this.state.location = destination;
     const location = this.state.worldState.locations[destination];
@@ -1223,14 +1224,20 @@ export class GameEngine {
         es: 'EFECTO DE RUTA — La escolta entrega dos pociones de curación e interceptará el primer ataque enemigo.',
       },
     };
-    const routeSummary = this.language === 'es' ? summaries[route].es : summaries[route].en;
+    const authoredDestination = this.chapter().hooks.routeDestinations?.[route];
+    const routeSummary = authoredDestination && this.chapter().index > 1
+      ? (this.language === 'es'
+        ? `EFECTO DE RUTA — Tu decisión abre el camino hacia ${this.state.worldState.locations[destination]?.nameEs ?? destination}.`
+        : `ROUTE EFFECT — Your decision opens the way to ${this.state.worldState.locations[destination]?.name ?? destination}.`)
+      : (this.language === 'es' ? summaries[route].es : summaries[route].en);
     return [routeSummary, ...extraEffects].join('\n');
   }
 
   private beginWardenAftermath(shouldAddNarrative: boolean): NarrativeEntry[] {
     const node = this.storyNode(this.chapter().hooks.aftermathNodeId);
     if (!node) return [];
-    this.state.flags.warden_defeated = true;
+    this.state.flags[`canon:${this.chapter().id.replaceAll('-', '_')}_boss_defeated`] = true;
+    if (this.chapter().index === 1) this.state.flags.warden_defeated = true;
     this.updateQuestProgress('explore_crypt', 3);
     this.updateQuestProgress('defeat_warden', 1);
     this.state.story.currentNodeId = node.id;
@@ -1971,8 +1978,8 @@ export class GameEngine {
     narrations.push(this.addNarrative({
       type: 'dice',
       content: this.language === 'es'
-        ? `D20: ${result.roll.results[0]} + ${result.roll.modifier} = ${result.roll.total} vs AC ${target.ac} → ${result.hit ? `${result.damage} DAÑO${result.critical ? ' CRÍTICO' : ''}` : 'FALLA'}`
-        : `D20: ${result.roll.results[0]} + ${result.roll.modifier} = ${result.roll.total} vs AC ${target.ac} → ${result.hit ? `${result.damage} DAMAGE${result.critical ? ' CRITICAL' : ''}` : 'MISS'}`,
+        ? `D20: ${result.roll.results[0]} + ${result.roll.modifier} = ${result.roll.total} vs CA ${result.targetAc} → ${result.hit ? `${result.damage} DAÑO${result.critical ? ' CRÍTICO' : ''}` : 'FALLA'}`
+        : `D20: ${result.roll.results[0]} + ${result.roll.modifier} = ${result.roll.total} vs AC ${result.targetAc} → ${result.hit ? `${result.damage} DAMAGE${result.critical ? ' CRITICAL' : ''}` : 'MISS'}`,
       mood: result.hit ? 'triumph' : 'neutral',
     }));
 
@@ -2159,8 +2166,8 @@ export class GameEngine {
       makeEntry({
         type: 'dice',
         content: this.language === 'es'
-          ? `${spell.nameEs}: ${result.roll.total} vs CA ${target.ac} → ${result.hit ? `${result.damage} DE DAÑO` : 'FALLA'}`
-          : `${spell.name}: ${result.roll.total} vs AC ${target.ac} → ${result.hit ? `${result.damage} DAMAGE` : 'MISS'}`,
+          ? `${spell.nameEs}: ${result.roll.total} vs CA ${result.targetAc} → ${result.hit ? `${result.damage} DE DAÑO` : 'FALLA'}`
+          : `${spell.name}: ${result.roll.total} vs AC ${result.targetAc} → ${result.hit ? `${result.damage} DAMAGE` : 'MISS'}`,
         mood: result.hit ? 'triumph' : 'neutral',
       }),
       makeEntry({
@@ -3176,7 +3183,7 @@ export class GameEngine {
     const narrations: NarrativeEntry[] = [];
     narrations.push(this.createNarrativeEntry({
       type: 'dice',
-      content: `D20: ${result.roll.results[0]} + ${result.roll.modifier} = ${result.roll.total} vs AC ${target.ac} → ${result.hit ? `${result.damage} DMG${result.critical ? ' CRIT' : ''}` : 'MISS'}`,
+      content: `D20: ${result.roll.results[0]} + ${result.roll.modifier} = ${result.roll.total} vs AC ${result.targetAc} → ${result.hit ? `${result.damage} DMG${result.critical ? ' CRIT' : ''}` : 'MISS'}`,
       mood: result.hit ? 'triumph' : 'neutral',
     }));
 

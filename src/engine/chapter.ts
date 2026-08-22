@@ -123,6 +123,8 @@ export interface Chapter {
   puzzles: Record<string, Puzzle>;
   locations: Record<string, WorldLocation>;
   npcs: Record<string, NPC>;
+  /** Stable NPCs loaded by an earlier chapter and placed here without redeclaration. */
+  returningNpcIds?: string[];
   monsters: Record<string, Omit<Enemy, 'id'>>;
   items?: Record<string, ItemTemplate>;
   quests: Record<string, Quest>;
@@ -479,6 +481,7 @@ export const ChapterSchema = z.object({
   puzzles: z.record(id, puzzleSchema),
   locations: z.record(id, locationSchema),
   npcs: z.record(id, npcSchema),
+  returningNpcIds: idList.optional(),
   monsters: z.record(id, monsterSchema),
   items: z.record(id, itemTemplateSchema).optional(),
   quests: z.record(id, questSchema),
@@ -548,6 +551,7 @@ export function validateChapter(chapter: Chapter, usedIds: Set<string> = new Set
   const puzzleIds = new Set(Object.keys(chapter.puzzles));
   const locationIds = new Set(Object.keys(chapter.locations));
   const npcIds = new Set(Object.keys(chapter.npcs));
+  const knownNpcIds = new Set([...npcIds, ...(chapter.returningNpcIds ?? [])]);
   const itemIds = new Set(Object.keys(chapter.items ?? {}));
   const monsterIds = new Set(Object.keys(chapter.monsters));
 
@@ -565,6 +569,9 @@ export function validateChapter(chapter: Chapter, usedIds: Set<string> = new Set
   // ---- id collisions with earlier chapters ----
   for (const candidate of [...nodeIds, ...puzzleIds, ...locationIds, ...npcIds, ...monsterIds, ...itemIds]) {
     if (usedIds.has(candidate)) errors.push(`id ${candidate} collides with an earlier chapter`);
+  }
+  for (const returningId of chapter.returningNpcIds ?? []) {
+    if (npcIds.has(returningId)) errors.push(`returning NPC ${returningId} is also redeclared in this chapter`);
   }
 
   // ---- entry points ----
@@ -651,7 +658,7 @@ export function validateChapter(chapter: Chapter, usedIds: Set<string> = new Set
       }
     }
     for (const npcId of location.npcs) {
-      if (!npcIds.has(npcId)) errors.push(`location ${location.id} lists missing npc ${npcId}`);
+      if (!knownNpcIds.has(npcId)) errors.push(`location ${location.id} lists missing npc ${npcId}`);
     }
     for (const enemyId of location.enemies) {
       if (!monsterIds.has(enemyId)) errors.push(`location ${location.id} lists missing monster ${enemyId}`);
@@ -1122,7 +1129,7 @@ export function normalizeChapter(input: Chapter): { chapter: Chapter; notes: str
   }
 
   const locationIds = new Set(Object.keys(chapter.locations));
-  const npcIds = new Set(Object.keys(chapter.npcs));
+  const npcIds = new Set([...Object.keys(chapter.npcs), ...(chapter.returningNpcIds ?? [])]);
   const monsterIds = new Set(Object.keys(chapter.monsters));
   const itemIds = new Set([...Object.keys(chapter.items ?? {}), ...GLOBAL_ITEM_IDS]);
 

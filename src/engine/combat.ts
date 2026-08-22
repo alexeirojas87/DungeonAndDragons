@@ -122,7 +122,7 @@ export function resolveAttack(
   isSpell: boolean = false,
   spellDamage?: string,
   damageType?: DamageType
-): { hit: boolean; damage: number; critical: boolean; roll: DiceRoll; logEntry: CombatLogEntry } {
+): { hit: boolean; damage: number; critical: boolean; targetAc: number; roll: DiceRoll; logEntry: CombatLogEntry } {
   const conditionModifier = attacker.conditions.includes('frightened') ? -2
     : attacker.conditions.includes('blessed') ? 2
       : 0;
@@ -167,7 +167,7 @@ export function resolveAttack(
 
   encounter.log.push(logEntry);
 
-  return { hit, damage, critical, roll: attackRoll, logEntry };
+  return { hit, damage, critical, targetAc: reactiveAc, roll: attackRoll, logEntry };
 }
 
 export function applyDamage(encounter: CombatEncounter, targetId: string, damage: number): void {
