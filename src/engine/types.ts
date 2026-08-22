@@ -29,6 +29,8 @@ export interface SkillCheck {
 // ---- Character System ----
 export type Archetype = 'warrior' | 'rogue' | 'ranger' | 'mage' | 'cleric';
 export type Origin = 'ashenvale' | 'ironcoast' | 'shadowfen' | 'stormreach' | 'deephollow';
+export type Difficulty = 'story' | 'oath' | 'trial';
+export type Conviction = 'compassion' | 'truth' | 'freedom' | 'duty';
 
 export interface Attributes {
   strength: number;
@@ -289,7 +291,14 @@ export interface Combatant {
   maxHp: number;
   ac: number;
   attackBonus: number;
+  spellAttackBonus: number;
+  spellDamageBonus: number;
   damage: string;
+  damageBonus: number;
+  damageMultiplier: number;
+  damageType: DamageType;
+  abilities: string[];
+  abilitiesEs: string[];
   conditions: Condition[];
   portrait: string;
   isAlive: boolean;
@@ -438,7 +447,7 @@ export interface StoryState {
 
 /**
  * Campaign-level status. 'chapter_complete' means the player is standing at an
- * ending and may continue into a freshly generated chapter; 'dead' locks input
+ * ending and may continue into the next authored chapter; 'dead' locks input
  * until the player retries from a checkpoint.
  */
 export type CampaignStatus = 'playing' | 'chapter_complete' | 'dead';
@@ -457,13 +466,24 @@ export interface GameState {
   eventLog: GameEvent[];
   activeDialogue: DialogueState | null;
   story: StoryState;
-  /** Every chapter this campaign has loaded, authored or generated. */
+  /** Authored chapters loaded into this campaign. */
   chapters: import('./chapter').Chapter[];
   activeChapterIndex: number;
-  /** One compressed record per finished chapter; feeds the next generation. */
+  /** One compressed record per finished chapter; drives later authored consequences. */
   chronicle: import('./chapter').ChapterSummary[];
   puzzles: import('./puzzles').PuzzleRuntime;
   status: CampaignStatus;
+  difficulty: Difficulty;
+  campaignProgress: CampaignProgress;
+}
+
+export interface CampaignProgress {
+  factionReputation: Record<string, number>;
+  npcBonds: Record<string, number>;
+  convictions: Record<Conviction, number>;
+  canonicalChoices: string[];
+  legacyFlags: Record<string, boolean>;
+  endingId?: string;
 }
 
 export interface CampaignState {

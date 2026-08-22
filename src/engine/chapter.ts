@@ -1,9 +1,7 @@
 // ============================================================
 // CHAPTER CONTRACT
-// A chapter is data, not code. Authored chapters and LLM-generated
-// chapters go through the exact same schema and the exact same
-// validator, so a generated chapter can never be less playable
-// than the hand-written one.
+// A chapter is data, not runtime generation. Every reviewed authored chapter
+// goes through the same schema and structural validator.
 // ============================================================
 
 import { z } from 'zod';
@@ -20,6 +18,12 @@ export interface StoryCondition {
   equals?: boolean;
 }
 
+export interface StoryValueCondition {
+  key: string;
+  min?: number;
+  max?: number;
+}
+
 export interface StoryChoice {
   id: string;
   label: string;
@@ -28,6 +32,7 @@ export interface StoryChoice {
   setsFlags?: Record<string, boolean>;
   adjustsValues?: Record<string, number>;
   requires?: StoryCondition[];
+  requiresValues?: StoryValueCondition[];
   archetypes?: Archetype[];
   origins?: Origin[];
   result?: string;
@@ -55,6 +60,11 @@ export interface StoryNode {
   route?: StoryRoute;
   terminal?: boolean;
   externalEntry?: boolean;
+  /** Authored summary metadata for local and campaign endings. */
+  outcome?: 'success' | 'failure' | 'ambiguous';
+  survivors?: string[];
+  casualties?: string[];
+  globalEndingId?: 'new_concord' | 'last_guardian' | 'unbound_world' | 'veil_ascendant' | 'court_restored' | 'decentralized_oaths';
 }
 
 // ---- Chapter pieces ----
@@ -173,10 +183,14 @@ export const SKILL_IDS: Skill[] = [
 ];
 
 // ============================================================
-// ZOD SCHEMA — shape gate for LLM output
+// ZOD SCHEMA — shape gate for authored campaign data
 // ============================================================
 
 const id = z.string().regex(/^[a-z][a-z0-9_]*$/, 'ids must be snake_case');
+const stateKey = z.string().regex(
+  /^(?:[a-z][a-z0-9_]*:)?[a-z][a-z0-9_]*$/,
+  'state keys must be snake_case, optionally namespaced',
+);
 const text = z.string().min(1);
 const idList = z.array(id);
 
@@ -196,8 +210,16 @@ const ambianceEnum = z.enum(AMBIANCE_IDS);
 const moodEnum = z.enum(['neutral', 'tense', 'danger', 'triumph', 'horror', 'humor', 'mystery']);
 
 const storyConditionSchema = z.object({
-  flag: id,
+  flag: stateKey,
   equals: z.boolean().optional(),
+});
+
+const storyValueConditionSchema = z.object({
+  key: stateKey,
+  min: z.number().optional(),
+  max: z.number().optional(),
+}).refine(condition => condition.min !== undefined || condition.max !== undefined, {
+  message: 'numeric conditions need min or max',
 });
 
 const storyChoiceSchema = z.object({
@@ -205,9 +227,10 @@ const storyChoiceSchema = z.object({
   label: text,
   labelEs: text,
   nextNodeId: id,
-  setsFlags: z.record(id, z.boolean()).optional(),
+  setsFlags: z.record(stateKey, z.boolean()).optional(),
   adjustsValues: z.record(z.string(), z.number()).optional(),
   requires: z.array(storyConditionSchema).optional(),
+  requiresValues: z.array(storyValueConditionSchema).optional(),
   archetypes: z.array(z.enum(ARCHETYPE_IDS as [Archetype, ...Archetype[]])).optional(),
   origins: z.array(z.enum(ORIGIN_IDS as [Origin, ...Origin[]])).optional(),
   result: text.optional(),
@@ -227,6 +250,13 @@ const storyNodeSchema = z.object({
   route: routeEnum.optional(),
   terminal: z.boolean().optional(),
   externalEntry: z.boolean().optional(),
+  outcome: z.enum(['success', 'failure', 'ambiguous']).optional(),
+  survivors: idList.optional(),
+  casualties: idList.optional(),
+  globalEndingId: z.enum([
+    'new_concord', 'last_guardian', 'unbound_world', 'veil_ascendant',
+    'court_restored', 'decentralized_oaths',
+  ]).optional(),
 });
 
 const puzzleBaseShape = {
@@ -237,7 +267,7 @@ const puzzleBaseShape = {
   promptEs: text,
   hints: z.array(bilingual).min(2, 'a puzzle needs at least two hints'),
   unlocks: z.object({
-    flags: z.record(id, z.boolean()).optional(),
+    flags: z.record(stateKey, z.boolean()).optional(),
     items: idList.optional(),
     nodeId: id.optional(),
     locationId: id.optional(),
@@ -459,10 +489,10 @@ export const ChapterSchema = z.object({
     routeDestinations: z.record(routeEnum, id).optional(),
   }),
   storyFacts: z.array(z.object({
-    flag: id,
+    flag: stateKey,
     en: text,
     es: text.optional(),
-    spentFlag: id.optional(),
+    spentFlag: stateKey.optional(),
     spentEn: text.optional(),
     spentEs: text.optional(),
   })),
@@ -475,8 +505,8 @@ export const ChapterSchema = z.object({
     routes: z.array(routeEnum).optional(),
     phase: z.enum(['before', 'after']).optional(),
   }))),
-  externalEntrySeeds: z.record(id, z.array(z.record(id, z.boolean()))).optional(),
-  summaryFlags: z.array(id).optional(),
+  externalEntrySeeds: z.record(id, z.array(z.record(stateKey, z.boolean()))).optional(),
+  summaryFlags: z.array(stateKey).optional(),
 });
 
 // ============================================================
@@ -490,11 +520,17 @@ export function isStoryChoiceAvailable(
   choice: StoryChoice,
   flags: Record<string, boolean>,
   hero?: Pick<Character, 'archetype' | 'origin'>,
+  values?: Record<string, number>,
 ): boolean {
   const flagsMatch = (choice.requires ?? []).every(condition =>
     flags[condition.flag] === (condition.equals ?? true)
   );
   if (!flagsMatch) return false;
+  if (values && !(choice.requiresValues ?? []).every(condition => {
+    const value = values[condition.key] ?? 0;
+    return (condition.min === undefined || value >= condition.min)
+      && (condition.max === undefined || value <= condition.max);
+  })) return false;
   if (choice.archetypes && (!hero || !choice.archetypes.includes(hero.archetype))) return false;
   if (choice.origins && (!hero || !choice.origins.includes(hero.origin))) return false;
   return true;

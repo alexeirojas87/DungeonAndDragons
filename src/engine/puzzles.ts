@@ -1,7 +1,7 @@
 // ============================================================
 // PUZZLES - Deterministic gates that unlock tools and branches
 // Three variants share one shape so the engine, the validator and
-// the chapter-generation prompt all speak about the same object.
+// the authored chapter contract all speak about the same object.
 // Nothing here calls the LLM: a puzzle is always solvable offline.
 // ============================================================
 

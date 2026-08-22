@@ -5,23 +5,36 @@
 
 import type {
   Character, Enemy, CombatEncounter, Combatant, CombatAction,
-  CombatLogEntry, CombatState, Condition, DamageType, DiceRoll
+  CombatLogEntry, CombatState, Condition, DamageType, DiceRoll, Difficulty
 } from './types';
 import { rollD20, rollDamage, getAttributeModifier, rollDice } from './dice';
 import { eventBus, createEvent } from './events';
+import { ARCHETYPES } from './character';
+import { difficultyRules, scalePositive } from './difficulty';
 
 let encounterCounter = 0;
 
 export function createEncounter(
   party: Character[],
   enemies: Enemy[],
-  environment: string[] = []
+  environment: string[] = [],
+  difficulty: Difficulty = 'oath',
 ): CombatEncounter {
   const combatants: Combatant[] = [];
+  const rules = difficultyRules(difficulty);
 
   // Add party members
   for (const char of party) {
     const initRoll = rollD20(getAttributeModifier(char.attributes.dexterity));
+    const weapon = char.equipment.weapon_main;
+    const usesDexterity = Boolean(weapon?.properties.range)
+      || weapon?.templateId.includes('dagger')
+      || (char.archetype === 'rogue' && weapon?.type === 'weapon');
+    const weaponAttribute = usesDexterity ? char.attributes.dexterity : char.attributes.strength;
+    const weaponSkill = usesDexterity ? 'ranged' : 'melee';
+    const proficiency = ARCHETYPES[char.archetype].proficientSkills.includes(weaponSkill) ? 2 + Math.floor((char.level - 1) / 4) : 0;
+    const spellAttribute = char.archetype === 'cleric' ? char.attributes.wisdom : char.attributes.intelligence;
+    const spellProficiency = char.spells.length > 0 ? 2 + Math.floor((char.level - 1) / 4) : 0;
     combatants.push({
       id: char.id,
       name: char.name,
@@ -31,8 +44,15 @@ export function createEncounter(
       hp: char.hp,
       maxHp: char.maxHp,
       ac: char.ac,
-      attackBonus: getAttributeModifier(char.attributes.strength),
-      damage: '1d8',
+      attackBonus: getAttributeModifier(weaponAttribute) + (char.skills[weaponSkill] ?? 0) + proficiency,
+      spellAttackBonus: getAttributeModifier(spellAttribute) + spellProficiency,
+      spellDamageBonus: getAttributeModifier(spellAttribute),
+      damage: weapon?.properties.damage ?? '1d4',
+      damageBonus: getAttributeModifier(weaponAttribute),
+      damageMultiplier: 1,
+      damageType: weapon?.properties.damageType ?? 'bludgeoning',
+      abilities: [],
+      abilitiesEs: [],
       conditions: [...char.conditions],
       portrait: char.portrait,
       isAlive: true,
@@ -41,6 +61,9 @@ export function createEncounter(
 
   // Add enemies
   for (const enemy of enemies) {
+    const maxHp = scalePositive(enemy.maxHp, rules.enemyHpMultiplier);
+    const hpRatio = enemy.maxHp > 0 ? enemy.hp / enemy.maxHp : 1;
+    const hp = Math.max(1, Math.min(maxHp, Math.round(maxHp * hpRatio)));
     const initRoll = rollD20(getAttributeModifier(enemy.intelligence));
     combatants.push({
       id: enemy.id,
@@ -48,11 +71,18 @@ export function createEncounter(
       nameEs: enemy.nameEs,
       type: 'enemy',
       initiative: initRoll.total,
-      hp: enemy.hp,
-      maxHp: enemy.maxHp,
+      hp,
+      maxHp,
       ac: enemy.ac,
-      attackBonus: getAttributeModifier(enemy.attack),
+      attackBonus: getAttributeModifier(enemy.attack) + rules.enemyAttackModifier,
+      spellAttackBonus: getAttributeModifier(enemy.attack) + rules.enemyAttackModifier,
+      spellDamageBonus: 0,
       damage: enemy.damage,
+      damageBonus: 0,
+      damageMultiplier: rules.enemyDamageMultiplier,
+      damageType: enemy.damageType,
+      abilities: [...enemy.abilities],
+      abilitiesEs: [...enemy.abilitiesEs],
       conditions: [...enemy.conditions],
       portrait: enemy.portrait,
       isAlive: true,
@@ -64,7 +94,10 @@ export function createEncounter(
 
   const encounter: CombatEncounter = {
     id: `encounter_${Date.now()}_${++encounterCounter}`,
-    enemies,
+    enemies: enemies.map(enemy => {
+      const maxHp = scalePositive(enemy.maxHp, rules.enemyHpMultiplier);
+      return { ...enemy, maxHp, hp: Math.max(1, Math.min(maxHp, Math.round(maxHp * (enemy.hp / enemy.maxHp)))) };
+    }),
     initiativeOrder: combatants,
     currentTurn: 0,
     round: 1,
@@ -90,8 +123,22 @@ export function resolveAttack(
   spellDamage?: string,
   damageType?: DamageType
 ): { hit: boolean; damage: number; critical: boolean; roll: DiceRoll; logEntry: CombatLogEntry } {
-  const attackRoll = rollD20(attacker.attackBonus);
-  const hit = attackRoll.total >= defender.ac || attackRoll.isCritical;
+  const conditionModifier = attacker.conditions.includes('frightened') ? -2
+    : attacker.conditions.includes('blessed') ? 2
+      : 0;
+  const packModifier = attacker.abilities.includes('Pack Tactics')
+    && encounter.initiativeOrder.some(combatant => combatant.type === 'enemy' && combatant.id !== attacker.id && combatant.isAlive)
+    ? 2
+    : 0;
+  const echoModifier = attacker.abilities.includes('Ethereal Echo') && encounter.round % 2 === 0 ? 1 : 0;
+  const attackRoll = rollD20(
+    (isSpell ? attacker.spellAttackBonus : attacker.attackBonus)
+      + conditionModifier + packModifier + echoModifier,
+  );
+  const reactiveAc = defender.ac
+    + (defender.abilities.includes('Parry') ? 1 : 0)
+    + (defender.abilities.includes('Bone Shield') && defender.hp > defender.maxHp / 2 ? 1 : 0);
+  const hit = attackRoll.total >= reactiveAc || attackRoll.isCritical;
   const critical = attackRoll.isCritical;
 
   let damage = 0;
@@ -99,8 +146,13 @@ export function resolveAttack(
     const damageStr = isSpell && spellDamage
       ? spellDamage
       : attacker.damage;
-    const dmgRoll = rollDamage(damageStr);
-    damage = critical ? dmgRoll.total * 2 : dmgRoll.total;
+    const baseBonus = isSpell ? attacker.spellDamageBonus : attacker.damageBonus;
+    const dmgRoll = rollDamage(damageStr, baseBonus);
+    const abilityDamage = attacker.abilities.includes('Bone Storm') && encounter.round % 3 === 0
+      ? rollDamage('1d4').total
+      : 0;
+    const rolledDamage = (critical ? dmgRoll.total * 2 : dmgRoll.total) + abilityDamage;
+    damage = scalePositive(rolledDamage, attacker.damageMultiplier);
   }
 
   const logEntry: CombatLogEntry = {

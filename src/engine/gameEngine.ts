@@ -6,7 +6,7 @@
 import type {
   GameState, Character, WorldLocation, Item, Quest, Enemy,
   CombatEncounter, PlayerIntent, InterpretedAction, NarrativeEntry,
-  WorldTime, GameEvent, Skill, Language, DialogueState, NPC, EquipmentSlot
+  WorldTime, GameEvent, Skill, Language, DialogueState, NPC, EquipmentSlot, Difficulty, Conviction
 } from './types';
 import { rollSkillCheck, rollD20, rollDamage, getAttributeModifier } from './dice';
 import { eventBus, createEvent } from './events';
@@ -31,6 +31,7 @@ import {
   hintsExhausted, normalizeAnswer, rollPuzzleCheck, solutionText, solveRiddle,
   type BilingualText, type Puzzle,
 } from './puzzles';
+import { difficultyRules } from './difficulty';
 
 export type GameMode = 'single' | 'multiplayer';
 
@@ -79,12 +80,20 @@ export class GameEngine {
       chronicle: [],
       puzzles: createPuzzleRuntime(),
       status: 'playing',
+      difficulty: 'oath',
+      campaignProgress: {
+        factionReputation: {},
+        npcBonds: {},
+        convictions: { compassion: 0, truth: 0, freedom: 0, duty: 0 },
+        canonicalChoices: [],
+        legacyFlags: {},
+      },
     };
   }
 
   // ============================================================
   // CHAPTERS
-  // Authored and generated chapters travel the same road: they are
+  // All authored chapters travel the same road: they are
   // merged into world state by loadChapter and read back through
   // chapter(), so nothing in the engine names a specific chapter.
   // ============================================================
@@ -167,7 +176,7 @@ export class GameEngine {
 
   /**
    * Resolves an item from the static templates first, then from the active
-   * chapter's own `items` registry. Generated chapters declare their items
+   * chapter's own `items` registry. Later chapters declare their items
    * (a dark blade, a sealed relic…), but those never reached the inventory:
    * every grant point only consulted ITEM_TEMPLATES and returned null for a
    * chapter-only id, so the DM could narrate "the blade is yours" while the
@@ -284,7 +293,7 @@ export class GameEngine {
     return this.state.chronicle;
   }
 
-  /** Ids already spent by this campaign, so a generated chapter cannot reuse them. */
+  /** Ids already spent by this campaign, so authored chapters cannot collide. */
   getUsedIds(): string[] {
     return this.state.chapters.flatMap(chapter => [
       ...Object.keys(chapter.nodes),
@@ -325,8 +334,9 @@ export class GameEngine {
     if (!puzzle) return null;
     const attempts = this.state.puzzles.attempts[puzzle.id] ?? 0;
     const revealedHints: BilingualText[] = [];
-    for (let attempt = 2; attempt <= attempts; attempt++) {
-      const hint = hintForAttempt(puzzle, attempt);
+    const firstHint = difficultyRules(this.state.difficulty).firstHintAfterFailures;
+    for (let attempt = firstHint; attempt <= attempts; attempt++) {
+      const hint = hintForAttempt(puzzle, attempt - firstHint + 2);
       if (hint && !revealedHints.includes(hint)) revealedHints.push(hint);
     }
     return {
@@ -335,13 +345,21 @@ export class GameEngine {
       revealedHints,
       progress: this.state.puzzles.progress[puzzle.id] ?? [],
       effectiveDC: puzzle.kind === 'check'
-        ? effectiveCheckDC(puzzle, this.state.worldState.discoveredSecrets)
+        ? this.effectivePuzzleDC(puzzle)
         : undefined,
     };
   }
 
   private say(text: BilingualText): string {
     return this.language === 'es' ? text.es : text.en;
+  }
+
+  private effectivePuzzleDC(puzzle: Extract<Puzzle, { kind: 'check' }>): number {
+    return Math.max(
+      5,
+      effectiveCheckDC(puzzle, this.state.worldState.discoveredSecrets)
+        + difficultyRules(this.state.difficulty).puzzleDcModifier,
+    );
   }
 
   private puzzleBriefing(node: StoryNode): Array<Omit<NarrativeEntry, 'id' | 'timestamp'>> {
@@ -369,7 +387,7 @@ export class GameEngine {
         mood: 'neutral',
       });
     } else if (puzzle.kind === 'check') {
-      const dc = effectiveCheckDC(puzzle, this.state.worldState.discoveredSecrets);
+      const dc = this.effectivePuzzleDC(puzzle);
       entries.push({
         type: 'system',
         content: this.language === 'es'
@@ -464,7 +482,8 @@ export class GameEngine {
       case 'check': {
         const hero = this.state.party[0];
         if (!hero) return [];
-        const { dc, check } = rollPuzzleCheck(puzzle, hero, this.state.worldState.discoveredSecrets);
+        const dc = this.effectivePuzzleDC(puzzle);
+        const check = rollSkillCheck(puzzle.skill, hero.attributes, hero.skills[puzzle.skill] ?? 0, dc);
         solved = check.success;
         entries.push({
           type: 'dice',
@@ -495,7 +514,10 @@ export class GameEngine {
       });
     }
 
-    const hint = hintForAttempt(puzzle, attempts);
+    const firstHint = difficultyRules(this.state.difficulty).firstHintAfterFailures;
+    const hint = attempts >= firstHint
+      ? hintForAttempt(puzzle, attempts - firstHint + 2)
+      : undefined;
     if (hint) {
       entries.push({
         type: 'system',
@@ -504,7 +526,7 @@ export class GameEngine {
       });
     }
 
-    if (hintsExhausted(puzzle, attempts)) {
+    if (attempts >= firstHint && attempts - firstHint + 1 >= puzzle.hints.length) {
       entries.push({
         type: 'narration',
         content: this.say(solutionText(puzzle)),
@@ -621,13 +643,19 @@ export class GameEngine {
   private completeChapter(endingNode: StoryNode): void {
     const chapter = this.chapter();
     const hero = this.state.party[0];
+    if (chapter.index === 1) this.applyLegacyChapterOneValues();
     const summaryFlags = chapter.summaryFlags ?? Object.keys(this.state.flags);
 
-    const outcome: ChapterSummary['outcome'] = this.state.flags.abandoned_villagers
-      ? 'failure'
-      : this.state.flags.rescued_villagers
-        ? 'success'
-        : 'ambiguous';
+    const outcome: ChapterSummary['outcome'] = endingNode.outcome
+      ?? (this.state.flags.abandoned_villagers
+        ? 'failure'
+        : this.state.flags.rescued_villagers
+          ? 'success'
+          : 'ambiguous');
+
+    if (endingNode.globalEndingId) {
+      this.state.campaignProgress.endingId = endingNode.globalEndingId;
+    }
 
     const summary: ChapterSummary = {
       chapterId: chapter.id,
@@ -642,8 +670,10 @@ export class GameEngine {
       keyFlags: summaryFlags.filter(flag => this.state.flags[flag]),
       values: { ...this.state.story.values },
       puzzlesSolved: Object.keys(chapter.puzzles).filter(id => this.state.puzzles.solved.includes(id)),
-      survivors: this.state.flags.rescued_villagers ? ['tomas', 'greta', 'lyra'] : [],
-      casualties: this.state.flags.abandoned_villagers ? ['tomas', 'greta', 'lyra'] : [],
+      survivors: endingNode.survivors
+        ?? (this.state.flags.rescued_villagers ? ['tomas', 'greta', 'lyra'] : []),
+      casualties: endingNode.casualties
+        ?? (this.state.flags.abandoned_villagers ? ['tomas', 'greta', 'lyra'] : []),
       heroSnapshot: {
         level: hero?.level ?? 1,
         hp: hero?.hp ?? 0,
@@ -661,6 +691,22 @@ export class GameEngine {
     else this.state.chronicle.push(summary);
 
     this.state.status = 'chapter_complete';
+  }
+
+  private applyLegacyChapterOneValues(): void {
+    if (this.state.flags['canon:chapter_one_values_mapped']) return;
+    const legacy = this.state.story.values;
+    const convictionMap: Array<[keyof typeof legacy, Conviction]> = [
+      ['compassion', 'compassion'], ['pragmatism', 'duty'],
+      ['independence', 'freedom'], ['insight', 'truth'],
+    ];
+    for (const [source, target] of convictionMap) {
+      this.state.campaignProgress.convictions[target] = Math.max(0, legacy[source] ?? 0);
+    }
+    this.state.campaignProgress.npcBonds.martik = Math.max(-3, Math.min(3, legacy.martikTrust ?? 0));
+    this.state.campaignProgress.npcBonds.varen = Math.max(-3, Math.min(3, legacy.strangerTrust ?? 0));
+    this.state.campaignProgress.factionReputation.blackmere_council = Math.max(-5, Math.min(5, legacy.councilTrust ?? 0));
+    this.state.flags['canon:chapter_one_values_mapped'] = true;
   }
 
   /**
@@ -734,8 +780,9 @@ export class GameEngine {
     return [shouldAddNarrative ? this.addNarrative(entry) : this.createNarrativeEntry(entry)];
   }
 
-  initGame(character: Character): void {
+  initGame(character: Character, difficulty: Difficulty = 'oath'): void {
     this.state.party = [character];
+    this.state.difficulty = difficulty;
 
     // Populate starting equipment from archetype
     const archetypeDef = ARCHETYPES[character.archetype];
@@ -931,8 +978,16 @@ export class GameEngine {
     if (!node) return [];
 
     return node.choices.filter(choice =>
-      isStoryChoiceAvailable(choice, this.state.flags, this.state.party[0])
+      isStoryChoiceAvailable(choice, this.state.flags, this.state.party[0], this.campaignValues())
     );
+  }
+
+  private campaignValues(): Record<string, number> {
+    const values = { ...this.state.story.values };
+    for (const [id, value] of Object.entries(this.state.campaignProgress.factionReputation)) values[`faction:${id}`] = value;
+    for (const [id, value] of Object.entries(this.state.campaignProgress.npcBonds)) values[`bond:${id}`] = value;
+    for (const [id, value] of Object.entries(this.state.campaignProgress.convictions)) values[`conviction:${id}`] = value;
+    return values;
   }
 
   getPlayerFacingInput(rawInput: string): string {
@@ -965,6 +1020,10 @@ export class GameEngine {
     for (const [valueName, delta] of Object.entries(choice.adjustsValues ?? {})) {
       story.values[valueName] = (story.values[valueName] ?? 0) + delta;
     }
+    if (!this.state.campaignProgress.canonicalChoices.includes(choice.id)) {
+      this.state.campaignProgress.canonicalChoices.push(choice.id);
+    }
+    const campaignChanges = this.applyCampaignAdjustments(choice.adjustsValues ?? {});
     const heroEffectSummary = this.applyImmediateHeroStoryEffect(choice);
 
     const nextNode = this.skipSolvedPuzzles(this.storyNode(choice.nextNodeId));
@@ -992,7 +1051,9 @@ export class GameEngine {
       this.state.flags.chapter_one_route_chosen = true;
       consequenceSummary = this.applyStoryRoute(nextNode.route);
       if (nextKind === 'ending') {
-        consequenceSummary = this.finishMainQuest(!this.state.flags.abandoned_villagers);
+        const endingSucceeded = (nextNode.outcome
+          ?? (this.state.flags.abandoned_villagers ? 'failure' : 'success')) !== 'failure';
+        consequenceSummary = this.finishMainQuest(endingSucceeded);
         this.completeChapter(nextNode);
       }
     }
@@ -1004,6 +1065,9 @@ export class GameEngine {
     }
     if (heroEffectSummary) {
       entries.push({ type: 'system', content: heroEffectSummary, mood: 'triumph' });
+    }
+    if (campaignChanges.length > 0) {
+      entries.push({ type: 'system', content: campaignChanges.join(' · '), mood: 'neutral' });
     }
     entries.push(
       {
@@ -1025,6 +1089,36 @@ export class GameEngine {
     }
 
     return entries.map(entry => shouldAddNarrative ? this.addNarrative(entry) : this.createNarrativeEntry(entry));
+  }
+
+  private applyCampaignAdjustments(adjustments: Record<string, number>): string[] {
+    const changes: string[] = [];
+    for (const [key, delta] of Object.entries(adjustments)) {
+      const [kind, id] = key.split(':', 2);
+      if (!id || delta === 0) continue;
+
+      if (kind === 'faction') {
+        const current = this.state.campaignProgress.factionReputation[id] ?? 0;
+        const next = Math.max(-5, Math.min(5, current + delta));
+        this.state.campaignProgress.factionReputation[id] = next;
+        const applied = next - current;
+        if (applied) changes.push(`${this.language === 'es' ? 'Reputación' : 'Reputation'} — ${id.replaceAll('_', ' ')} ${applied > 0 ? '+' : ''}${applied}`);
+      } else if (kind === 'bond') {
+        const current = this.state.campaignProgress.npcBonds[id] ?? 0;
+        const next = Math.max(-3, Math.min(3, current + delta));
+        this.state.campaignProgress.npcBonds[id] = next;
+        const applied = next - current;
+        if (applied) changes.push(`${this.language === 'es' ? 'Vínculo' : 'Bond'} — ${id.replaceAll('_', ' ')} ${applied > 0 ? '+' : ''}${applied}`);
+      } else if (kind === 'conviction' && ['compassion', 'truth', 'freedom', 'duty'].includes(id)) {
+        const conviction = id as Conviction;
+        const current = this.state.campaignProgress.convictions[conviction] ?? 0;
+        const next = Math.max(0, current + delta);
+        this.state.campaignProgress.convictions[conviction] = next;
+        const applied = next - current;
+        if (applied) changes.push(`${this.language === 'es' ? 'Convicción' : 'Conviction'} — ${id} ${applied > 0 ? '+' : ''}${applied}`);
+      }
+    }
+    return changes;
   }
 
   private applyImmediateHeroStoryEffect(choice: StoryChoice): string | undefined {
@@ -1385,7 +1479,12 @@ export class GameEngine {
           return narrations;
         }
 
-        this.state.combat = createEncounter(this.state.party, prepared.enemies, nextLoc.secrets?.map(s => s.id) || []);
+        this.state.combat = createEncounter(
+          this.state.party,
+          prepared.enemies,
+          nextLoc.secrets?.map(s => s.id) || [],
+          this.state.difficulty,
+        );
         const initiativeMessage = this.applyRangerInitiative(this.state.combat);
         for (const message of prepared.openingMessages) {
           narrations.push(this.addNarrative({ type: 'system', content: message, mood: 'triumph' }));
@@ -2210,14 +2309,18 @@ export class GameEngine {
           }
 
           applyDamage(encounter, target.id, appliedDamage);
+          const drainedLife = attack.hit && appliedDamage > 0 && current.abilities.includes('Life Drain')
+            ? Math.max(1, Math.ceil(appliedDamage / 2))
+            : 0;
+          if (drainedLife > 0) applyHealing(encounter, current.id, drainedLife);
           const character = this.state.party.find(member => member.id === target.id);
           if (character) character.hp = target.hp;
 
           results.push(makeEntry({
             type: 'combat',
             content: this.language === 'es'
-              ? `${current.nameEs} ataca a ${target.nameEs}: ${attack.hit ? `${appliedDamage} de daño` : 'falla'}.${defenseMessage ? ` ${defenseMessage}` : ''}`
-              : `${current.name} attacks ${target.name}: ${attack.hit ? `${appliedDamage} damage` : 'miss'}.${defenseMessage ? ` ${defenseMessage}` : ''}`,
+              ? `${current.nameEs} ataca a ${target.nameEs}: ${attack.hit ? `${appliedDamage} de daño` : 'falla'}.${drainedLife ? ` Drenaje de vida: recupera ${drainedLife} HP.` : ''}${defenseMessage ? ` ${defenseMessage}` : ''}`
+              : `${current.name} attacks ${target.name}: ${attack.hit ? `${appliedDamage} damage` : 'miss'}.${drainedLife ? ` Life Drain restores ${drainedLife} HP.` : ''}${defenseMessage ? ` ${defenseMessage}` : ''}`,
             mood: defenseMessage ? 'triumph' : attack.hit ? 'danger' : 'neutral',
           }));
         }
@@ -2733,7 +2836,7 @@ export class GameEngine {
   }
 
   /**
-   * Adds a freshly generated chapter to the campaign and starts it. The caller
+   * Adds the next reviewed authored chapter to the campaign and starts it. The caller
    * is responsible for having validated it; the engine trusts what it loads.
    */
   appendChapter(chapter: Chapter): NarrativeEntry[] {
@@ -2902,7 +3005,7 @@ export class GameEngine {
           eventBus.emit(createEvent('PLAYER_ENTERED_LOCATION', { locationId: nextLocId }));
           return narrations;
         }
-        this.state.combat = createEncounter(this.state.party, prepared.enemies);
+        this.state.combat = createEncounter(this.state.party, prepared.enemies, [], this.state.difficulty);
         const initiativeMessage = this.applyRangerInitiative(this.state.combat);
         for (const message of prepared.openingMessages) {
           narrations.push(this.createNarrativeEntry({ type: 'system', content: message, mood: 'triumph' }));

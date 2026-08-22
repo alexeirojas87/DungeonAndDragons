@@ -34,22 +34,11 @@ export function ActionScroll({
   className,
 }: ActionScrollProps) {
   const es = language === 'es';
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [typingMode, setTypingMode] = useState(false);
   const [input, setInput] = useState('');
   const [focusedEntity, setFocusedEntity] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // The scroll unfurls when the narration finishes. That makes "choices
-  // visible" the resting state after every turn, so collapsing is a deliberate
-  // act of reading rather than something the player has to undo to play.
-  const wasTyping = useRef(isTyping);
-  useEffect(() => {
-    if (wasTyping.current && !isTyping && suggestions.length > 0) {
-      setOpen(true);
-    }
-    wasTyping.current = isTyping;
-  }, [isTyping, suggestions.length]);
 
   useEffect(() => {
     if (typingMode) inputRef.current?.focus();

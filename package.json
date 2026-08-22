@@ -9,6 +9,7 @@
     "lint": "eslint",
     "ws": "ts-node src/server/ws-server.ts",
     "validate:chapters": "tsx scripts/validate-chapters.ts",
+    "validate:campaign": "tsx scripts/validate-campaign.ts",
     "playthrough": "tsx scripts/playthrough.ts"
   },
   "dependencies": {

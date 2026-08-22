@@ -24,11 +24,13 @@ The document must contain:
 
 - 25–35 reachable nodes; no orphan node unless marked and justified as an external gameplay entry.
 - Exactly two puzzles; every puzzle has solvable clues before its lock and a fallback that preserves campaign progress.
-- 3–5 ending nodes, each reachable from the chapter start.
+- 3–5 ending nodes, each reachable from the chapter start; Chapter 10 instead has exactly six terminal nodes, one per `globalEndingId`.
+- Every ending node declares `outcome`, `survivors`, and `casualties`; Chapter 10 endings also declare one of the six canonical `globalEndingId` values.
 - Every choice ID and node ID is globally unique and begins with `cNN_`.
 - Every choice has bilingual label, action, and post-choice result text.
 - Numeric consequences are encoded in effects but appear in narrative only after selection.
 - Every condition has at least one satisfiable path. Every flag read is defined in the current chapter or declared as a campaign input.
+- Numeric gates use `requiresValues` with a namespaced `key` plus `min` and/or `max`; they must always leave at least one ungated route forward.
 - Every introduced non-local flag is consumed by a later condition, summary, or ending rule.
 - No direct imports from another chapter file. Shared canon belongs in campaign state/contracts.
 - No LLM calls, randomness in graph topology, or difficulty-dependent story branches.

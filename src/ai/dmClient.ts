@@ -107,7 +107,7 @@ export async function callDM(context: DMContext): Promise<string> {
   }
 
   // Authoritative facts come from the active chapter's own declarations plus the
-  // chronicle, so a generated chapter narrates correctly without engine changes.
+    // chronicle, so optional narration respects authored campaign consequences.
   const storyFacts: string[] = [];
   if (gameState.story.route) storyFacts.push(`Chosen route: ${gameState.story.route}`);
 

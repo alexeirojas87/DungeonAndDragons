@@ -17,8 +17,6 @@ export default function Home() {
     isTyping,
     uiState,
     lastRawInput,
-    isGeneratingChapter,
-    chapterError,
     selectLanguage,
     startGame,
     continueGame,
@@ -47,7 +45,7 @@ export default function Home() {
     return (
       <CharacterCreation
         language={language}
-        onComplete={(name, archetype, origin) => startGame(name, archetype, origin)}
+        onComplete={(name, archetype, origin, difficulty) => startGame(name, archetype, origin, difficulty)}
       />
     );
   }
@@ -66,9 +64,7 @@ export default function Home() {
       chapter={getChapter()}
       puzzleView={getPuzzleView()}
       chronicle={getChronicle()}
-      isGeneratingChapter={isGeneratingChapter}
       hasCheckpoint={checkpointAvailable()}
-      chapterError={chapterError}
       lastRawInput={lastRawInput}
       onProcessInput={processInput}
       onDialogueResponse={handleDialogueResponse}

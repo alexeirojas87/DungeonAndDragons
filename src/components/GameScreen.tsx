@@ -34,9 +34,7 @@ interface GameScreenProps {
   chapter: Chapter | null;
   puzzleView: PuzzleView | null;
   chronicle: ChapterSummary[];
-  isGeneratingChapter: boolean;
   hasCheckpoint: boolean;
-  chapterError: { message: string; issues: string[] } | null;
   lastRawInput: string;
   onProcessInput: (input: string) => void;
   onDialogueResponse: (responseIndex: number) => void;
@@ -59,9 +57,7 @@ export function GameScreen({
   chapter,
   puzzleView,
   chronicle,
-  isGeneratingChapter,
   hasCheckpoint,
-  chapterError,
   lastRawInput,
   onProcessInput,
   onDialogueResponse,
@@ -279,13 +275,11 @@ export function GameScreen({
         />
       )}
 
-      {/* End of chapter: continue, loading, or a recoverable failure */}
+      {/* Authored chapter transition is immediate and works offline. */}
       {gameState?.status === 'chapter_complete' && (
         <ChapterTransition
           language={language}
           summary={chronicle[chronicle.length - 1] ?? null}
-          isGenerating={isGeneratingChapter}
-          error={chapterError}
           onContinue={onAdvanceChapter}
           onMainMenu={onMainMenu}
         />

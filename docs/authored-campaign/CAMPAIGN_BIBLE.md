@@ -75,7 +75,7 @@ Core returning cast: Martik, Varen, one Act-I faction representative, one Act-II
 
 ## Chapter scale and rhythm
 
-Each chapter contains 25–35 reachable nodes, exactly two substantive puzzles, and 3–5 local endings. A local ending records an outcome and advances to the next authored chapter; only Chapter 10 records a global ending.
+Chapters 1–9 contain 25–35 reachable nodes, exactly two substantive puzzles, and 3–5 local endings. Chapter 10 has the same node and puzzle scale but exactly six terminal nodes, one for each global ending. A local ending records an outcome and advances to the next authored chapter; only Chapter 10 records a global ending.
 
 Every chapter must include:
 

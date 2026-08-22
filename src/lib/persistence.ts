@@ -6,13 +6,13 @@
 
 import type { GameState, Language, NarrativeEntry } from '../engine/types';
 import { createInitialStoryState } from '../data/storyGraph';
-import { CHAPTER_ONE } from '../data/chapters';
+import { CHAPTER_ONE, getCampaignChaptersThrough } from '../data/chapters';
 import { createPuzzleRuntime } from '../engine/puzzles';
 
 const SAVE_KEY = 'gauntlet_save';
 const CHECKPOINT_KEY = 'gauntlet_checkpoint';
 const SETTINGS_KEY = 'gauntlet_settings';
-const SAVE_VERSION = 3;
+const SAVE_VERSION = 4;
 
 export interface SaveData {
   version: number;
@@ -44,20 +44,12 @@ const DEFAULT_SETTINGS: GameSettings = {
   effectsVolume: 0.12,
 };
 
-/**
- * Generated chapters are large. Only the chapter being played and the one
- * before it are kept in full; older ones survive as their chronicle summary,
- * which is all the engine and the next generation actually read.
- */
 function pruneChapters(gameState: GameState): GameState {
-  const keepFrom = Math.max(0, gameState.activeChapterIndex - 1);
-  if (keepFrom === 0) return gameState;
-
-  const chapters = gameState.chapters.slice(keepFrom);
+  // Authored chapters are immutable application data. Persist their index,
+  // not hundreds of kilobytes of duplicate graph data in every save.
   return {
     ...gameState,
-    chapters,
-    activeChapterIndex: gameState.activeChapterIndex - keepFrom,
+    chapters: [],
   };
 }
 
@@ -107,19 +99,72 @@ export function saveCheckpoint(gameState: GameState, narrative: NarrativeEntry[]
 }
 
 function migrate(data: SaveData): SaveData | null {
-  if (data.version !== 1 && data.version !== 2 && data.version !== SAVE_VERSION) return null;
+  if (![1, 2, 3, SAVE_VERSION].includes(data.version)) return null;
 
   const state = data.gameState;
   if (!state.story) state.story = createInitialStoryState();
 
-  // v1/v2 saves predate chapters-as-data: they can only have been playing the
-  // authored chapter, so give them that one and an empty chronicle.
-  if (!Array.isArray(state.chapters) || state.chapters.length === 0) {
+  const legacyGeneratedSave = data.version <= 3
+    && (state.activeChapterIndex > 0 || (state.chapters?.some(chapter => chapter.index > 1) ?? false));
+
+  if (!state.campaignProgress) {
+    const retainedLegacyFlags = Object.fromEntries(
+      Object.entries(state.flags ?? {}).filter(([, value]) => value),
+    );
+    state.campaignProgress = {
+      factionReputation: {},
+      npcBonds: {},
+      convictions: { compassion: 0, truth: 0, freedom: 0, duty: 0 },
+      canonicalChoices: [...new Set(state.story.choiceHistory?.map(choice => choice.choiceId) ?? [])],
+      legacyFlags: retainedLegacyFlags,
+    };
+  }
+  state.difficulty ??= 'oath';
+
+  if (legacyGeneratedSave) {
+    const chapterOneSummary = state.chronicle?.find(summary => summary.chapterId === CHAPTER_ONE.id);
+    const endingNodeId = state.flags.claimed_drowned_relic
+      ? 'ending_relic'
+      : state.flags.destroyed_drowned_door
+        ? 'ending_destroyed'
+        : state.flags.drowned_door_appeased
+          ? 'ending_remembered'
+          : state.flags.sealed_drowned_door
+            ? 'ending_sealed'
+            : 'ending_rescue';
     state.chapters = [CHAPTER_ONE];
     state.activeChapterIndex = 0;
+    state.story = {
+      ...createInitialStoryState(),
+      currentNodeId: endingNodeId,
+      visitedNodeIds: [endingNodeId],
+      values: { ...(chapterOneSummary?.values ?? {}) },
+      completed: true,
+    };
+    const values = state.story.values;
+    state.campaignProgress.convictions.compassion = Math.max(0, values.compassion ?? 0);
+    state.campaignProgress.convictions.duty = Math.max(0, values.pragmatism ?? 0);
+    state.campaignProgress.convictions.freedom = Math.max(0, values.independence ?? 0);
+    state.campaignProgress.convictions.truth = Math.max(0, values.insight ?? 0);
+    state.campaignProgress.npcBonds.martik = Math.max(-3, Math.min(3, values.martikTrust ?? 0));
+    state.campaignProgress.npcBonds.varen = Math.max(-3, Math.min(3, values.strangerTrust ?? 0));
+    state.campaignProgress.factionReputation.blackmere_council = Math.max(-5, Math.min(5, values.councilTrust ?? 0));
+    state.flags['canon:chapter_one_values_mapped'] = true;
+    state.chronicle = chapterOneSummary ? [chapterOneSummary] : [];
+    state.combat = null;
+    state.activeDialogue = null;
+    state.status = 'chapter_complete';
   }
-  if (typeof state.activeChapterIndex !== 'number' || !state.chapters[state.activeChapterIndex]) {
-    state.activeChapterIndex = state.chapters.length - 1;
+
+  // v1/v2 saves predate chapters-as-data: they can only have been playing the
+  // authored chapter, so give them that one and an empty chronicle.
+  if (typeof state.activeChapterIndex !== 'number' || state.activeChapterIndex < 0) state.activeChapterIndex = 0;
+  if (!legacyGeneratedSave) {
+    const activeChapterNumber = state.activeChapterIndex + 1;
+    state.chapters = getCampaignChaptersThrough(activeChapterNumber);
+    if (!state.chapters[state.activeChapterIndex]) {
+      state.activeChapterIndex = Math.max(0, state.chapters.length - 1);
+    }
   }
   if (!Array.isArray(state.chronicle)) state.chronicle = [];
   if (!state.puzzles) state.puzzles = createPuzzleRuntime();

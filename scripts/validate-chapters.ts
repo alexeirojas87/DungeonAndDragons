@@ -2,7 +2,7 @@
 // Chapter validation harness
 //   node --experimental-strip-types scripts/validate-chapters.ts
 // Fails loudly if the authored chapter stops satisfying the same
-// contract generated chapters have to satisfy.
+// contract every authored campaign chapter has to satisfy.
 // ============================================================
 
 import {
@@ -30,7 +30,7 @@ report(
 
 report(`${CHAPTER_ONE.id} structure`, validateChapter(CHAPTER_ONE));
 
-// Coercion runs over every generated chapter before the schema does, so it must
+// Coercion supports imported authored data before the schema, so it must
 // leave a correct chapter byte-identical.
 report(
   `${CHAPTER_ONE.id} coercion is a no-op`,
@@ -39,7 +39,7 @@ report(
     : ['coerceChapterShape changed an already-valid chapter'],
 );
 
-// The normaliser runs over every generated chapter, so it must be a no-op on a
+// The normaliser supports imported authored data, so it must be a no-op on a
 // chapter that is already correct — otherwise it is quietly deleting content.
 const { chapter: normalized, notes } = normalizeChapter(CHAPTER_ONE);
 report(
