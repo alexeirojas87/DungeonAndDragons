@@ -108,16 +108,21 @@ function NarrativeLine({ entry, language, isLatestDialogue, isFirstNarration, on
             &ldquo;{entry.content}&rdquo;
           </p>
           {isLatestDialogue && entry.dialogueResponses && entry.dialogueResponses.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-2 pl-4">
-              {entry.dialogueResponses.map((response, index) => (
-                <button
-                  key={index}
-                  onClick={() => onDialogueResponse(index)}
-                  className="px-3 py-1.5 text-[15px] font-[var(--font-mono)] rounded border border-[var(--color-accent-gold)] bg-[rgba(255,218,120,0.18)] text-[var(--color-accent-gold)] hover:bg-[rgba(255,218,120,0.28)] hover:border-[var(--color-accent-gold)] transition-colors cursor-pointer"
-                >
-                  {language === 'es' ? response.textEs : response.text}
-                </button>
-              ))}
+            <div className="mt-2.5 pl-4">
+              <div className="font-[var(--font-mono)] text-[12px] uppercase tracking-widest text-[var(--color-text-dim)] mb-1.5">
+                {language === 'es' ? `Responde a ${speaker}:` : `Reply to ${speaker}:`}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {entry.dialogueResponses.map((response, index) => (
+                  <button
+                    key={index}
+                    onClick={() => onDialogueResponse(index)}
+                    className="px-3 py-1.5 text-[15px] font-[var(--font-mono)] rounded border border-[var(--color-accent-blue)] bg-[rgba(100,160,220,0.12)] text-[var(--color-accent-blue)] hover:bg-[rgba(100,160,220,0.22)] hover:border-[var(--color-accent-blue)] transition-colors cursor-pointer"
+                  >
+                    {language === 'es' ? response.textEs : response.text}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>

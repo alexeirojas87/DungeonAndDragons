@@ -12,13 +12,13 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { Language } from '../engine/types';
 import type { SceneEntity } from './AdventureScene';
-import type { PuzzleView } from './InputBar';
+import type { PuzzleView, InputBarSuggestion } from './InputBar';
 
 interface ActionScrollProps {
   onSubmit: (input: string) => void;
   language: Language;
   isTyping: boolean;
-  suggestions?: Array<{ key: string; label: string; labelEs: string; action: string }>;
+  suggestions?: InputBarSuggestion[];
   puzzleView?: PuzzleView | null;
   entities?: SceneEntity[];
   className?: string;
@@ -193,12 +193,21 @@ export function ActionScroll({
                   <button
                     onClick={() => (s.action ? submit(s.action) : setTypingMode(true))}
                     disabled={isTyping}
-                    className="w-full flex items-baseline gap-2.5 text-left px-4 py-2.5 border-b border-[var(--color-border)] active:bg-[var(--color-bg-tertiary)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    className={s.kind === 'story'
+                      ? "w-full flex items-baseline gap-2.5 text-left px-4 py-2.5 border-b border-[var(--color-border)] active:bg-[rgba(255,218,120,0.08)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      : "w-full flex items-baseline gap-2.5 text-left px-4 py-2.5 border-b border-[var(--color-border)] active:bg-[var(--color-bg-tertiary)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    }
                   >
                     <span className="font-[var(--font-mono)] text-[14px] text-[var(--color-text-dim)] flex-shrink-0">
                       [{s.key || index + 1}]
                     </span>
-                    <span className="font-[var(--font-narrative)] text-[17px] leading-snug text-[var(--color-text-primary)]">
+                    {s.kind === 'story' && (
+                      <span className="font-[var(--font-mono)] text-[14px] text-[var(--color-accent-gold)] flex-shrink-0">◆</span>
+                    )}
+                    <span className={s.kind === 'story'
+                      ? "font-[var(--font-narrative)] text-[17px] leading-snug text-[var(--color-accent-gold)]"
+                      : "font-[var(--font-narrative)] text-[17px] leading-snug text-[var(--color-text-primary)]"
+                    }>
                       {es ? s.labelEs : s.label}
                     </span>
                   </button>

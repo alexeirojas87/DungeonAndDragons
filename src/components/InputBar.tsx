@@ -8,6 +8,14 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import type { Language } from '../engine/types';
 import type { BilingualText, Puzzle } from '../engine/puzzles';
 
+export interface InputBarSuggestion {
+  key: string;
+  label: string;
+  labelEs: string;
+  action: string;
+  kind?: 'story' | 'action' | 'dialogue';
+}
+
 export interface PuzzleView {
   puzzle: Puzzle;
   attempts: number;
@@ -20,7 +28,7 @@ interface InputBarProps {
   onSubmit: (input: string) => void;
   language: Language;
   isTyping: boolean;
-  suggestions?: Array<{ key: string; label: string; labelEs: string; action: string }>;
+  suggestions?: InputBarSuggestion[];
   puzzleView?: PuzzleView | null;
   className?: string;
 }
@@ -142,9 +150,13 @@ export function InputBar({ onSubmit, language, isTyping, suggestions = [], puzzl
                   // input, so leaving these live made every click vanish silently
                   // and the buttons read as broken.
                   disabled={isTyping}
-                  className="px-3 py-1.5 text-[15px] font-[var(--font-mono)] rounded border border-[var(--color-border-light)] bg-[var(--color-bg-tertiary)] text-[var(--color-text-primary)] active:border-[var(--color-accent-gold)] active:text-[var(--color-accent-gold)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className={s.kind === 'story'
+                    ? "px-3 py-1.5 text-[15px] font-[var(--font-mono)] rounded border border-[var(--color-accent-gold)] bg-[rgba(255,218,120,0.12)] text-[var(--color-accent-gold)] active:bg-[rgba(255,218,120,0.22)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    : "px-3 py-1.5 text-[15px] font-[var(--font-mono)] rounded border border-[var(--color-border-light)] bg-[var(--color-bg-tertiary)] text-[var(--color-text-primary)] active:border-[var(--color-accent-gold)] active:text-[var(--color-accent-gold)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  }
                 >
                   <span className="text-[var(--color-text-dim)] mr-1">[{s.key}]</span>
+                  {s.kind === 'story' && <span className="mr-0.5">◆</span>}
                   {language === 'es' ? s.labelEs : s.label}
                 </button>
               ))}

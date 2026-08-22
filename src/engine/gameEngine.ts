@@ -2544,27 +2544,29 @@ export class GameEngine {
     const targetName = action.dialogueTarget;
     const inputLower = action.dialogueContent?.toLowerCase() || '';
 
-    // Find NPC - try to match by name, alias, or description
+    // Find NPC — match by name (EN or ES), or by substring of the input
+    // when no explicit target was parsed. This works for any chapter's NPCs
+    // without hardcoding their ids.
     for (const npcId of currentLoc.npcs) {
       const npc = this.state.worldState.npcs[npcId];
       if (!npc) continue;
 
-      // Check multiple matching criteria
-      const nameMatch = targetName && (
-        npc.name.toLowerCase().includes(targetName.toLowerCase()) ||
-        npc.nameEs.toLowerCase().includes(targetName.toLowerCase())
+      const nameLc = npc.name.toLowerCase();
+      const nameEsLc = npc.nameEs.toLowerCase();
+      const targetLc = targetName?.toLowerCase() ?? '';
+
+      // Direct name match: "talk to Martik" → targetName = "martik"
+      const nameMatch = targetLc && (
+        nameLc.includes(targetLc) || nameEsLc.includes(targetLc)
       );
 
-      // Check for aliases in the input
-      const aliasMatch = !targetName && (
-        (npcId === 'mysterious_stranger' && (inputLower.includes('encapuchado') || inputLower.includes('stranger') || inputLower.includes('hooded') || inputLower.includes('figura'))) ||
-        (npcId === 'innkeeper_martik' && (inputLower.includes('tabernero') || inputLower.includes('innkeeper') || inputLower.includes('martik'))) ||
-        (npcId === 'elder_mira' && (inputLower.includes('anciana') || inputLower.includes('elder') || inputLower.includes('mira'))) ||
-        (npcId === 'blacksmith_aldric' && (inputLower.includes('herrero') || inputLower.includes('blacksmith') || inputLower.includes('aldric'))) ||
-        (npcId === 'priest_sera' && (inputLower.includes('sacerdotisa') || inputLower.includes('priest') || inputLower.includes('sera')))
+      // Fuzzy match: "talk" with no target → scan the raw input for the NPC's
+      // name in either language.
+      const fuzzyMatch = !targetLc && (
+        inputLower.includes(nameLc) || inputLower.includes(nameEsLc)
       );
 
-      if ((nameMatch || aliasMatch) && npc.dialogue.length > 0) {
+      if ((nameMatch || fuzzyMatch) && npc.dialogue.length > 0) {
         // Start dialogue from greeting
         const greeting = npc.dialogue.find(d => d.id === 'greeting') || npc.dialogue[0];
 
@@ -2577,15 +2579,6 @@ export class GameEngine {
           responses: greeting.responses,
         };
 
-        // Auto-activate main quest when talking to Martik or Mira
-        if (npc.id === 'innkeeper_martik' || npc.id === 'elder_mira') {
-          this.activateQuest('the_sunken_crypt');
-        }
-        if (npc.id === 'innkeeper_martik') {
-          this.state.flags.talked_to_martik = true;
-          this.updateQuestProgress('investigate_rumors', 1);
-        }
-
         return [this.addNarrative({
           type: 'dialogue',
           speaker: npc.name,
@@ -2597,7 +2590,7 @@ export class GameEngine {
       }
     }
 
-    // No NPC matched - describe the scene instead
+    // No NPC matched — describe the scene instead
     return [this.addNarrative({
       type: 'narration',
       content: this.language === 'es'

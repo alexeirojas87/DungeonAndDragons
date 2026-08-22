@@ -350,6 +350,7 @@ export interface Suggestion {
   label: string;
   labelEs: string;
   action: string;
+  kind?: 'story' | 'action' | 'dialogue';
 }
 
 export interface SuggestionContext {
@@ -425,6 +426,7 @@ export function getSuggestedActions(context: SuggestionContext): Suggestion[] {
         label: choice.label,
         labelEs: choice.labelEs,
         action: `__story__:${choice.id}`,
+        kind: 'story',
       });
     }
     if (suggestions.length > 0) return number(suggestions);
