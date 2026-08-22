@@ -8,7 +8,8 @@
 import {
   ChapterSchema, coerceChapterShape, normalizeChapter, validateChapter,
 } from '../src/engine/chapter';
-import { CHAPTER_ONE } from '../src/data/chapters';
+import { AUTHORED_CHAPTERS, CHAPTER_ONE } from '../src/data/chapters';
+import { validateAuthoredCampaign } from '../src/engine/campaign';
 
 let failed = false;
 
@@ -47,6 +48,10 @@ report(
   notes.map(note => `unexpected change: ${note}`),
 );
 report(`${CHAPTER_ONE.id} still valid after normalising`, validateChapter(normalized));
+
+if (AUTHORED_CHAPTERS.length === 10) {
+  report('complete authored campaign release gate', validateAuthoredCampaign(AUTHORED_CHAPTERS));
+}
 
 // ---- Regression: the trap that shipped once ----
 // The first generated chapter passed every check and was still unplayable: two
