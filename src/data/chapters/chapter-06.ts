@@ -61,7 +61,7 @@ const NODES: Record<string, StoryNode> = {
   c06_arrival: {
     id: 'c06_arrival', kind: 'beat', locationId: 'c06_shore', externalEntry: true,
     title: 'The Tideless Shore', titleEs: 'La orilla sin marea',
-    text: 'The sea has gone still. No tide moves, no wave breaks, and the water sits flat as a mirror. Beached in that calm lies the Continental Vault — a vessel larger than the village behind you, its hull crusted with salt and its name still legible: the Vault. It holds the names and debts of an entire coastline, and its tide engine is broken. The fleet watches from the decks, and the shore is empty.',
+    text: 'The sea has gone still. No tide moves, no wave breaks, and the water sits flat as a mirror. Beached in that calm lies the Continental Vault — a vessel larger than the village behind you, its hull crusted with salt and its name still legible: the Vault.\n\nIt holds the names and debts of an entire coastline, and its tide engine is broken. The fleet watches from the decks, and the shore is empty.',
     textEs: 'El mar se ha quedado quieto. Ninguna marea se mueve, ninguna ola rompe, y el agua yace plana como un espejo. Varada en esa calma descansa la Bóveda del Continente — una vasija mayor que la aldea detrás de ti, su casco incrustado de sal y su nombre aún legible: la Bóveda. Guarda los nombres y las deudas de todo un litoral, y su motor de mareas está roto. La armada vigila desde las cubiertas, y la orilla está vacía.',
     choices: [
       { id: 'c06_arrival_with_map', label: 'Approach through the path the map showed', labelEs: 'Acercarse por el sendero que el mapa mostró', nextNodeId: 'c06_vault_hull', requires: [{ flag: 'canon:c02_map_shared' }], result: 'The map Olen shared still holds the path to the Vault. You approach without the fleet seeing you.', resultEs: 'El mapa que Olen compartió aún guarda el sendero a la Bóveda. Te acercas sin que la armada te vea.' },
@@ -82,7 +82,7 @@ const NODES: Record<string, StoryNode> = {
   c06_fleet_eye: {
     id: 'c06_fleet_eye', kind: 'beat', locationId: 'c06_vault_decks',
     title: 'The Fleet Eye', titleEs: 'El ojo de la flota',
-    text: 'The fleet eye is old, salt-burned, and patient. "The tide engine broke when the name was fenced," she says. "The Vault holds the coastline debts, and the engine is what lets the tide settle them. Without the engine, the debts stay locked. With it, the tide can open the Vault or master it. The fleet will not let you master it. But we will let you open it, if you can." She looks at your hands. "Do you carry the map? Do you carry a name that is free?"',
+    text: 'The fleet eye is old, salt-burned, and patient. "The tide engine broke when the name was fenced," she says. "The Vault holds the coastline debts, and the engine is what lets the tide settle them. Without the engine, the debts stay locked. With it, the tide can open the Vault or master it. The fleet will not let you master it. But we will let you open it, if you can."\n\nShe looks at your hands. "Do you carry the map? Do you carry a name that is free?"',
     textEs: 'El ojo de la flota es viejo, quemado por la sal, y paciente. —El motor de mareas se rompió cuando el nombre fue cercado —dice—. La Bóveda guarda las deudas del litoral, y el motor es lo que deja que la marea las salde. Sin el motor, las deudas siguen bloqueadas. Con él, la marea puede abrir la Bóveda o dominarla. La armada no te dejará dominarla. Pero te dejaremos abrirla, si puedes. —Mira tus manos—. ¿Llevas el mapa? ¿Llevas un nombre que esté libre?',
     choices: [
       { id: 'c06_eye_to_first', label: 'Answer the fleet eye', labelEs: 'Responder al ojo de la flota', nextNodeId: 'c06_first_sea', result: 'You meet her gaze. The decks wait.', resultEs: 'Sostienes su mirada. Las cubiertas esperan.' },
@@ -92,7 +92,7 @@ const NODES: Record<string, StoryNode> = {
   c06_first_sea: {
     id: 'c06_first_sea', kind: 'beat', locationId: 'c06_vault_decks',
     title: 'The First Sea', titleEs: 'El primer mar',
-    text: 'Three paths leave the hull: the decks where the lance-luggers patrol, the dry docks where the tide chart hangs, and the deep hold where the Vault riddle is set. "Choose," the fleet eye says. "The engine is in the belly. Every path leads there. What you find on the way decides what you can do when you reach it."',
+    text: 'Three paths leave the hull: the decks where the lance-luggers patrol, the dry docks where the tide chart hangs, and the deep hold where the Vault riddle is set.\n\n"Choose," the fleet eye says. "The engine is in the belly. Every path leads there. What you find on the way decides what you can do when you reach it."',
     textEs: 'Tres caminos salen del casco: las cubiertas donde patrullan los lanceros, los muelles secos donde cuelga la carta de mareas, y la bodega profunda donde se plantea el enigma de la Bóveda. —Elige —dice el ojo de la flota—. El motor está en el vientre. Cada camino lleva allí. Lo que encuentres en el camino decide qué podrás hacer cuando llegues.',
     choices: [
       { id: 'c06_to_decks', label: 'Go to the fleet decks', labelEs: 'Ir a las cubiertas de la flota', nextNodeId: 'c06_decks_walk', setsFlags: { c06_decks_chosen: true }, adjustsValues: { conviction_duty: 1, faction_tidebound_fleet: 1 }, result: 'You climb to the decks. The lance-luggers turn.', resultEs: 'Subes a las cubiertas. Los lanceros se vuelven.' },
@@ -105,7 +105,7 @@ const NODES: Record<string, StoryNode> = {
     id: 'c06_decks_walk', kind: 'beat', locationId: 'c06_vault_decks',
     title: 'The Fleet Decks', titleEs: 'Las cubiertas de la flota',
     text: 'The decks are wide and salt-scoured. Lance-luggers patrol the rails — the fleet enforcers, carrying the long lances that keep the Vault sealed. They do not challenge you yet; the fleet eye has vouched for your approach. But the engine room is past them, and they will not let you pass without a word or a fight.',
-    textEs: 'Las cubiertas son anchas y rasposas de sal. Los lanceros patrullan las barandillas — los enforcement de la flota, con las largas lanzas que mantienen la Bóveda sellada. No te desafían todavía; el ojo de la flota ha respondido por tu acercamiento. Pero la sala del motor está detrás de ellos, y no te dejarán pasar sin una palabra o una pelea.',
+    textEs: 'Las cubiertas son anchas y rasposas de sal. Los lanceros patrullan las barandillas — los guardias de la flota, con las largas lanzas que mantienen la Bóveda sellada. No te desafían todavía; el ojo de la flota ha respondido por tu acercamiento. Pero la sala del motor está detrás de ellos, y no te dejarán pasar sin una palabra o una pelea.',
     choices: [
       { id: 'c06_decks_to_luggers', label: 'Approach the lance-luggers', labelEs: 'Acercarse a los lanceros', nextNodeId: 'c06_lance_luggers', result: 'You walk toward the engine room. The luggers lower their lances.', resultEs: 'Caminas hacia la sala del motor. Los lanceros bajan sus lanzas.' },
       { id: 'c06_decks_back', label: 'Return to the hull', labelEs: 'Volver al casco', nextNodeId: 'c06_first_sea', result: 'You step back. The decks stay patrolled.', resultEs: 'Retrocedes. Las cubiertas siguen patrulladas.' },
@@ -116,7 +116,7 @@ const NODES: Record<string, StoryNode> = {
     id: 'c06_lance_luggers', kind: 'beat', locationId: 'c06_vault_decks',
     title: 'The Lance-Luggers', titleEs: 'Los lanceros',
     text: 'The lance-luggers block the engine room door. "The fleet eye vouched for your approach," the lead lugger says, "but not for your passage. The engine is the fleet charge. Turn back, or we will turn you." The lances are long and the deck is wide. You can fight, or you can turn back and find another way to the engine.',
-    textEs: 'Los lanceros bloquean la puerta de la sala del motor. —El ojo de la flota respondió por tu acercamiento —dice el lancero principal—, pero no por tu paso. El motor es cargo de la flota. Date la vuelta, o te daremos vuelta. Las lanzas son largas y la cubierta es ancha. Puedes luchar, o puedes retroceder y buscar otro camino al motor.',
+    textEs: 'Los lanceros bloquean la puerta de la sala del motor. —El ojo de la flota respondió por tu acercamiento —dice el lancero principal—, pero no por tu paso. El motor es cargo de la flota. Retrocede, o te haremos retroceder. Las lanzas son largas y la cubierta es ancha. Puedes luchar, o puedes retroceder y buscar otro camino al motor.',
     choices: [
       { id: 'c06_face_luggers', label: 'Fight the lance-luggers', labelEs: 'Pelear con los lanceros', nextNodeId: 'c06_luggers_aftermath', setsFlags: { c06_luggers_faced: true }, result: 'You raise your weapon. The luggers lower their lances.', resultEs: 'Levantas tu arma. Los lanceros bajan sus lanzas.' },
       { id: 'c06_evade_luggers', label: 'Turn back and find another way', labelEs: 'Retroceder y buscar otro camino', nextNodeId: 'c06_engine', result: 'You turn from the luggers and descend through the hold. The engine room has more than one door.', resultEs: 'Te apartas de los lanceros y bajas por la bodega. La sala del motor tiene más de una puerta.' },
@@ -217,7 +217,7 @@ const NODES: Record<string, StoryNode> = {
     id: 'c06_vault_answered', kind: 'beat', locationId: 'c06_deep_hold',
     title: 'The Riddle Answered', titleEs: 'El enigma respondido',
     text: 'The word settles into the keel: the sea-gate, the sluice. The Vault hums once, low, and the ledgers on the walls shift. The Vault knows you have understood its shape — the sea-gate is the door the tide opens, and the engine is what turns that door. You carry the shape with you to the engine room.',
-    textEs: 'La palabra se posa en la quilla: la esclusa. La Bóveda zumba una vez, bajo, y los libros de las paredes se desplazan. La Bóveda sabe que has comprendido su forma — la esclusa es la puerta que la marea abre, y el motor es lo que gira esa puerta. Llevas la forma contigo a la sala del motor.',
+    textEs: 'La palabra se posa en la quilla: la esclusa. La Bóveda zumba una vez, baja, y los libros de las paredes se desplazan. La Bóveda sabe que has comprendido su forma — la esclusa es la puerta que la marea abre, y el motor es lo que gira esa puerta. Llevas la forma contigo a la sala del motor.',
     choices: [
       { id: 'c06_vault_to_engine', label: 'Go to the engine room', labelEs: 'Ir a la sala del motor', nextNodeId: 'c06_engine', result: 'You carry the shape of the Vault to the engine.', resultEs: 'Llevas la forma de la Bóveda al motor.' },
     ],
@@ -248,7 +248,7 @@ const NODES: Record<string, StoryNode> = {
   c06_engine_examine: {
     id: 'c06_engine_examine', kind: 'beat', locationId: 'c06_engine_room',
     title: 'The Engine Examined', titleEs: 'El motor examinado',
-    text: 'The engine is a wheel of salt-iron with one gate at its center — the sea-gate, the sluice. The gate is shut. The wheel should turn with the tide, but the tide is gone. You can open the gate if you carry the map and the freed name — the map shows the way, and the freed name unbolted the lock. You can master the engine if you carry the returned name — the fleet keeps the secret and the Vault stays the fleet charge. Or you can let the tide go and leave the Vault as it is.',
+    text: 'The engine is a wheel of salt-iron with one gate at its center — the sea-gate, the sluice. The gate is shut. The wheel should turn with the tide, but the tide is gone. You can open the gate if you carry the map and the freed name — the map shows the way, and the freed name unbolted the lock. You can master the engine if you carry the returned name — the fleet keeps the secret and the Vault stays the fleet charge.\n\nOr you can let the tide go and leave the Vault as it is.',
     textEs: 'El motor es una rueda de hierro salado con una puerta en el centro — la esclusa. La puerta está cerrada. La rueda debería girar con la marea, pero la marea se ha ido. Puedes abrir la puerta si llevas el mapa y el nombre liberado — el mapa muestra el camino, y el nombre liberado destrabó el cerrojo. Puedes dominar el motor si llevas el nombre devuelto — la armada guarda el secreto y la Bóveda sigue siendo cargo de la flota. O puedes dejar ir la marea y dejar la Bóveda como está.',
     choices: [
       { id: 'c06_examine_to_choice', label: 'Go to the engine choice', labelEs: 'Ir a la elección del motor', nextNodeId: 'c06_engine_choice', result: 'You step back from the engine. The choice waits.', resultEs: 'Retrocedes del motor. La elección espera.' },
@@ -270,7 +270,7 @@ const NODES: Record<string, StoryNode> = {
     id: 'c06_anchored_aftermath', kind: 'beat', locationId: 'c06_engine_room', externalEntry: true,
     title: 'The Anchored Released', titleEs: 'El Anclado liberado',
     text: 'The Anchored is down and its bonds fall from the wheel. The engine is unguarded. The fleet eye watches from the rail. "You fought the keeper," she says. "The engine is yours now. Use it as you will — the fleet will not stop you, not today."',
-    textEs: 'El Anclado cae y sus ataduras sueltan la rueda. El motor queda sin guardia. El ojo de la flota vigila desde la barandilla. —Combataste al guardián —dice—. El motor es tuyo ahora. Úsalo como quieras — la armada no te detendrá, no hoy.',
+    textEs: 'El Anclado cae y sus ataduras sueltan la rueda. El motor queda sin guardia. El ojo de la flota vigila desde la barandilla. —Combatiste al guardián —dice—. El motor es tuyo ahora. Úsalo como quieras — la armada no te detendrá, no hoy.',
     choices: [
       { id: 'c06_anchored_to_choice', label: 'Go to the engine choice', labelEs: 'Ir a la elección del motor', nextNodeId: 'c06_engine_choice', result: 'You stand before the unguarded engine.', resultEs: 'Te paras ante el motor sin guardia.' },
     ],
@@ -279,7 +279,7 @@ const NODES: Record<string, StoryNode> = {
   c06_engine_choice: {
     id: 'c06_engine_choice', kind: 'beat', locationId: 'c06_engine_room',
     title: 'The Engine Choice', titleEs: 'La elección del motor',
-    text: 'The engine wheel waits. The sea-gate is shut. You can open the Vault — if the map showed the way and the name was freed, the gate will turn. You can master the Vault — if the name was returned, the fleet keeps the secret and the Vault stays the fleet charge. You can draw the Vault — the mercantile holds the debts and the fleet takes a cut. Or you can leave the Vault stranded — nothing opens, nothing closes, and the debts stay locked in the still sea.',
+    text: 'The engine wheel waits. The sea-gate is shut. You can open the Vault — if the map showed the way and the name was freed, the gate will turn.\n\nYou can master the Vault — if the name was returned, the fleet keeps the secret and the Vault stays the fleet charge.\n\nYou can draw the Vault — the mercantile holds the debts and the fleet takes a cut.\n\nOr you can leave the Vault stranded — nothing opens, nothing closes, and the debts stay locked in the still sea.',
     textEs: 'La rueda del motor espera. La esclusa está cerrada. Puedes abrir la Bóveda — si el mapa mostró el camino y el nombre fue liberado, la puerta girará. Puedes dominar la Bóveda — si el nombre fue devuelto, la armada guarda el secreto y la Bóveda sigue siendo cargo de la flota. Puedes tomar la Bóveda — los mercaderes sostienen las deudas y la armada toma una parte. O puedes dejar la Bóveda encallada — nada se abre, nada se cierra, y las deudas siguen bloqueadas en el mar quieto.',
     choices: [
       { id: 'c06_open_vault', label: 'Open the Vault with the map and the freed name', labelEs: 'Abrir la Bóveda con el mapa y el nombre liberado', nextNodeId: 'c06_ending_opened', requires: [{ flag: 'canon:c02_map_shared' }, { flag: 'canon:c04_name_free' }], setsFlags: { 'canon:c06_vault_opened': true, 'canon:c06_evidence_vault': true }, adjustsValues: { faction_tidebound_fleet: -1, conviction_freedom: 1 }, result: 'The map shows the way and the freed name unbolted the gate. The sea-gate opens. The tide begins to move.', resultEs: 'El mapa muestra el camino y el nombre liberado destrabó la puerta. La esclusa se abre. La marea empieza a moverse.' },

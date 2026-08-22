@@ -99,8 +99,8 @@ const NODES: Record<string, StoryNode> = {
   c08_assembly: {
     id: 'c08_assembly', kind: 'beat', locationId: 'c08_court_chamber',
     title: 'The Assembled Chamber', titleEs: 'La cámara reunida',
-    text: 'Three doors open off the chamber: the witness stand, the record vault, and the old seal-room. Beneath the floor, the dead-grant chamber waits for the one oath spoken in iron. The redactor lifts her veil long enough to name the law: every oath is a child of three named things — a witness who can be asked, a vessel that can be filled, a price that can be paid — and the pact made the door the witness, the seal the vessel, a coastline the price. The court will not vote until you bring back something to read into the record.',
-    textEs: 'Tres puertas se abren desde la sala: el estrado de testigos, el archivo de actas y la sala del sello antiguo. Bajo el suelo, la cámara de la concesión de los muertos espera al único juramento que se pronuncia en hierro. La redactora se levanta el velo lo justo para nombrar la ley: cada juramento es hijo de tres cosas nombradas — un testigo al que se pueda preguntar, una vasija que se pueda llenar, un precio que se pueda pagar — y el pacto hizo de la puerta el testigo, del sello la vasija, de un litoral el precio. La corte no votará hasta que traigas algo que leer en el acta.',
+    text: 'Three doors open off the chamber: the witness stand, the record vault, and the old seal-room. Beneath the floor, the dead-grant chamber waits for the one oath spoken in iron.\n\nThe redactor lifts her veil long enough to name the law: every oath is a child of three named things — a witness who can be asked, a vessel that can be filled, a price that can be paid — and the pact made the door the witness, the seal the vessel, a coastline the price. The court will not vote until you bring back something to read into the record.',
+    textEs: 'Tres puertas se abren desde la sala: el estrado de testigos, el archivo de actas y la sala del sello antiguo. Bajo el suelo, la cámara de la concesión de los muertos espera al único juramento que se pronuncia en hierro.\n\nLa redactora se levanta el velo lo justo para nombrar la ley: cada juramento es hijo de tres cosas nombradas — un testigo al que se pueda preguntar, una vasija que se pueda llenar, un precio que se pueda pagar — y el pacto hizo de la puerta el testigo, del sello la vasija, de un litoral el precio. La corte no votará hasta que traigas algo que leer en el acta.',
     choices: [
       { id: 'c08_to_witness', label: 'Go to the witness stand', labelEs: 'Ir al estrado de testigos', nextNodeId: 'c08_witness_stand', setsFlags: { c08_evidence_any: true }, result: 'You cross to the witness stand. The basin of clear water waits for a voice.', resultEs: 'Cruzas al estrado de testigos. La palangana de agua clara espera una voz.' },
       { id: 'c08_to_vault', label: 'Enter the record vault', labelEs: 'Entrar en el archivo de actas', nextNodeId: 'c08_record_vault', setsFlags: { c08_evidence_any: true }, result: 'You enter the vault. The second ink gleams on every filed vow.', resultEs: 'Entras en el archivo. La segunda tinta brilla en cada voto archivado.' },
@@ -130,8 +130,8 @@ const NODES: Record<string, StoryNode> = {
   c08_witness_stand: {
     id: 'c08_witness_stand', kind: 'beat', locationId: 'c08_witness_stand',
     title: 'The Witness Stand', titleEs: 'El estrado de testigos',
-    text: 'The stand holds a single chair and a basin of clear water that records every voice spoken into it. Voss is here if his file survived the campaign; if it did not, the basin still is. The court lets a witness speak once, and once only.',
-    textEs: 'El estrado tiene una sola silla y una palabana de agua clara que registra toda voz que se habla en ella. Voss está aquí si su expediente sobrevivió a la campaña; si no, la palangana sigue. La corte deja hablar a un testigo una vez, y solo una.',
+    text: 'The stand holds a single chair and a basin of clear water that records every voice spoken into it. Voss is here if his file survived the campaign; if it did not, the basin remains. The court lets a witness speak once, and once only.',
+    textEs: 'El estrado tiene una sola silla y una palangana de agua clara que registra toda voz que se habla en ella. Voss está aquí si su expediente sobrevivió a la campaña; si no, la palangana sigue. La corte deja hablar a un testigo una vez, y solo una.',
     choices: [
       { id: 'c08_hear_testimony', label: 'Speak a testimony into the basin', labelEs: 'Hablar un testimonio en la palangana', nextNodeId: 'c08_witness_testimony', setsFlags: { c08_evidence_witness: true, c08_evidence_any: true }, result: 'The water takes the voice; the court takes the water. A witness has been heard.', resultEs: 'El agua toma la voz; la corte toma el agua. Un testigo ha sido oído.' },
       { id: 'c08_witness_back', label: 'Return to the chamber', labelEs: 'Volver a la sala', nextNodeId: 'c08_assembly', result: 'You leave the stand. The basin holds its silence for now.', resultEs: 'Dejas el estrado. La palangana guarda su silencio por ahora.' },
@@ -142,7 +142,7 @@ const NODES: Record<string, StoryNode> = {
     id: 'c08_witness_testimony', kind: 'beat',
     title: 'A Voice Read into the Record', titleEs: 'Una voz leída en el acta',
     text: 'The basin holds the voice now. Whatever else happens today, the chamber has its human proof. You may let the testimony stand, or raise the objection of the broken vow — that a door was named a witness and then charged for its own hearing.',
-    textEs: 'La palabana guarda ya la voz. Pase lo que pase hoy, la sala tiene su prueba humana. Puedes dejar el testimonio como está, o plantear la objeción del voto roto — que una puerta fue nombrada testigo y luego cobrada por su propia audiencia.',
+    textEs: 'La palangana guarda ya la voz. Pase lo que pase hoy, la sala tiene su prueba humana. Puedes dejar el testimonio como está, o plantear la objeción del voto roto — que una puerta fue nombrada testigo y luego cobrada por su propia audiencia.',
     choices: [
       { id: 'c08_raise_objection', label: 'Raise the objection of the broken vow', labelEs: 'Plantear la objeción del voto roto', nextNodeId: 'c08_witness_oath', setsFlags: { c08_objection_raised: true }, adjustsValues: { conviction_truth: 1 }, result: 'You raise the objection. The chamber cannot unhear it; the redactor marks it into the record.', resultEs: 'Planteas la objeción. La sala no puede dejar de oírla; la redactora la anota en el acta.' },
       { id: 'c08_testimony_back', label: 'Return to the chamber', labelEs: 'Volver a la sala', nextNodeId: 'c08_assembly', result: 'You let the testimony stand and return. The voice stays in the basin.', resultEs: 'Dejas el testimonio como está y vuelves. La voz se queda en la palangana.' },
@@ -241,8 +241,8 @@ const NODES: Record<string, StoryNode> = {
   c08_dead_grant_intro: {
     id: 'c08_dead_grant_intro', kind: 'beat', locationId: 'c08_court_chamber',
     title: 'The Dead Grant', titleEs: 'La concesión de los muertos',
-    text: 'Below the chamber is the dead-grant room, where an oath-bound killer is heard by ritual — or, if the court will not wait, by steel. The grant is the last oath the court still answers to: a life sworn to keep a silence. Hear it, and the chamber has a witness no living voice can contradict.',
-    textEs: 'Bajo la sala está la cámara de la concesión de los muertos, donde un asesino atado por juramento es oído por ritual — o, si la corte no espera, por acero. La concesión es el último juramento al que la corte aún responde: una vida jurada para guardar un silencio. Óyelo, y la sala tendrá un testigo que ninguna voz viva puede contradecir.',
+    text: 'Below the chamber is the dead-grant room, where an oath-bound killer is heard by ritual — or, if the court will not wait, by steel.\n\nThe grant is the last oath the court still answers to: a life sworn to keep a silence. Hear it, and the chamber has a witness no living voice can contradict.',
+    textEs: 'Bajo la sala está la cámara de la concesión de los muertos, donde un asesino atado por juramento es oído por ritual — o, si la corte no espera, por acero.\n\nLa concesión es el último juramento al que la corte aún responde: una vida jurada para guardar un silencio. Óyelo, y la sala tendrá un testigo que ninguna voz viva puede contradecir.',
     choices: [
       { id: 'c08_perform_ritual', label: 'Hear the grant by ritual', labelEs: 'Oír la concesión por ritual', nextNodeId: 'c08_dead_grant_resolved', setsFlags: { c08_evidence_dead_grant: true, c08_evidence_any: true }, adjustsValues: { conviction_compassion: 1 }, result: 'You light the rite. The grant speaks its silence into the record without a blow.', resultEs: 'Enciendes el rito. La concesión habla su silencio en el acta sin un golpe.' },
       { id: 'c08_grant_back', label: 'Return to the chamber', labelEs: 'Volver a la sala', nextNodeId: 'c08_assembly', result: 'You step back from the trapdoor. The dead-grant waits below, unspoken.', resultEs: 'Retrocedes de la trampilla. La concesión de los muertos espera abajo, sin hablar.' },
@@ -293,9 +293,9 @@ const LOCATIONS: Record<string, WorldLocation> = {
   c08_witness_stand: {
     id: 'c08_witness_stand', name: 'The Witness Stand', nameEs: 'El estrado de testigos',
     description: 'A single chair beside a basin of clear water. The water records a voice once, and once only.',
-    descriptionEs: 'Una silla junto a una palabana de agua clara. El agua registra una voz una vez, y solo una.',
+    descriptionEs: 'Una silla junto a una palangana de agua clara. El agua registra una voz una vez, y solo una.',
     connections: ['c08_court_chamber'],
-    objects: [{ id: 'c08_testimony_basin', name: 'Testimony Basin', nameEs: 'Palabana del testimonio', description: 'A basin of clear water that holds a single voice, spoken once.', descriptionEs: 'Una palabana de agua clara que guarda una sola voz, dicha una vez.', interactable: true, broken: false, hidden: false }],
+    objects: [{ id: 'c08_testimony_basin', name: 'Testimony Basin', nameEs: 'Palangana del testimonio', description: 'A basin of clear water that holds a single voice, spoken once.', descriptionEs: 'Una palangana de agua clara que guarda una sola voz, dicha una vez.', interactable: true, broken: false, hidden: false }],
     npcs: ['c08_redactor'], enemies: [], dangerLevel: 0, discovered: true, secrets: [], ambiance: 'throne',
   },
   c08_record_vault: {

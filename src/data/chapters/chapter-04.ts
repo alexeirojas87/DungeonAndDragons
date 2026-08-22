@@ -64,7 +64,7 @@ const NODES: Record<string, StoryNode> = {
     id: 'c04_arrival', kind: 'beat', locationId: 'c04_forest_edge', externalEntry: true,
     title: 'The Last Road Ends', titleEs: 'El último camino termina',
     text: 'Beyond the last road the trees lean close, and the air smells of wet moss and old ink. A wood stretches ahead — the Forest That Remembers Names — and somewhere inside it, the name you came for is waiting to be traded back. The path narrows; the village is already behind you.',
-    textEs: 'Más allá del último camino los árboles se inclinan cerca, y el aire huele a musgo húmedo y tinta vieja. Un bosque se extiende adelante — el Bosque Que Recuerda Nombres — y en algún punto dentro de él, el nombre que buscas espera para ser recuperado. El sendero se estrecha; la aldea ya queda atrás.',
+    textEs: 'Más allá del último camino los árboles se ciernen, y el aire huele a musgo húmedo y tinta vieja. Un bosque se extiende adelante — el Bosque Que Recuerda Nombres — y en algún punto dentro de él, el nombre que buscas espera para ser recuperado. El sendero se estrecha; la aldea ya queda atrás.',
     choices: [
       { id: 'c04_enter_with_map', label: 'Take the old paths the map showed', labelEs: 'Tomar los senderos antiguos que el mapa mostró', nextNodeId: 'c04_roundhouse_gate', requires: [{ flag: 'canon:c02_map_shared' }], result: 'The map Olen shared still holds the old paths. You slip between the trees without a sound.', resultEs: 'El mapa que Olen compartió aún guarda los senderos antiguos. Te deslizas entre los árboles sin un sonido.' },
       { id: 'c04_enter_bare', label: 'Walk in openly', labelEs: 'Entrar abiertamente', nextNodeId: 'c04_roundhouse_gate', result: 'You push through the moss and the branches. The wood takes note of every step.', resultEs: 'Atraviesas el musgo y las ramas. El bosque anota cada paso.' },
@@ -75,7 +75,7 @@ const NODES: Record<string, StoryNode> = {
     id: 'c04_roundhouse_gate', kind: 'beat', locationId: 'c04_roundhouse',
     title: "The Keeper's Roundhouse", titleEs: 'La casa redonda de la guardiana',
     text: 'A roundhouse of woven roots sits in a clearing. Moss covers its roof like a green tongue, and a woman in bark-cloth stands at the door, waiting. She is Sylva, the moss-keeper, and she has been expecting you since the first name was surrendered. "Come in," she says. "The register is old, but the rule is older."',
-    textEs: 'Una casa redonda de raíces trenzadas se alza en un claro. El musgo cubre su techo como una lengua verde, y una mujer vestida con corteza espera en la puerta. Es Sylva, la guardiana del musgo, y te ha estado esperando desde que el primer nombre fue entregado. —Pasa —dice—. El registro es antiguo, pero la regla lo es más.',
+    textEs: 'Una casa redonda de raíces trenzadas se alza en un claro. El musgo cubre su techo como una lengua verde, y una mujer vestida de corteza espera en la puerta. Es Sylva, la guardiana del musgo, y te ha estado esperando desde que el primer nombre fue entregado.\n\n—Pasa —dice—. El registro es antiguo, pero la regla lo es más.',
     choices: [
       { id: 'c04_gate_to_rule', label: 'Enter and hear the rule', labelEs: 'Entrar y oír la regla', nextNodeId: 'c04_keeper_rule', result: 'Sylva leads you inside. The walls are hung with strips of bark, each one a name.', resultEs: 'Sylva te conduce dentro. Las paredes están cubiertas de tiras de corteza, cada una un nombre.' },
     ],
@@ -84,8 +84,8 @@ const NODES: Record<string, StoryNode> = {
   c04_keeper_rule: {
     id: 'c04_keeper_rule', kind: 'beat', locationId: 'c04_roundhouse',
     title: 'The Only Rule of Trade', titleEs: 'La única regla del trueque',
-    text: 'Sylva spreads the register open on the root-table. Every name the wood has ever collected is written in moss-ink on bark. "To take a name back," she says, "you must give one. Not a dead name — one that someone still holds. One that someone still answers to. That is the price, and there is no other." She watches you. "Or you can try to break the rule. The wood has broken stronger hands than yours."',
-    textEs: 'Sylva extiende el registro sobre la mesa de raíces. Cada nombre que el bosque ha recogido está escrito con tinta de musgo sobre corteza. —Para devolver un nombre —dice— debes dar uno. No un nombre muerto: uno que alguien aún lleve. Uno que alguien aún responda a su nombre. Ese es el precio, y no hay otro. —Te observa—. O puedes intentar romper la regla. El bosque ha roto manos más fuertes que las tuyas.',
+    text: 'Sylva spreads the register open on the root-table. Every name the wood has ever collected is written in moss-ink on bark. "To take a name back," she says, "you must give one. Not a dead name — one that someone still holds. One that someone still answers to. That is the price, and there is no other."\n\nShe watches you. "Or you can try to break the rule. The wood has broken stronger hands than yours."',
+    textEs: 'Sylva extiende el registro sobre la mesa de raíces. Cada nombre que el bosque ha recogido está escrito con tinta de musgo sobre corteza. —Para devolver un nombre —dice— debes dar uno. No un nombre muerto: uno que alguien aún lleve. Uno a cuyo nombre alguien aún responda. Ese es el precio, y no hay otro. —Te observa—. O puedes intentar romper la regla. El bosque ha roto manos más fuertes que las tuyas.',
     choices: [
       { id: 'c04_rule_to_first', label: 'Answer the keeper', labelEs: 'Responder a la guardiana', nextNodeId: 'c04_first_name', result: 'You meet her gaze. The register waits.', resultEs: 'Sostienes su mirada. El registro espera.' },
     ],
@@ -95,9 +95,9 @@ const NODES: Record<string, StoryNode> = {
     id: 'c04_first_name', kind: 'beat', locationId: 'c04_roundhouse',
     title: 'The First Name', titleEs: 'El primer nombre',
     text: 'Three paths leave the roundhouse: the root-grove where the names are woven, the hoard-ditch where the hoarded names rot, and the memory-cage where the wood keeps the names it has not yet traded. Sylva waits for your word. "Choose," she says. "The name you came for is behind one of these doors. The price is behind the other two."',
-    textEs: 'Tres caminos salen de la casa redonda: el arboleda de raíces donde los nombres se trenzan, la fosa donde los nombres acumulados se pudren, y la jaula de memoria donde el bosque guarda los nombres que aún no ha trocado. Sylva espera tu palabra. —Elige —dice—. El nombre que buscas está detrás de una de esas puertas. El precio está detrás de las otras dos.',
+    textEs: 'Tres caminos salen de la casa redonda: la arboleda de raíces donde los nombres se trenzan, la fosa donde los nombres acumulados se pudren, y la jaula de memoria donde el bosque guarda los nombres que aún no ha trocado. Sylva espera tu palabra. —Elige —dice—. El nombre que buscas está detrás de una de esas puertas. El precio está detrás de las otras dos.',
     choices: [
-      { id: 'c04_give_name', label: 'Surrender a live name and trade in the root-grove', labelEs: 'Entregar un nombre vivo y trocar en el arboleda de raíces', nextNodeId: 'c04_roundhouse_trade', setsFlags: { c04_name_given: true }, adjustsValues: { bond_sylva: 1, conviction_duty: 1 }, result: 'You offer a name someone still holds. Sylva nods; the trade may proceed.', resultEs: 'Ofreces un nombre que alguien aún lleva. Sylva asiente; el trueque puede proceeder.' },
+      { id: 'c04_give_name', label: 'Surrender a live name and trade in the root-grove', labelEs: 'Entregar un nombre vivo y trocar en la arboleda de raíces', nextNodeId: 'c04_roundhouse_trade', setsFlags: { c04_name_given: true }, adjustsValues: { bond_sylva: 1, conviction_duty: 1 }, result: 'You offer a name someone still holds. Sylva nods; the trade may proceed.', resultEs: 'Ofreces un nombre que alguien aún lleva. Sylva asiente; el trueque puede proceder.' },
       { id: 'c04_break_rule', label: 'Break the rule — go to the hoard-ditch', labelEs: 'Romper la regla — ir a la fosa', nextNodeId: 'c04_ditch_entry', setsFlags: { c04_rule_broken: true }, adjustsValues: { conviction_freedom: 1 }, result: 'You will not pay the price. The ditch is where the hoarded names are kept, unguarded.', resultEs: 'No pagarás el precio. La fosa guarda los nombres acumulados, sin guardia.' },
       { id: 'c04_seek_cage', label: 'Seek the memory-cage — the name the wood has not yet traded', labelEs: 'Buscar la jaula de memoria — el nombre que el bosque aún no ha trocado', nextNodeId: 'c04_cage_entry', setsFlags: { c04_cage_chosen: true }, adjustsValues: { conviction_truth: 1 }, result: 'You go to the cage where the untraded names wait. Perhaps the name you need was never paid for at all.', resultEs: 'Vas a la jaula donde los nombres sin trocar esperan. Quizá el nombre que necesitas nunca fue pagado.' },
     ],
@@ -107,7 +107,7 @@ const NODES: Record<string, StoryNode> = {
     id: 'c04_roundhouse_trade', kind: 'beat', locationId: 'c04_root_grove',
     title: 'The Trade Begins', titleEs: 'El trueque comienza',
     text: 'The root-grove is a clearing where the names grow in the moss itself. Sylva leads you to the oldest patch, where three roots cross over a single strip of bark. "Plait them in the right order," she says, "and the name shows through. Plait them wrong and the roots remember nothing."',
-    textEs: 'El arboleda de raíces es un claro donde los nombres crecen en el propio musgo. Sylva te lleva al parche más antiguo, donde tres raíces se cruzan sobre una sola tira de corteza. —Trenza en el orden correcto —dice— y el nombre asoma. Trenza mal y las raíces no recuerdan nada.',
+    textEs: 'La arboleda de raíces es un claro donde los nombres crecen en el propio musgo. Sylva te lleva al parche más antiguo, donde tres raíces se cruzan sobre una sola tira de corteza. —Trenza en el orden correcto —dice— y el nombre asoma. Trenza mal y las raíces no recuerdan nada.',
     choices: [
       { id: 'c04_trade_to_roots', label: 'Plait the roots', labelEs: 'Trenzar las raíces', nextNodeId: 'c04_roots_puzzle', result: 'You kneel at the root-table. Three roots wait to be plaited.', resultEs: 'Te arrodillas junto a la mesa de raíces. Tres raíces esperan ser trenzadas.' },
       { id: 'c04_trade_back', label: 'Return to the roundhouse', labelEs: 'Volver a la casa redonda', nextNodeId: 'c04_first_name', result: 'You step back. The roots are still.', resultEs: 'Retrocedes. Las raíces siguen quietas.' },
@@ -128,15 +128,15 @@ const NODES: Record<string, StoryNode> = {
     text: 'The third root turns and the moss parts. A name shows through the bark — the name of the Tenth Door itself, written in the oldest ink the wood keeps. Sylva touches it gently. "Now you have it," she says. "But having is not keeping. The Hunger will come for it, and you must answer it."',
     textEs: 'La tercera raíz gira y el musgo se aparta. Un nombre asoma en la corteza — el nombre de la décima puerta misma, escrito con la tinta más antigua del bosque. Sylva lo toca suavemente. —Ahora lo tienes —dice—. Pero tener no es guardar. El Hambre vendrá por él, y deberás responderle.',
     choices: [
-      { id: 'c04_roots_to_advice', label: 'Hear Sylva advice before the Hunger', labelEs: 'Oír el consejo de Sylva antes del Hambre', nextNodeId: 'c04_sylva_advice', result: 'Sylva walks with you to the edge of the grove.', resultEs: 'Sylva camina contigo hasta el borde del arboleda.' },
+      { id: 'c04_roots_to_advice', label: 'Hear Sylva advice before the Hunger', labelEs: 'Oír el consejo de Sylva antes del Hambre', nextNodeId: 'c04_sylva_advice', result: 'Sylva walks with you to the edge of the grove.', resultEs: 'Sylva camina contigo hasta el borde de la arboleda.' },
     ],
   },
 
   c04_sylva_advice: {
     id: 'c04_sylva_advice', kind: 'beat', locationId: 'c04_root_grove',
     title: "Sylva's Advice", titleEs: 'El consejo de Sylva',
-    text: '"The Hunger answers a well-shaped name," Sylva says. "Shape it with breath, and the breath will answer. The moss-seer in the grove knows the riddle — what the dead borrow and the living never lend. Answer her, and the name will speak through your own mouth before the Hunger comes." She looks south. "Or face it raw. The relic you carry may ward it, if you carry one."',
-    textEs: '—El Hambre responde a un nombre bien formado —dice Sylva—. Fórmalo con aliento, y el aliento responderá. La vidente del musgo en el arboleda conoce el enigma — lo que los muertos toman prestado y los vivos nunca prestan. Respóndele, y el nombre hablará por tu propia boca antes de que el Hambre llegue. —Mira al sur—. O enfréntalo en crudo. La reliquia que llevas puede protegerla, si llevas una.',
+    text: '"The Hunger answers a well-shaped name," Sylva says. "Shape it with breath, and the breath will answer. The moss-seer in the grove knows the riddle — what the dead borrow and the living never lend. Answer her, and the name will speak through your own mouth before the Hunger comes."\n\nShe looks south. "Or face it raw. The relic you carry may ward it, if you carry one."',
+    textEs: '—El Hambre responde a un nombre bien formado —dice Sylva—. Fórmalo con aliento, y el aliento responderá. La vidente del musgo en la arboleda conoce el enigma — lo que los muertos toman prestado y los vivos nunca prestan. Respóndele, y el nombre hablará por tu propia boca antes de que el Hambre llegue. —Mira al sur—. O enfréntalo en crudo. La reliquia que llevas puede protegerte de ella, si llevas una.',
     choices: [
       { id: 'c04_advice_to_assembly', label: 'Go to the clearing where the paths meet', labelEs: 'Ir al claro donde los caminos se cruzan', nextNodeId: 'c04_assembly', result: 'You walk to the clearing where the three paths meet.', resultEs: 'Caminas al claro donde los tres caminos se cruzan.' },
     ],
@@ -178,7 +178,7 @@ const NODES: Record<string, StoryNode> = {
     id: 'c04_hoarder', kind: 'beat', locationId: 'c04_hoard_ditch',
     title: 'The Hoarder', titleEs: 'El acopiador',
     text: 'A shape moves at the edge of the ditch — not the Hunger, but a keeper who stayed too long. It does not speak; it only holds a strip of bark to its chest and watches you take the name. "You can take it," Sylva calls from above, "but the wood remembers who held it last. The Hunger will come for what was hoarded, not what was traded."',
-    textEs: 'Una figura se mueve al borde de la fosa — no el Hambre, sino un guardián que se quedó demasiado tiempo. No habla; solo sostiene una tira de corteza contra su pecho y te observa tomar el nombre. —Puedes tomarlo —llama Sylva desde arriba—, pero el bosque recuerda quién lo sostuvo al final. El Hambre vendrá por lo acumulado, no por lo trocado.',
+    textEs: 'Una figura se mueve al borde de la fosa — no el Hambre, sino un guardián que se quedó demasiado tiempo. No habla; solo sostiene una tira de corteza contra su pecho y te observa tomar el nombre. —Puedes tomarlo —llama Sylva desde arriba—, pero el bosque recuerda quién lo sostuvo por último. El Hambre vendrá por lo acumulado, no por lo trocado.',
     choices: [
       { id: 'c04_hoarder_to_assembly', label: 'Take the name to the clearing', labelEs: 'Llevar el nombre al claro', nextNodeId: 'c04_assembly', result: 'You leave the hoarder behind. The name is in your hands.', resultEs: 'Dejas al acopiador atrás. El nombre está en tus manos.' },
     ],
@@ -188,7 +188,7 @@ const NODES: Record<string, StoryNode> = {
     id: 'c04_cage_entry', kind: 'beat', locationId: 'c04_memory_cage',
     title: 'The Memory-Cage', titleEs: 'La jaula de memoria',
     text: 'The memory-cage is a lattice of living roots, shaped like a cage for birds that never learned to fly. Inside it, strips of bark hang like wind-chimes, each one a name the wood has not yet traded. Some are old; some are new. The oldest one, at the center, is the name of the Tenth Door — still bright, still green, still waiting for its price.',
-    textEs: 'La jaula de memoria es un enrejado de raíces vivas, formada como una jaula para pájaros que nunca aprendieron a volar. Dentro, tiras de corteza cuelgan como carrillones, cada una un nombre que el bosque aún no ha trocado. Algunos son antiguos; otros, nuevos. El más antiguo, en el centro, es el nombre de la décima puerta — aún brillante, aún verde, aún esperando su precio.',
+    textEs: 'La jaula de memoria es un enrejado de raíces vivas, formado como una jaula para pájaros que nunca aprendieron a volar. Dentro, tiras de corteza cuelgan como carrillones, cada una un nombre que el bosque aún no ha trocado. Algunos son antiguos; otros, nuevos. El más antiguo, en el centro, es el nombre de la décima puerta — aún brillante, aún verde, aún esperando su precio.',
     choices: [
       { id: 'c04_cage_enter', label: 'Enter the cage', labelEs: 'Entrar en la jaula', nextNodeId: 'c04_cage_inner', result: 'You step through the lattice. The bark chimes stir.', resultEs: 'Atraviesas el enrejado. Las cortezas se agitan.' },
       { id: 'c04_cage_back', label: 'Return to the roundhouse', labelEs: 'Volver a la casa redonda', nextNodeId: 'c04_first_name', result: 'You step back from the cage. The names chime softly.', resultEs: 'Retrocedes de la jaula. Los nombres suenan suavemente.' },
@@ -198,8 +198,8 @@ const NODES: Record<string, StoryNode> = {
   c04_cage_inner: {
     id: 'c04_cage_inner', kind: 'beat', locationId: 'c04_memory_cage',
     title: 'Inside the Memory-Cage', titleEs: 'Dentro de la jaula de memoria',
-    text: 'Inside the cage the air is thick with names. The one you need hangs at the center, green and untraded. Sylva stands outside the lattice. "It was never paid for," she says. "The wood held it for the one who would come. That is you, or it is no one. Take it — but the Hunger will know you took what was not traded, and it will come harder."',
-    textEs: 'Dentro de la jaula el aire espesa de nombres. El que necesitas cuelga en el centro, verde y sin trocar. Sylva se mantiene fuera del enrejado. —Nunca fue pagado —dice—. El bosque lo guardó para quien viniera. Eres tú, o no es nadie. Tómalo — pero el Hambre sabrá que tomaste lo que no fue trocado, y vendrá con más fuerza.',
+    text: 'Inside the cage the air is thick with names. The one you need hangs at the center, green and untraded. Sylva stands outside the lattice. "It was never paid for," she says. "The wood held it for the one who would come. That is you, or it is no one.\n\nTake it — but the Hunger will know you took what was not traded, and it will come harder."',
+    textEs: 'Dentro de la jaula el aire se espesa con nombres. El que necesitas cuelga en el centro, verde y sin trocar. Sylva se mantiene fuera del enrejado. —Nunca fue pagado —dice—. El bosque lo guardó para quien viniera. Eres tú, o no es nadie. Tómalo — pero el Hambre sabrá que tomaste lo que no fue trocado, y vendrá con más fuerza.',
     choices: [
       { id: 'c04_cage_to_memory', label: 'Hold the name and remember what it cost', labelEs: 'Sostener el nombre y recordar lo que costó', nextNodeId: 'c04_cage_memory', result: 'You touch the bark. The name is warm.', resultEs: 'Tocas la corteza. El nombre está caliente.' },
       { id: 'c04_cage_to_assembly', label: 'Take the name to the clearing', labelEs: 'Llevar el nombre al claro', nextNodeId: 'c04_assembly', result: 'You pull the name from the lattice and walk south.', resultEs: 'Arrancas el nombre del enrejado y caminas al sur.' },
@@ -219,8 +219,8 @@ const NODES: Record<string, StoryNode> = {
   c04_assembly: {
     id: 'c04_assembly', kind: 'beat', locationId: 'c04_forest_edge',
     title: 'The Clearing', titleEs: 'El claro',
-    text: 'All three paths meet at a clearing at the edge of the wood. The moss-seer sits by a well of black water, and the Hunger waits somewhere in the trees. Sylva joins you. "You can shape the name with breath — the moss-seer knows the riddle. Or you can face the Hunger with the relic you carry. Or you can take it raw, and pay the full price. Choose."',
-    textEs: 'Los tres caminos se cruzan en un claro en el borde del bosque. La vidente del musgo se sienta junto a un pozo de agua negra, y el Hambre espera en algún punto entre los árboles. Sylva se une a ti. —Puedes formar el nombre con aliento — la vidente conoce el enigma. O puedes enfrentar el Hambre con la reliquia que llevas. O puedes tomarlo en crudo, y pagar el precio completo. Elige.',
+    text: 'All three paths meet at a clearing at the edge of the wood. The moss-seer sits by a well of black water, and the Hunger waits somewhere in the trees.\n\nSylva joins you. "You can shape the name with breath — the moss-seer knows the riddle. Or you can face the Hunger with the relic you carry. Or you can take it raw, and pay the full price. Choose."',
+    textEs: 'Los tres caminos se cruzan en un claro en el borde del bosque. La vidente del musgo se sienta junto a un pozo de agua negra, y el Hambre espera en algún punto entre los árboles. Sylva se une a ti. —Puedes formar el nombre con aliento — la vidente conoce el enigma. O puedes enfrentar al Hambre con la reliquia que llevas. O puedes tomarlo en crudo, y pagar el precio completo. Elige.',
     choices: [
       { id: 'c04_to_breath', label: 'Go to the moss-seer and the breath riddle', labelEs: 'Ir a la vidente del musgo y el enigma del aliento', nextNodeId: 'c04_breath_puzzle', result: 'You approach the moss-seer by the black well.', resultEs: 'Te acercas a la vidente del musgo junto al pozo negro.' },
       { id: 'c04_to_seer', label: 'Sit with the moss-seer and hear the rite', labelEs: 'Sentarse con la vidente del musgo y oír el rito', nextNodeId: 'c04_moss_seer', result: 'You sit by the well. The moss-seer opens her eyes.', resultEs: 'Te sientas junto al pozo. La vidente del musgo abre los ojos.' },
@@ -250,7 +250,7 @@ const NODES: Record<string, StoryNode> = {
     id: 'c04_breath_skipped', kind: 'beat', locationId: 'c04_forest_edge',
     title: 'The Riddle Left Unanswered', titleEs: 'El enigma sin respuesta',
     text: 'You leave the riddle unspoken. The name stays in the bark, unshaped by breath. The Hunger will come for it raw, and the price will be the full one. Sylva does not stop you. "Some names are worth the full cost," she says. "Yours may be one."',
-    textEs: 'Dejas el enigma sin responder. El nombre se queda en la corteza, sin formar por aliento. El Hambre vendrá por él en crudo, y el precio será el completo. Sylva no te detiene. —Algunos nombres valen el precio completo —dice—. El tuyo quizá sea uno.',
+    textEs: 'Dejas el enigma sin responder. El nombre se queda en la corteza, sin darle forma con el aliento. El Hambre vendrá por él en crudo, y el precio será el completo. Sylva no te detiene. —Algunos nombres valen el precio completo —dice—. El tuyo quizá sea uno.',
     choices: [
       { id: 'c04_breath_skip_to_choice', label: 'Go to the name-choice', labelEs: 'Ir a la elección del nombre', nextNodeId: 'c04_name_choice', result: 'You carry the name unshaped.', resultEs: 'Llevas el nombre sin formar.' },
     ],
@@ -259,7 +259,7 @@ const NODES: Record<string, StoryNode> = {
   c04_moss_seer: {
     id: 'c04_moss_seer', kind: 'beat', locationId: 'c04_forest_edge',
     title: 'The Moss-Seer', titleEs: 'La vidente del musgo',
-    text: 'The moss-seer is older than Sylva, older than the register. She sits by the black well and her eyes are closed. "I do not speak the riddle twice," she says without opening them. "But I can hold the name while you decide. The rite is simple: breathe over the well, and the name settles in your breath instead of the bark. The Hunger cannot bite what is breathed, only what is held." She opens one eye. "Or you can go to the Hunger with what you carry. The relic wards things the breath cannot."',
+    text: 'The moss-seer is older than Sylva, older than the register. She sits by the black well and her eyes are closed. "I do not speak the riddle twice," she says without opening them. "But I can hold the name while you decide. The rite is simple: breathe over the well, and the name settles in your breath instead of the bark. The Hunger cannot bite what is breathed, only what is held."\n\nShe opens one eye. "Or you can go to the Hunger with what you carry. The relic wards things the breath cannot."',
     textEs: 'La vidente del musgo es más antigua que Sylva, más antigua que el registro. Se sienta junto al pozo negro con los ojos cerrados. —No pronuncio el enigma dos veces —dice sin abrirlos—. Pero puedo sostener el nombre mientras decides. El rito es simple: respira sobre el pozo, y el nombre se posa en tu aliento en vez de en la corteza. El Hambre no puede morder lo respirado, solo lo sostenido. —Abre un ojo—. O puedes ir al Hambre con lo que llevas. La reliquia protege lo que el aliento no puede.',
     choices: [
       { id: 'c04_seer_to_choice', label: 'Let the seer hold the name and go to the choice', labelEs: 'Dejar que la vidente sostenga el nombre e ir a la elección', nextNodeId: 'c04_name_choice', setsFlags: { c04_seer_held: true }, adjustsValues: { conviction_compassion: 1 }, result: 'The seer holds the name over the well. You stand.', resultEs: 'La vidente sostiene el nombre sobre el pozo. Te pones de pie.' },
@@ -270,7 +270,7 @@ const NODES: Record<string, StoryNode> = {
     id: 'c04_hunger_call', kind: 'beat', locationId: 'c04_hunger_lair',
     title: 'The Hunger Comes', titleEs: 'El Hambre viene',
     text: 'The Hunger is a shape in the trees, not a body but a need. It smells the name on you and it comes. You can face it in its lair, or you can ward it with the relic you carry, or you can flee to the clearing and face the choice without the fight.',
-    textEs: 'El Hambre es una figura en los árboles, no un cuerpo sino una necesidad. Huele el nombre en ti y viene. Puedes enfrentarlo en su guarida, o protegerlo con la reliquia que llevas, o huir al claro y enfrentar la elección sin la pelea.',
+    textEs: 'El Hambre es una figura en los árboles, no un cuerpo sino una necesidad. Huele el nombre en ti y viene. Puedes enfrentarla en su guarida, o protegerte de ella con la reliquia que llevas, o huir al claro y enfrentar la elección sin la pelea.',
     choices: [
       { id: 'c04_face_hunger', label: 'Face the Hunger in its lair', labelEs: 'Enfrentar el Hambre en su guarida', nextNodeId: 'c04_hunger_aftermath', setsFlags: { c04_hunger_faced: true }, result: 'You step into the lair. The Hunger takes shape.', resultEs: 'Entras en la guarida. El Hambre toma forma.' },
       { id: 'c04_ward_with_relic', label: 'Ward the Hunger with the relic', labelEs: 'Proteger del Hambre con la reliquia', nextNodeId: 'c04_name_choice', requires: [{ flag: 'canon:c01_relic_claimed' }], result: 'The relic burns in your hand and the Hunger flinches. You walk past it to the clearing.', resultEs: 'La reliquia arde en tu mano y el Hambre retrocede. Pasas junto a él hacia el claro.' },
@@ -313,7 +313,7 @@ const NODES: Record<string, StoryNode> = {
     id: 'c04_ending_refuse', kind: 'ending', terminal: true, choices: [],
     title: 'Refused', titleEs: 'Rechazado',
     text: 'You set the name free. It rises from the bark and the moss and goes where names go when no one holds them. Sylva watches it go and does not stop it. "The wood will not hold it again," she says. "It is free — for now. The Hunger will find it eventually, but that is not your concern." You leave the wood lighter than you came.',
-    textEs: 'Dejas el nombre libre. Se eleva de la corteza y el musgo y va a donde van los nombres cuando nadie los sostiene. Sylva lo ve ir y no lo detiene. —El bosque no lo guardará otra vez —dice—. Está libre — por ahora. El Hambre lo encontrará al final, pero eso no es tu asunto. Sales del bosque más ligero que entraste.',
+    textEs: 'Dejas el nombre libre. Se eleva de la corteza y el musgo y va a donde van los nombres cuando nadie los sostiene. Sylva lo ve ir y no lo detiene. —El bosque no lo guardará otra vez —dice—. Está libre — por ahora. El Hambre lo encontrará al final, pero eso no es tu asunto. Sales del bosque más ligero que cuando entraste.',
     outcome: 'ambiguous', survivors: ['c04_sylva'], casualties: [],
   },
 
@@ -329,7 +329,7 @@ const NODES: Record<string, StoryNode> = {
     id: 'c04_ending_burn', kind: 'ending', terminal: true, choices: [],
     title: 'Burned', titleEs: 'Quemado',
     text: 'The register burns. Every name the wood ever held rises as smoke and the moss-ink runs like tears. Sylva stands in the clearing and watches the bark curl and the roots shrink back. She does not stop you. "The names are free," she says. "But the wood will not hold another for a long time. You have burned the keeper as well as the kept." The forest goes quiet behind you.',
-    textEs: 'El registro arde. Cada nombre que el bosque guardó se eleva como humo y la tinta de musgo corre como lágrimas. Sylva se mantiene en el claro y ve la corteza rizarse y las raíces retroceder. No te detiene. —Los nombres están libres —dice—. Pero el bosque no sostendrá otro durante mucho tiempo. Has quemado al guardián tanto como a lo guardado. El bosque queda en silencio a tu espalda.',
+    textEs: 'El registro arde. Cada nombre que el bosque guardó se eleva como humo y la tinta de musgo corre como lágrimas. Sylva se mantiene en el claro y mira cómo la corteza se riza y las raíces retroceder. No te detiene. —Los nombres están libres —dice—. Pero el bosque no sostendrá otro durante mucho tiempo. Has quemado al guardián tanto como a lo guardado. El bosque queda en silencio a tu espalda.',
     outcome: 'failure', survivors: [], casualties: ['c04_sylva'],
   },
 };

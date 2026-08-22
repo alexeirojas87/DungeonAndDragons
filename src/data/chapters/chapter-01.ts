@@ -89,7 +89,7 @@ const NODES: Record<string, StoryNode> = {
     id: 'c01_martik_briefing', kind: 'beat', locationId: 'c01_black_lantern',
     title: 'Three Names', titleEs: 'Tres nombres',
     text: 'Martik names the missing: Tomas, a young farmer; Greta, keeper of the chapel records; and Lyra, sister of the healer Elara. All three asked about lights moving in the northern hills before they vanished. He spreads a rough map on the bar. Their disappearances were not random — but whose account you trust will shape the hunt.',
-    textEs: 'Martik nombra a los desaparecidos: Tomas, un joven granjero; Greta, guardiana de los archivos de la capilla; y Lyra, hermana de la curandera Elara. Los tres preguntaron por unas luces que se movían en las colinas del norte antes de desaparecer. Extiende un mapa rudimentario sobre la barra. Sus desapariciones no fueron casuales — pero de quién fíes dará forma a la búsqueda.',
+    textEs: 'Martik nombra a los desaparecidos: Tomas, un joven granjero; Greta, guardiana de los archivos de la capilla; y Lyra, hermana de la curandera Elara. Los tres preguntaron por unas luces que se movían en las colinas del norte antes de desaparecer. Extiende un mapa rudimentario sobre la barra. Sus desapariciones no fueron casuales — pero de quién te fíes dará forma a la búsqueda.',
     choices: [
       { id: 'c01_lean_council', label: 'Trust the council — demand their sealed record', labelEs: 'Confiar en el consejo — exigir su registro sellado', nextNodeId: 'c01_council_chamber', setsFlags: { c01_lean_council: true }, adjustsValues: { faction_blackmere_council: 1, conviction_duty: 1 }, result: 'You choose the council\'s account. Martik warns you they will want silence in return.', resultEs: 'Elijes la versión del consejo. Martik te advierte que querrán silencio a cambio.' },
       { id: 'c01_lean_chapel', label: 'Trust the chapel — seek Elara and the old records', labelEs: 'Confiar en la capilla — buscar a Elara y los viejos registros', nextNodeId: 'c01_chapel_plea', setsFlags: { c01_lean_chapel: true, 'canon:c01_rescue_oath': true }, adjustsValues: { bond_elara: 1, conviction_compassion: 1 }, result: 'You choose the chapel\'s account. Elara is waiting; her sister is among the missing.', resultEs: 'Elijes la versión de la capilla. Elara espera; su hermana está entre los desaparecidos.' },
@@ -311,14 +311,14 @@ const NODES: Record<string, StoryNode> = {
     outcome: 'success', survivors: ['c01_tomas', 'c01_greta', 'c01_lyra'], casualties: ['c01_warden'],
     title: 'The Name the Water Kept', titleEs: 'El nombre que guardó el agua',
     text: 'Greta speaks the forgotten name of the Drowned Eye. The door recognizes its keeper and closes without blood or ruin. You lead the three captives home carrying a secret almost nobody left alive knows how to hear.',
-    textEs: 'Greta pronuncia el nombre olvidado del Ojo Ahogado. La puerta reconoce a su guardiana y se cierra sin sangre ni destrucción. Conduces a los tres cautivos a casa llevando un secreto que casi nadie con vida sabe ya escuchar.',
+    textEs: 'Greta pronuncia el nombre olvidado del Ojo Ahogado. La puerta reconoce a su guardiana y se cierra sin sangre ni destrucción. Conduces a los tres cautivos a casa llevando un secreto que casi nadie con vida ya sabe escuchar.',
   },
   c01_ending_relic: {
     id: 'c01_ending_relic', kind: 'ending', terminal: true, choices: [],
     outcome: 'failure', survivors: [], casualties: ['c01_tomas', 'c01_greta', 'c01_lyra'],
     title: 'What You Chose to Carry', titleEs: 'Lo que elegiste cargar',
     text: 'You reach through the opening and take the relic. By the time you turn back, the chains and their captives have vanished beneath black water. You leave the crypt powerful, alone, and unwelcome in the village you failed.',
-    textEs: 'Cruzas la abertura y tomas la reliquia. Cuando vuelves la mirada, las cadenas y sus cautivos han desaparecido bajo el agua negra. Abandonas la cripta con poder, en soledad y sin ser bienvenido en la aldea a la que fallaste.',
+    textEs: 'Cruzas la abertura y tomas la reliquia. Cuando vuelves la mirada, las cadenas y sus cautivos han desaparecido bajo el agua negra. Abandonas la cripta poderoso, solo y sin ser bienvenido en la aldea a la que fallaste.',
   },
 };
 

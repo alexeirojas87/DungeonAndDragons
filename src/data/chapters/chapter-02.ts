@@ -19,7 +19,7 @@ const CARGO_LEDGER: Puzzle = {
   title: 'The Cargo Ledger',
   titleEs: 'El registro de carga',
   prompt: 'Olen\'s ledger binds each sealed voice to the vessel that carries it. The entries near the back were written in a different ink — the same second ink that stained the chapel ledger a chapter ago. Read the ledger and you will know whose voice moves whose freight.',
-  promptEs: 'El registro de Olen ata cada voz sellada a la vasija que la lleva. Los asientos del final están escritos con otra tinta — la misma segunda tinta que manchó el registro de la capilla hace un capítulo. Léelo y sabrás de quién es la voz que mueve qué mercancía.',
+  promptEs: 'El registro de Olen ata cada voz sellada a la vasija que la lleva. Los asientos del final están escritos con otra tinta — la misma segunda tinta que manchó el registro de la capilla hace un capítulo. Léelo y sabrás qué voz mueve qué mercancía.',
   hints: [
     { en: 'The three odd entries share a date that is not a departure date. It is a tally — a count of voices, not of goods.', es: 'Los tres asientos extraños comparten una fecha que no es de partida. Es un recuento — un conteo de voces, no de mercancías.' },
     { en: 'The margin drawing is a map of the oath-vessels. Each line connects a voice to the vessel that carries it — and one line is missing.', es: 'El dibujo del margen es un mapa de las vasijas de juramento. Cada línea conecta una voz con la vasija que la lleva — y falta una línea.' },
@@ -81,7 +81,7 @@ const NODES: Record<string, StoryNode> = {
     id: 'c02_first_gate', kind: 'beat',
     title: 'The Sealed Cargo', titleEs: 'La carga sellada',
     text: 'Olen shows you the sealed cargo — crates of voices bound for the Iron Parliament. "These seals are the road\'s law. Break them and you read the ledger; leave them and the road trusts you. But the road does not forget either way."',
-    textEs: 'Olen te muestra la carga sellada — cajas de voces destinadas al Parlamento de Hierro. «Estos sellos son la ley del camino. Rómpelos y leerás el registro; déjalos y el camino confiará en ti. Pero el camino no olvida, de ninguna de las dos maneras».',
+    textEs: 'Olen te muestra la carga sellada — cajas de voces destinadas al Parlamento de Hierro. «Estos sellos son la ley del camino. Rómpelos y leerás el registro; déjalos y el camino confiará en ti. Pero el camino no olvida de ninguna manera».',
     choices: [
       { id: 'c02_read_cargo', label: 'Read the sealed cargo — break the seals', labelEs: 'Leer la carga sellada — romper los sellos', nextNodeId: 'c02_crossroads', setsFlags: { c02_cargo_read: true }, adjustsValues: { conviction_truth: 1, bond_olen: -1 }, result: 'You break the seals. The ledger opens; the road\'s law bends.', resultEs: 'Rompes los sellos. El registro se abre; la ley del camino se doblega.' },
       { id: 'c02_leave_seals', label: 'Leave the seals whole', labelEs: 'Dejar los sellos intactos', nextNodeId: 'c02_crossroads', setsFlags: { c02_seals_intact: true }, adjustsValues: { faction_salt_compact: 1, conviction_duty: 1 }, result: 'You leave the seals whole. Olen nods; the road remembers that you did not break its law.', resultEs: 'Dejas los sellos intactos. Olen asiente; el camino recuerda que no rompiste su ley.' },
@@ -92,7 +92,7 @@ const NODES: Record<string, StoryNode> = {
     id: 'c02_crossroads', kind: 'beat', locationId: 'c02_caravan_camp',
     title: 'Three Roads', titleEs: 'Tres caminos',
     text: 'The caravan camp opens onto three roads: the caravan road running north with the salt, the ash-hollow where the ash-children keep their kiln, and the courier\'s road that follows the Iron Parliament\'s post. Each one can reach Olen\'s ledger; each one carries a different price.',
-    textEs: 'El campamento de la caravana se abre a tres caminos: el camino de la caravana que va al norte con la sal, el barranco de ceniza donde los hijos de la ceniza guardan su horno, y el camino del correo que sigue la posta del Parlamento de Hierro. Cada uno puede llegar al registro de Olen; cada uno lleva un precio distinto.',
+    textEs: 'El campamento de la caravana se abre a tres caminos: el camino de la caravana que va al norte con la sal, el barranco de ceniza donde los hijos de la ceniza guardan su horno, y el camino del correo que sigue la posta del Parlamento de Hierro. Cada uno conduce al registro de Olen; cada uno lleva un precio distinto.',
     choices: [
       { id: 'c02_take_caravan', label: 'Take the caravan road with Olen', labelEs: 'Tomar el camino de la caravana con Olen', nextNodeId: 'c02_caravan_road', setsFlags: { c02_chose_caravan: true }, result: 'You walk beside the salt wagons. Olen keeps pace.', resultEs: 'Caminas junto a los carros de sal. Olen marca el paso.' },
       { id: 'c02_take_ash', label: 'Descend to the ash-children\'s hollow', labelEs: 'Bajar al barranco de los hijos de la ceniza', nextNodeId: 'c02_ash_children', setsFlags: { c02_chose_ash: true }, result: 'You take the path into the ash-hollow.', resultEs: 'Tomas el sendero hacia el barranco de ceniza.' },
@@ -129,7 +129,7 @@ const NODES: Record<string, StoryNode> = {
     text: 'The ash-hollow is a ring of burned tents around a kiln that still breathes heat. The ash-children — refugees who lost their names to the fires — tend the kiln and keep a riddle older than the road. They do not ask for payment; they ask for an answer.',
     textEs: 'El barranco de ceniza es un anillo de tiendas quemadas alrededor de un horno que aún respira calor. Los hijos de la ceniza — refugiados que perdieron sus nombres en los incendios — cuidan el horno y guardan un enigma más viejo que el camino. No piden pago; piden una respuesta.',
     choices: [
-      { id: 'c02_ask_kiln', label: 'Approach the kiln', labelEs: 'Acercarse al horno', nextNodeId: 'c02_kiln_intro', setsFlags: { c02_chose_kiln: true }, result: 'The kiln glows red behind its grate. A voice asks its question.', resultEs: 'El herno brilla rojo detrás de su rejilla. Una voz hace su pregunta.' },
+      { id: 'c02_ask_kiln', label: 'Approach the kiln', labelEs: 'Acercarse al horno', nextNodeId: 'c02_kiln_intro', setsFlags: { c02_chose_kiln: true }, result: 'The kiln glows red behind its grate. A voice asks its question.', resultEs: 'El horno brilla rojo detrás de su rejilla. Una voz hace su pregunta.' },
       { id: 'c02_ash_seed_choice', label: 'Plant an ash-seed with the children', labelEs: 'Plantar una semilla de ceniza con los hijos', nextNodeId: 'c02_ash_seed', setsFlags: { c02_chose_seed: true, 'canon:c02_ash_seed': true }, adjustsValues: { faction_free_witnesses: 1, conviction_compassion: 2 }, result: 'You kneel with the ash-children and press a seed into the ash. They nod; the seed is planted.', resultEs: 'Te arrodillas con los hijos de la ceniza y prensas una semilla en la ceniza. Asienten; la semilla está plantada.' },
     ],
   },
@@ -156,7 +156,7 @@ const NODES: Record<string, StoryNode> = {
     id: 'c02_kiln_solved', kind: 'beat',
     title: 'The Wind Answers', titleEs: 'El viento responde',
     text: '"The wind," you say. The kiln-keeper inclines their head. "El viento," you say again, and the ash-cloth stirs. The wind carries both salt and ash along the road, and the road gives it back. The kiln-keeper presses a token into your hand — a piece of ash that does not burn.',
-    textEs: '«El viento», dices. El guardián del horno inclina la cabeza. «El viento», repites, y la tela de ceniza se agita. El viento lleva tanto la sal como la ceniza por el camino, y el camino lo devuelve. El guardián te prensa un token en la mano — un trozo de ceniza que no arde.',
+    textEs: '«El viento», dices. El guardián del horno inclina la cabeza. «El viento», repites, y la tela de ceniza se agita. El viento lleva tanto la sal como la ceniza por el camino, y el camino lo devuelve. El guardián te aprieta un token en la mano — un trozo de ceniza que no arde.',
     choices: [
       { id: 'c02_kiln_to_threshold', label: 'Take the token to the crossing', labelEs: 'Llevar el token al paso', nextNodeId: 'c02_olen_reversal', setsFlags: { c02_kiln_answer: true }, adjustsValues: { conviction_truth: 2 }, result: 'You carry the wind\'s token toward the salt-storm crossing.', resultEs: 'Llevas el token del viento hacia el paso de la tormenta de sal.' },
     ],
@@ -166,7 +166,7 @@ const NODES: Record<string, StoryNode> = {
     id: 'c02_kiln_skipped', kind: 'beat',
     title: 'The Kiln Left Unanswered', titleEs: 'El horno sin respuesta',
     text: 'You leave the riddle unanswered. The kiln-keeper says nothing. The ash-children watch you go. The wind does not carry you; you carry yourself.',
-    textEs: 'Dejas el enigma sin responder. El guardián del horno no dice nada. Los hijos de la ceniza te ven marchar. El viento no te lleva; te llevas a ti mismo.',
+    textEs: 'Dejas el enigma sin responder. El guardián del horno no dice nada. Los hijos de la ceniza te ven marchar. El viento no te lleva; caminas por ti mismo.',
     choices: [
       { id: 'c02_kiln_skip_to_threshold', label: 'Head to the crossing', labelEs: 'Ir al paso', nextNodeId: 'c02_olen_reversal', result: 'You leave the hollow and head toward the salt-storm crossing.', resultEs: 'Dejas el barranco y te diriges al paso de la tormenta de sal.' },
     ],
@@ -187,7 +187,7 @@ const NODES: Record<string, StoryNode> = {
     id: 'c02_courier_road', kind: 'beat', locationId: 'c02_courier_trail',
     title: 'The Courier\'s Road', titleEs: 'El camino del correo',
     text: 'The courier\'s road follows the Iron Parliament\'s post east. The tracks are fresh — a fast rider with sealed saddlebags. The road is quieter than the caravan; the salt is thicker here, and the ash thinner. Something moved this way recently, dragging a heavy weight.',
-    textEs: 'El camino del correo sigue la posta del Parlamento de Hierro al este. Las huellas son frescas — un jinete rápido con alforjas selladas. El camino es más quieto que la caravana; la sal es más espesa aquí, y la ceniza más delgada. Algo se movió por aquí hace poco, arrastrando un peso.',
+    textEs: 'El camino del correo sigue la posta del Parlamento de Hierro al este. Las huellas son frescas — un jinete rápido con alforjas selladas. El camino es más tranquilo que la caravana; la sal es más espesa aquí, y la ceniza más delgada. Algo se movió por aquí hace poco, arrastrando un peso.',
     choices: [
       { id: 'c02_courier_meet', label: 'Follow the tracks to the courier', labelEs: 'Seguir las huellas hasta el correo', nextNodeId: 'c02_courier_meet', setsFlags: { c02_chose_courier_meet: true }, result: 'You follow the tracks east. The salt crunches underfoot.', resultEs: 'Sigues las huellas al este. La sal cruje bajo tus pies.' },
     ],
@@ -197,7 +197,7 @@ const NODES: Record<string, StoryNode> = {
     id: 'c02_courier_meet', kind: 'beat',
     title: 'The Iron Parliament Courier', titleEs: 'El correo del Parlamento de Hierro',
     text: 'A rider in Iron Parliament livery sits her horse at the trail\'s end. She carries sealed saddlebags — the same second ink on the wax as the chapel ledger. "Olen\'s ledger is a map of oath-vessels," she says. "The Parliament wants it. So does the road. So do you. The question is who pays the price of reading it."',
-    textEs: 'Una jinete con librea del Parlamento de Hierro sienta su caballo al final del sendero. Lleva alforjas selladas — la misma segunda tinta en la cera que el registro de la capilla. «El registro de Olen es un mapa de vasijas de juramento», dice. «El Parlamento lo quiere. El camino también. Y tú. La pregunta es quién paga el precio de leerlo».',
+    textEs: 'Una jinete con librea del Parlamento de Hierro aguarda a caballo al final del sendero. Lleva alforjas selladas — la misma segunda tinta en la cera que el registro de la capilla. «El registro de Olen es un mapa de vasijas de juramento», dice. «El Parlamento lo quiere. El camino también. Y tú. La pregunta es quién paga el precio de leerlo».',
     choices: [
       { id: 'c02_courier_to_olen', label: 'Return to Olen with the courier\'s terms', labelEs: 'Volver con Olen y los términos del correo', nextNodeId: 'c02_olen_reversal', adjustsValues: { faction_salt_compact: 1, conviction_duty: 1 }, result: 'You ride back to Olen with the Parliament\'s terms in your head.', resultEs: 'Vuelves con Olen y los términos del Parlamento en la cabeza.' },
     ],
@@ -208,15 +208,15 @@ const NODES: Record<string, StoryNode> = {
     id: 'c02_puzzle_cargo', kind: 'puzzle', puzzleId: 'c02_cargo_ledger',
     title: 'The Ledger of Voices', titleEs: 'El registro de voces',
     text: 'Olen sets the ledger on the crate. The pages are salt-stained but legible. Three entries near the back were written in a different ink. Read them and you will know whose voice moves whose freight.',
-    textEs: 'Olen deja el registro sobre la caja. Las páginas están manchadas de sal pero son legibles. Tres asientos del final están escritos con otra tinta. Léelos y sabrás de quién es la voz que mueve qué mercancía.',
+    textEs: 'Olen deja el registro sobre la caja. Las páginas están manchadas de sal pero son legibles. Tres asientos del final están escritos con otra tinta. Léelos y sabrás qué voz mueve qué mercancía.',
     choices: [],
   },
 
   c02_cargo_decoded: {
     id: 'c02_cargo_decoded', kind: 'beat',
     title: 'The Ledger Decoded', titleEs: 'El registro descifrado',
-    text: 'The three odd entries share a date that is not a departure date — it is a tally of voices. The margin drawing is a map of oath-vessels: each line connects a voice to the vessel that carries it. One line is missing — Olen\'s own. She left her row off the map. The ledger proves the abductions were falsified — three names written as a payment to the door.',
-    textEs: 'Los tres asientos extraños comparten una fecha que no es de partida — es un recuento de voces. El dibujo del margen es un mapa de vasijas de juramento: cada línea conecta una voz con la vasija que la lleva. Falta una línea — la de Olen. Dejó su fila fuera del mapa. El registro prueba que los secuestros fueron falsificados — tres nombres escritos como pago a la puerta.',
+    text: 'The three odd entries share a date that is not a departure date — it is a tally of voices. The margin drawing is a map of oath-vessels: each line connects a voice to the vessel that carries it. One line is missing — Olen\'s own.\n\nShe left her row off the map. The ledger proves the abductions were falsified — three names written as a payment to the door.',
+    textEs: 'Los tres asientos extraños comparten una fecha que no es de partida — es un recuento de voces. El dibujo del margen es un mapa de vasijas de juramento: cada línea conecta una voz con la vasija que la lleva. Falta una línea — la de Olen.\n\nEl registro prueba que los secuestros fueron falsificados. Tres nombres escritos como pago a la puerta.',
     choices: [
       { id: 'c02_decoded_to_reversal', label: 'Bring the decoded ledger to the crossing', labelEs: 'Llevar el registro descifrado al paso', nextNodeId: 'c02_olen_reversal', setsFlags: { c02_voice_token: true, 'canon:c02_evidence_ledger': true }, adjustsValues: { conviction_truth: 2, bond_olen: 1 }, result: 'You carry the decoded ledger to the salt-storm crossing. The evidence is yours now.', resultEs: 'Llevas el registro descifrado al paso de la tormenta de sal. La prueba es tuya ahora.' },
     ],
@@ -226,7 +226,7 @@ const NODES: Record<string, StoryNode> = {
     id: 'c02_cargo_skipped', kind: 'beat',
     title: 'The Ledger Left Shut', titleEs: 'El registro dejado cerrado',
     text: 'You leave the ledger unread. Olen closes it without comment. The voices stay sealed; the map stays hidden. You will have to cross the storm without knowing what the ledger knows.',
-    textEs: 'Dejas el registro sin leer. Olen lo cierra sin comentario. Las voces siguen selladas; el mapa sigue oculto. Tendrás que cruzar la tormenta sin saber lo que el registro sabe.',
+    textEs: 'Dejas el registro sin leer. Olen lo cierra sin comentarios. Las voces siguen selladas; el mapa sigue oculto. Tendrás que cruzar la tormenta sin saber lo que el registro sabe.',
     choices: [
       { id: 'c02_skipped_to_reversal', label: 'Head to the crossing', labelEs: 'Ir al paso', nextNodeId: 'c02_olen_reversal', result: 'You leave the ledger and head toward the salt-storm crossing.', resultEs: 'Dejas el registro y te diriges al paso de la tormenta de sal.' },
     ],
@@ -266,8 +266,8 @@ const NODES: Record<string, StoryNode> = {
   c02_olen_reversal: {
     id: 'c02_olen_reversal', kind: 'beat', locationId: 'c02_salt_flats',
     title: 'Olen\'s Reversal', titleEs: 'El reverso de Olen',
-    text: 'Olen catches up with you at the crossing. She is carrying the ledger open. "I swore the map was complete on my bond," she says. "And I left my own row off it. The road took three voices from your village — and I wrote the receipt. The ledger holds only falsified vows. The map is the debt; the debt is the map." She holds it out. "The storm is coming. Decide now: share it, sell it, burn it, or plant what it can grow."',
-    textEs: 'Olen te alcanza en el paso. Lleva el registro abierto. «Juré que el mapa era completo bajo mi palabra», dice. «Y dejé mi propia fila fuera. El camino tomó tres voces de tu aldea — y yo escribí el recibo. El registro solo guarda juramentos falsificados. El mapa es la deuda; la deuda es el mapa». Lo extiende. «La tormenta viene. Decide ahora: compártelo, véndelo,qué malo, o planta lo que pueda crecer».',
+    text: 'Olen catches up with you at the crossing. She is carrying the ledger open.\n\n"I swore the map was complete on my bond," she says. "And I left my own row off it. The road took three voices from your village — and I wrote the receipt. The ledger holds only falsified vows. The map is the debt; the debt is the map." She holds it out.\n\n"The storm is coming. Decide now: share it, sell it, burn it, or plant what it can grow."',
+    textEs: 'Olen te alcanza en el paso. Lleva el registro abierto. «Juré que el mapa era completo bajo mi palabra», dice. «Y dejé mi propia fila fuera. El camino tomó tres voces de tu aldea — y yo escribí el recibo. El registro solo guarda juramentos falsificados. El mapa es la deuda; la deuda es el mapa». Lo extiende. «La tormenta viene. Decide ahora: compártelo, véndelo, quémalo, o planta lo que pueda crecer».',
     choices: [
       { id: 'c02_reversal_to_ambush', label: 'Face the salt-storm crossing', labelEs: 'Enfrentar el paso de la tormenta de sal', nextNodeId: 'c02_wicker_ambush', result: 'You stand at the crossing. The storm rolls in from the north, and the wicker shapes rise.', resultEs: 'Te yergues en el paso. La tormenta llega del norte, y las figuras de mimbre se alzan.' },
     ],
@@ -292,7 +292,7 @@ const NODES: Record<string, StoryNode> = {
     outcome: 'success', survivors: ['c02_olen'], casualties: [],
     title: 'Partners in the Salt', titleEs: 'Socias en la sal',
     text: 'You and Olen walk out of the storm together, the ledger between you. The map of oath-vessels is shared with the road; every caravanner who passes this way can read it now. The Salt Compact remembers your name, and Olen leaves her own row on the map at last. The road takes one sealed voice per crossing — that is the price — but the map is the world\'s now, and so is the debt.',
-    textEs: 'Tú y Olen salen de la tormenta juntas, el registro entre las dos. El mapa de vasijas de juramento se comparte con el camino; todo carretero que pase por aquí puede leerlo ahora. El Pacto de Sal recuerda tu nombre, y Olen deja al fin su propia fila en el mapa. El camino toma una voz sellada por cada paso — ese es el precio —, pero el mapa es del mundo ahora, y la deuda también.',
+    textEs: 'Tú y Olen salen de la tormenta juntos, el registro entre ambos. El mapa de vasijas de juramento se comparte con el camino; todo carretero que pase por aquí puede leerlo ahora. El Pacto de Sal recuerda tu nombre, y Olen deja al fin su propia fila en el mapa. El camino toma una voz sellada por cada paso — ese es el precio —, pero el mapa es del mundo ahora, y la deuda también.',
   },
   c02_ending_sold: {
     id: 'c02_ending_sold', kind: 'ending', terminal: true, choices: [],
