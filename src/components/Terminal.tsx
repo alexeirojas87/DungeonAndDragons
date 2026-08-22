@@ -12,9 +12,10 @@ interface TerminalProps {
   language: Language;
   isTyping: boolean;
   onDialogueResponse: (responseIndex: number) => void;
+  showDice?: boolean;
 }
 
-export function Terminal({ narrative, language, isTyping, onDialogueResponse }: TerminalProps) {
+export function Terminal({ narrative, language, isTyping, onDialogueResponse, showDice = false }: TerminalProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // The first narration of a chapter opens with a versal, the way a printed
@@ -41,6 +42,7 @@ export function Terminal({ narrative, language, isTyping, onDialogueResponse }: 
             isLatestDialogue={entry.id === narrative[narrative.length - 1]?.id && entry.type === 'dialogue'}
             isFirstNarration={entry.id === firstNarrationId}
             onDialogueResponse={onDialogueResponse}
+            showDice={showDice}
           />
         ))}
 
@@ -55,7 +57,7 @@ export function Terminal({ narrative, language, isTyping, onDialogueResponse }: 
   );
 }
 
-function NarrativeLine({ entry, language, isLatestDialogue, isFirstNarration, onDialogueResponse }: { entry: NarrativeEntry; language: Language; isLatestDialogue: boolean; isFirstNarration: boolean; onDialogueResponse: (responseIndex: number) => void }) {
+function NarrativeLine({ entry, language, isLatestDialogue, isFirstNarration, onDialogueResponse, showDice }: { entry: NarrativeEntry; language: Language; isLatestDialogue: boolean; isFirstNarration: boolean; onDialogueResponse: (responseIndex: number) => void; showDice: boolean }) {
   const speaker = entry.type === 'dialogue'
     ? (language === 'es' ? entry.speakerEs : entry.speaker)
     : null;
@@ -144,7 +146,7 @@ function NarrativeLine({ entry, language, isLatestDialogue, isFirstNarration, on
         </div>
       )}
 
-      {entry.type === 'dice' && (
+      {showDice && entry.type === 'dice' && (
         <div className="my-0.5 pl-4">
           <span className="font-[var(--font-mono)] text-[13px] italic text-[var(--color-text-dim)] opacity-80">
             🎲 {entry.content}

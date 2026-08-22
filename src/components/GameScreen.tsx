@@ -206,6 +206,7 @@ export function GameScreen({
             language={language}
             isTyping={isTyping}
             onDialogueResponse={onDialogueResponse}
+            showDice={uiState.showDebug}
           />
         </div>
 
