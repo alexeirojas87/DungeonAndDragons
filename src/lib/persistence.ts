@@ -8,6 +8,7 @@ import type { GameState, Language, NarrativeEntry } from '../engine/types';
 import { createInitialStoryState } from '../data/storyGraph';
 import { CHAPTER_ONE, getCampaignChaptersThrough } from '../data/chapters';
 import { createPuzzleRuntime } from '../engine/puzzles';
+import { foldLegacyCampaignProgress } from '../engine/campaign';
 
 const SAVE_KEY = 'gauntlet_save';
 const CHECKPOINT_KEY = 'gauntlet_checkpoint';
@@ -119,11 +120,12 @@ function migrate(data: SaveData): SaveData | null {
       legacyFlags: retainedLegacyFlags,
     };
   }
+  foldLegacyCampaignProgress(state.campaignProgress);
   state.difficulty ??= 'oath';
 
   if (legacyGeneratedSave) {
     const chapterOneSummary = state.chronicle?.find(summary => summary.chapterId === CHAPTER_ONE.id);
-    const endingNodeId = state.flags.claimed_drowned_relic
+    const legacyEndingNodeId = state.flags.claimed_drowned_relic
       ? 'ending_relic'
       : state.flags.destroyed_drowned_door
         ? 'ending_destroyed'
@@ -132,6 +134,10 @@ function migrate(data: SaveData): SaveData | null {
           : state.flags.sealed_drowned_door
             ? 'ending_sealed'
             : 'ending_rescue';
+    const authoredEndingNodeId = `c01_${legacyEndingNodeId}`;
+    const endingNodeId = CHAPTER_ONE.nodes[authoredEndingNodeId]
+      ? authoredEndingNodeId
+      : legacyEndingNodeId;
     state.chapters = [CHAPTER_ONE];
     state.activeChapterIndex = 0;
     state.story = {

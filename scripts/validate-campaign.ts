@@ -4,6 +4,7 @@ import { createEncounter } from '../src/engine/combat';
 import { DIFFICULTY_RULES } from '../src/engine/difficulty';
 import { GameEngine } from '../src/engine/gameEngine';
 import { MONSTER_TEMPLATES } from '../src/data/monsters';
+import { CHAPTER_ONE } from '../src/data/chapters';
 import { loadGame, saveGame } from '../src/lib/persistence';
 import type { Archetype, Difficulty, Origin } from '../src/engine/types';
 import { ACTION_SCROLL_DEFAULT_OPEN } from '../src/components/ActionScroll';
@@ -84,9 +85,19 @@ function validateStaticSaveAndLegacyMigration(): void {
   assert.equal(migrated.gameState.party[0].name, 'Iria');
   assert.equal(migrated.gameState.party[0].inventory.length, engine.getState().party[0].inventory.length);
   assert.equal(migrated.gameState.activeChapterIndex, 0);
-  assert.equal(migrated.gameState.story.currentNodeId, 'ending_rescue');
+  const expectedMigratedEnding = CHAPTER_ONE.nodes.c01_ending_rescue
+    ? 'c01_ending_rescue'
+    : 'ending_rescue';
+  assert.equal(migrated.gameState.story.currentNodeId, expectedMigratedEnding);
   assert.equal(migrated.gameState.status, 'chapter_complete');
   assert.equal(migrated.gameState.campaignProgress.legacyFlags.varen_guide, true);
+  migrated.gameState.campaignProgress.factionReputation.ashen_veil = 4;
+  migrated.gameState.campaignProgress.factionReputation.veiled_court = 3;
+  saveGame(migrated.gameState, migrated.narrative, migrated.language);
+  const refolded = loadGame();
+  assert(refolded);
+  assert.equal(refolded.gameState.campaignProgress.factionReputation.veiled_court, 5);
+  assert.equal(refolded.gameState.campaignProgress.factionReputation.ashen_veil, undefined);
   console.log('✓ static saves rehydrate and generated saves migrate to Chapter 1 ending');
 }
 

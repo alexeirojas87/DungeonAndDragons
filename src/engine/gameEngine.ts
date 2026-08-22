@@ -32,6 +32,7 @@ import {
   type BilingualText, type Puzzle,
 } from './puzzles';
 import { difficultyRules } from './difficulty';
+import { foldLegacyCampaignProgress } from './campaign';
 
 export type GameMode = 'single' | 'multiplayer';
 
@@ -694,6 +695,7 @@ export class GameEngine {
   }
 
   private applyLegacyChapterOneValues(): void {
+    foldLegacyCampaignProgress(this.state.campaignProgress);
     if (this.state.flags['canon:chapter_one_values_mapped']) return;
     const legacy = this.state.story.values;
     const convictionMap: Array<[keyof typeof legacy, Conviction]> = [

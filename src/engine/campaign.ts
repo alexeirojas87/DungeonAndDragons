@@ -6,6 +6,7 @@ import {
   validateChapter,
   type Chapter,
 } from './chapter';
+import type { CampaignProgress } from './types';
 
 export const GLOBAL_ENDING_IDS = [
   'new_concord',
@@ -15,6 +16,15 @@ export const GLOBAL_ENDING_IDS = [
   'court_restored',
   'decentralized_oaths',
 ] as const;
+
+/** Folds the retired Chapter-1 faction slug exactly once and removes it. */
+export function foldLegacyCampaignProgress(progress: CampaignProgress): void {
+  const ashenVeil = progress.factionReputation.ashen_veil;
+  if (ashenVeil === undefined) return;
+  const veiledCourt = progress.factionReputation.veiled_court ?? 0;
+  progress.factionReputation.veiled_court = Math.max(-5, Math.min(5, veiledCourt + ashenVeil));
+  delete progress.factionReputation.ashen_veil;
+}
 
 /** Release gate for the complete static campaign, stricter than one-chapter validation. */
 export function validateAuthoredCampaign(chapters: readonly Chapter[]): string[] {
