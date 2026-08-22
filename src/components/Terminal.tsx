@@ -145,10 +145,9 @@ function NarrativeLine({ entry, language, isLatestDialogue, isFirstNarration, on
       )}
 
       {entry.type === 'dice' && (
-        <div className="my-1 font-[var(--font-mono)] text-sm text-[var(--color-accent-amber)] flex items-center gap-1.5">
-          <span className="text-[12px] opacity-80" title="d20">⬡</span>
-          <span className="inline-block px-2 py-1 bg-[var(--color-bg-tertiary)] rounded border border-[var(--color-border)]">
-            {entry.content}
+        <div className="my-0.5 pl-4">
+          <span className="font-[var(--font-mono)] text-[13px] italic text-[var(--color-text-dim)] opacity-80">
+            🎲 {entry.content}
           </span>
         </div>
       )}

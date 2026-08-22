@@ -36,6 +36,84 @@ import { foldLegacyCampaignProgress } from './campaign';
 
 export type GameMode = 'single' | 'multiplayer';
 
+// ---- Natural-language dice narration --------------------------------------
+// The dice line used to read "D20: 20+3=23 vs AC 13 → 14 DAMAGE CRITICAL" — a
+// formula, not a sentence. These helpers turn the same numbers into prose that
+// reads like a game log rather than a debug readout.
+
+interface AttackRoll {
+  hit: boolean;
+  damage: number;
+  critical: boolean;
+  targetAc: number;
+  roll: { results: number[]; modifier: number; total: number; isCritical: boolean };
+}
+
+function diceAttackText(
+  lang: Language,
+  r: AttackRoll,
+  attackerName?: string,
+  targetName?: string,
+): string {
+  const die = r.roll.results[0];
+  const mod = r.roll.modifier;
+  const total = r.roll.total;
+  const ac = r.targetAc;
+  const subject = attackerName ? `${attackerName} ` : '';
+
+  if (r.critical) {
+    return lang === 'es'
+      ? `¡${subject}natural 20! El golpe crítico atraviesa la guardia (CA ${ac}) — ${r.damage} de daño.`
+      : `${subject}natural 20! The critical strike carves through (AC ${ac}) — ${r.damage} damage.`;
+  }
+  if (r.hit) {
+    return lang === 'es'
+      ? `${subject}sacó ${die}${mod >= 0 ? ` + ${mod}` : ` - ${Math.abs(mod)}`} = ${total} contra CA ${ac} — impacto, ${r.damage} de daño.`
+      : `${subject}rolled ${die}${mod >= 0 ? ` + ${mod}` : ` - ${Math.abs(mod)}`} = ${total} vs AC ${ac} — hit, ${r.damage} damage.`;
+  }
+  return lang === 'es'
+    ? `${subject}sacó ${die}${mod >= 0 ? ` + ${mod}` : ` - ${Math.abs(mod)}`} = ${total} contra CA ${ac} — fallo.`
+    : `${subject}rolled ${die}${mod >= 0 ? ` + ${mod}` : ` - ${Math.abs(mod)}`} = ${total} vs AC ${ac} — miss.`;
+}
+
+function diceSkillText(
+  lang: Language,
+  skill: string,
+  total: number,
+  dc: number,
+  success: boolean,
+): string {
+  const skillEs: Record<string, string> = {
+    investigation: 'investigación', perception: 'percepción', arcana: 'arcano',
+    history: 'historia', insight: 'perspicacia', religion: 'religión',
+    medicine: 'medicina', nature: 'naturaleza', survival: 'supervivencia',
+    stealth: 'sigilo', athletics: 'atletismo', acrobatics: 'acrobacias',
+    persuasion: 'persuasión', deception: 'engaño', intimidation: 'intimidación',
+    performance: 'actuación', sleight_of_hand: 'juego de manos', animal_handling: 'trato con animales',
+  };
+  const name = lang === 'es' ? (skillEs[skill] ?? skill) : skill;
+  return lang === 'es'
+    ? `${name}: ${total} contra dificultad ${dc} — ${success ? 'éxito' : 'fallo'}.`
+    : `${name}: ${total} vs DC ${dc} — ${success ? 'success' : 'failure'}.`;
+}
+
+function diceSpellText(
+  lang: Language,
+  spellName: string,
+  spellNameEs: string,
+  r: AttackRoll,
+): string {
+  const name = lang === 'es' ? spellNameEs : spellName;
+  if (r.hit) {
+    return lang === 'es'
+      ? `${name}: ${r.roll.total} contra CA ${r.targetAc} — ${r.damage} de daño.`
+      : `${name}: ${r.roll.total} vs AC ${r.targetAc} — ${r.damage} damage.`;
+  }
+  return lang === 'es'
+    ? `${name}: ${r.roll.total} contra CA ${r.targetAc} — el hechizo falla.`
+    : `${name}: ${r.roll.total} vs AC ${r.targetAc} — the spell misses.`;
+}
+
 export class GameEngine {
   state: GameState;
   narrative: NarrativeEntry[];
@@ -494,9 +572,7 @@ export class GameEngine {
         solved = check.success;
         entries.push({
           type: 'dice',
-          content: this.language === 'es'
-            ? `${puzzle.skill}: ${check.total} contra dificultad ${dc} — ${check.success ? 'éxito' : 'fallo'}`
-            : `${puzzle.skill}: ${check.total} vs DC ${dc} — ${check.success ? 'success' : 'failure'}`,
+          content: diceSkillText(this.language, puzzle.skill, check.total, dc, check.success),
           mood: check.success ? 'triumph' : 'tense',
         });
         break;
@@ -1791,9 +1867,7 @@ export class GameEngine {
           if (!check.success) {
             return [this.addNarrative({
               type: 'dice',
-              content: this.language === 'es'
-                ? `PERCEPCIÓN: ${check.total} vs DC ${check.dc} - Falla`
-                : `PERCEPTION: ${check.total} vs DC ${check.dc} - FAILED`,
+              content: diceSkillText(this.language, 'perception', check.total, check.dc, check.success),
               mood: 'neutral',
             })];
           }
@@ -2019,17 +2093,15 @@ export class GameEngine {
     const narrations: NarrativeEntry[] = [];
     narrations.push(this.addNarrative({
       type: 'dice',
-      content: this.language === 'es'
-        ? `D20: ${result.roll.results[0]} + ${result.roll.modifier} = ${result.roll.total} vs CA ${result.targetAc} → ${result.hit ? `${result.damage} DAÑO${result.critical ? ' CRÍTICO' : ''}` : 'FALLA'}`
-        : `D20: ${result.roll.results[0]} + ${result.roll.modifier} = ${result.roll.total} vs AC ${result.targetAc} → ${result.hit ? `${result.damage} DAMAGE${result.critical ? ' CRITICAL' : ''}` : 'MISS'}`,
+      content: diceAttackText(this.language, result as AttackRoll, undefined, target.name),
       mood: result.hit ? 'triumph' : 'neutral',
     }));
 
     narrations.push(this.addNarrative({
       type: 'narration',
       content: this.language === 'es'
-        ? `Atacas a ${target.nameEs}. ${result.hit ? `Le infliges ${result.damage} puntos de daño${result.critical ? ' con un golpe devastador' : ''}.` : 'Tu ataque falla.'}`
-        : `You attack ${target.name}. ${result.hit ? `You deal ${result.damage} points of damage${result.critical ? ' with a devastating blow' : ''}.` : 'Your attack misses.'}`,
+        ? `Atacas a ${target.nameEs}.${result.hit ? ` Tu golpe encuentra carne — ${result.damage} puntos de daño${result.critical ? '. Un golpe devastador.' : '.'}` : ' Tu ataque no alcanza.'}`
+        : `You strike at ${target.name}.${result.hit ? ` Your blade finds flesh — ${result.damage} points of damage${result.critical ? '. A devastating blow.' : '.'}` : ' Your attack goes wide.'}`,
       mood: result.hit ? 'triumph' : 'neutral',
     }));
 
@@ -2209,16 +2281,14 @@ export class GameEngine {
     const entries: NarrativeEntry[] = [
       makeEntry({
         type: 'dice',
-        content: this.language === 'es'
-          ? `${spell.nameEs}: ${result.roll.total} vs CA ${result.targetAc} → ${result.hit ? `${result.damage} DE DAÑO` : 'FALLA'}`
-          : `${spell.name}: ${result.roll.total} vs AC ${result.targetAc} → ${result.hit ? `${result.damage} DAMAGE` : 'MISS'}`,
+        content: diceSpellText(this.language, spell.name, spell.nameEs, result as AttackRoll),
         mood: result.hit ? 'triumph' : 'neutral',
       }),
       makeEntry({
         type: 'narration',
         content: this.language === 'es'
-          ? `Lanzas ${spell.nameEs} contra ${target.nameEs}.${result.hit ? ` Infliges ${result.damage} de daño.` : ' El hechizo falla.'}`
-          : `You cast ${spell.name} at ${target.name}.${result.hit ? ` It deals ${result.damage} damage.` : ' The spell misses.'}`,
+          ? `Lanzas ${spell.nameEs} contra ${target.nameEs}.${result.hit ? ` El hechizo impacta — ${result.damage} de daño.` : ' El hechizo se desvanece antes de tocarlo.'}`
+          : `You cast ${spell.name} at ${target.name}.${result.hit ? ` The spell strikes true — ${result.damage} damage.` : ' The spell fizzles before reaching it.'}`,
         mood: result.hit ? 'triumph' : 'neutral',
       }),
     ];
@@ -2440,9 +2510,7 @@ export class GameEngine {
 
           results.push(this.addNarrative({
             type: 'dice',
-            content: this.language === 'es'
-              ? `${secret.requiresCheck.skill.toUpperCase()}: ${check.total} vs DC ${check.dc} - ¡ÉXITO`
-              : `${secret.requiresCheck.skill.toUpperCase()}: ${check.total} vs DC ${check.dc} - SUCCESS`,
+            content: diceSkillText(this.language, secret.requiresCheck.skill, check.total, check.dc, true),
             mood: 'triumph',
           }));
 
@@ -3244,7 +3312,7 @@ export class GameEngine {
     const narrations: NarrativeEntry[] = [];
     narrations.push(this.createNarrativeEntry({
       type: 'dice',
-      content: `D20: ${result.roll.results[0]} + ${result.roll.modifier} = ${result.roll.total} vs AC ${result.targetAc} → ${result.hit ? `${result.damage} DMG${result.critical ? ' CRIT' : ''}` : 'MISS'}`,
+      content: diceAttackText(this.language, result as AttackRoll),
       mood: result.hit ? 'triumph' : 'neutral',
     }));
 
@@ -3314,7 +3382,7 @@ export class GameEngine {
           secret.discovered = true;
           this.state.worldState.discoveredSecrets.push(secret.id);
           const results: NarrativeEntry[] = [];
-          results.push(this.createNarrativeEntry({ type: 'dice', content: `${secret.requiresCheck.skill.toUpperCase()}: ${check.total} vs DC ${check.dc} - SUCCESS`, mood: 'triumph' }));
+          results.push(this.createNarrativeEntry({ type: 'dice', content: diceSkillText(this.language, secret.requiresCheck.skill, check.total, check.dc, true), mood: 'triumph' }));
           results.push(this.createNarrativeEntry({ type: 'narration', content: this.language === 'es' ? secret.descriptionEs : secret.description, mood: 'mystery' }));
           if (secret.contains) {
             for (const itemId of secret.contains) {
