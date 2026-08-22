@@ -281,6 +281,27 @@ export function getPlayers(encounter: CombatEncounter): Combatant[] {
   return encounter.initiativeOrder.filter(c => c.type === 'player' && c.isAlive);
 }
 
+/**
+ * A point-in-time copy of an encounter. Combatants are mutated in place during
+ * resolution, so the UI keeps a snapshot per step to animate HP changes across
+ * a round without the live encounter racing ahead to its final state.
+ */
+export function snapshotCombat(encounter: CombatEncounter | null): CombatEncounter | null {
+  if (!encounter) return null;
+  return {
+    ...encounter,
+    initiativeOrder: encounter.initiativeOrder.map(combatant => ({
+      ...combatant,
+      conditions: [...combatant.conditions],
+      abilities: [...combatant.abilities],
+      abilitiesEs: [...combatant.abilitiesEs],
+    })),
+    enemies: encounter.enemies.map(enemy => ({ ...enemy, conditions: [...enemy.conditions] })),
+    environment: [...encounter.environment],
+    log: [...encounter.log],
+  };
+}
+
 // Enemy AI - simple tactical decisions
 export function enemyAction(encounter: CombatEncounter, enemy: Combatant): CombatAction | null {
   const players = getPlayers(encounter);

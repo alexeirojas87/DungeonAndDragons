@@ -15,7 +15,7 @@ import { createItem, equipItem, unequipItem, consumeItem, getEffectiveAC, ITEM_T
 import {
   createEncounter, resolveAttack, applyDamage, applyHealing,
   nextTurn, isEncounterOver, getCurrentCombatant, enemyAction,
-  attemptFlee, getEnemies, getPlayers
+  attemptFlee, getEnemies, getPlayers, snapshotCombat
 } from './combat';
 import { MONSTER_TEMPLATES } from '../data/monsters';
 import { SPELL_TEMPLATES } from '../data/spells';
@@ -41,6 +41,12 @@ export class GameEngine {
   narrative: NarrativeEntry[];
   language: Language;
   private narrativeIdCounter = 0;
+  /**
+   * Per-step encounter snapshots recorded while a combat round resolves. The
+   * UI drains these with small delays so HP drains across enemy turns instead
+   * of snapping to the final state in one render. Cleared on read.
+   */
+  private combatSteps: CombatEncounter[] = [];
 
   constructor() {
     this.language = 'en';
@@ -1071,6 +1077,14 @@ export class GameEngine {
     if (campaignChanges.length > 0) {
       entries.push({ type: 'system', content: campaignChanges.join(' · '), mood: 'neutral' });
     }
+    // The chapter's own moral and relationship axes (compassion, trust in
+    // Martik, etc.) used to adjust silently: the player made a choice and the
+    // only feedback was the next scene's prose. Surface the delta so the
+    // consequence of a decision is legible, not buried in save state.
+    const valueDelta = this.summarizeStoryValueDelta(choice.adjustsValues ?? {});
+    if (valueDelta) {
+      entries.push({ type: 'system', content: valueDelta, mood: 'neutral' });
+    }
     entries.push(
       {
         type: 'system' as const,
@@ -1121,6 +1135,32 @@ export class GameEngine {
       }
     }
     return changes;
+  }
+
+  /**
+   * Localizes the chapter-one moral/relationship axes a choice shifts. Only
+   * unprefixed keys are summarized here; `faction:`/`bond:`/`conviction:`
+   * keys are already spoken for by `applyCampaignAdjustments`.
+   */
+  private summarizeStoryValueDelta(adjustments: Record<string, number>): string | undefined {
+    const es = this.language === 'es';
+    const labels: Record<string, [string, string]> = {
+      compassion: ['Compassion', 'Compasión'],
+      pragmatism: ['Pragmatism', 'Pragmatismo'],
+      insight: ['Insight', 'Perspicacia'],
+      independence: ['Independence', 'Independencia'],
+      martikTrust: ['Martik trust', 'Confianza de Martik'],
+      strangerTrust: ["Stranger's trust", 'Confianza del desconocido'],
+      councilTrust: ['Council trust', 'Confianza del consejo'],
+    };
+    const parts: string[] = [];
+    for (const [key, delta] of Object.entries(adjustments)) {
+      if (key.includes(':') || delta === 0) continue;
+      const label = labels[key];
+      if (!label) continue;
+      parts.push(`${es ? label[1] : label[0]} ${delta > 0 ? '+' : ''}${delta}`);
+    }
+    return parts.length > 0 ? parts.join(' · ') : undefined;
   }
 
   private applyImmediateHeroStoryEffect(choice: StoryChoice): string | undefined {
@@ -2118,6 +2158,7 @@ export class GameEngine {
       healCharacter(player, healing);
     this.syncHeroIntoCombat();
       if (this.state.combat) applyHealing(this.state.combat, player.id, healing);
+      this.recordCombatStep();
       const entries = [makeEntry({
         type: 'narration',
         content: this.language === 'es'
@@ -2164,6 +2205,7 @@ export class GameEngine {
     player.mp -= spell.mpCost;
     const result = resolveAttack(current, target, encounter, true, spell.damage, spell.damageType);
     applyDamage(encounter, target.id, result.damage);
+    this.recordCombatStep();
     const entries: NarrativeEntry[] = [
       makeEntry({
         type: 'dice',
@@ -2188,6 +2230,7 @@ export class GameEngine {
       const outcome = isEncounterOver(encounter);
       if (outcome === 'victory') {
         encounter.state = 'victory';
+        this.recordCombatStep();
         entries.push(makeEntry({
           type: 'combat',
           content: this.language === 'es' ? '¡Victoria! Los enemigos han sido derrotados.' : 'Victory! The enemies have been defeated.',
@@ -2318,6 +2361,7 @@ export class GameEngine {
           }
 
           applyDamage(encounter, target.id, appliedDamage);
+          this.recordCombatStep();
           const drainedLife = attack.hit && appliedDamage > 0 && current.abilities.includes('Life Drain')
             ? Math.max(1, Math.ceil(appliedDamage / 2))
             : 0;
@@ -2338,6 +2382,7 @@ export class GameEngine {
       const outcome = isEncounterOver(encounter);
       if (outcome === 'defeat') {
         encounter.state = 'defeat';
+        this.recordCombatStep();
         results.push(makeEntry({
           type: 'combat',
           content: this.language === 'es'
@@ -2350,6 +2395,8 @@ export class GameEngine {
         break;
       }
       if (outcome === 'victory') {
+        encounter.state = 'victory';
+        this.recordCombatStep();
         results.push(makeEntry({
           type: 'combat',
           content: this.language === 'es' ? '¡Victoria!' : 'Victory!',
@@ -2802,6 +2849,23 @@ export class GameEngine {
     return this.state.combat;
   }
 
+  /**
+   * Returns and clears the recorded combat steps. The UI plays these back one
+   * at a time so a round's worth of HP changes render as a sequence rather than
+   * a single jump. Returns an empty array for non-combat inputs.
+   */
+  consumeCombatSteps(): CombatEncounter[] {
+    const steps = this.combatSteps;
+    this.combatSteps = [];
+    return steps;
+  }
+
+  private recordCombatStep(): void {
+    if (!this.state.combat) return;
+    const snapshot = snapshotCombat(this.state.combat);
+    if (snapshot) this.combatSteps.push(snapshot);
+  }
+
   setLanguage(lang: Language): void {
     this.language = lang;
   }
@@ -3016,6 +3080,7 @@ export class GameEngine {
         }
         this.state.combat = createEncounter(this.state.party, prepared.enemies, [], this.state.difficulty);
         const initiativeMessage = this.applyRangerInitiative(this.state.combat);
+        this.recordCombatStep();
         for (const message of prepared.openingMessages) {
           narrations.push(this.createNarrativeEntry({ type: 'system', content: message, mood: 'triumph' }));
         }
@@ -3181,6 +3246,7 @@ export class GameEngine {
 
     const result = resolveAttack(current, target, this.state.combat);
     applyDamage(this.state.combat, target.id, result.damage);
+    this.recordCombatStep();
 
     const narrations: NarrativeEntry[] = [];
     narrations.push(this.createNarrativeEntry({
@@ -3197,6 +3263,7 @@ export class GameEngine {
       const outcome = isEncounterOver(this.state.combat);
       if (outcome === 'victory') {
         this.state.combat.state = 'victory';
+        this.recordCombatStep();
         narrations.push(this.createNarrativeEntry({ type: 'combat', content: this.language === 'es' ? '¡Victoria!' : 'Victory!', mood: 'triumph' }));
         if (this.state.location === this.chapter().hooks.bossLocationId) {
           narrations.push(...this.beginWardenAftermath(false));

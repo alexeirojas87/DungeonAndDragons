@@ -27,6 +27,10 @@ interface InputBarProps {
 
 export function InputBar({ onSubmit, language, isTyping, suggestions = [], puzzleView = null, className }: InputBarProps) {
   const [input, setInput] = useState('');
+  // Actions are opt-in: the choice sheet used to render every suggestion the
+  // moment a node loaded, which read as the game playing itself and crowded the
+  // input. The player asks to see actions; they are not shown automatically.
+  const [showActions, setShowActions] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -40,6 +44,9 @@ export function InputBar({ onSubmit, language, isTyping, suggestions = [], puzzl
     if (!text || isTyping) return;
     onSubmit(text);
     setInput('');
+    // Collapse on commit so the just-typed action and its narration own the page
+    // instead of competing with the still-open choice sheet.
+    setShowActions(false);
   }, [input, isTyping, onSubmit]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -103,26 +110,46 @@ export function InputBar({ onSubmit, language, isTyping, suggestions = [], puzzl
         </div>
       )}
 
-      {/* Suggestions */}
+      {/* Actions — shown by selection, not automatically. The count announces
+          what waits; the player opens the sheet when they want it. */}
       {suggestions.length > 0 && !input && (
-        <div className="flex flex-wrap gap-1.5 px-3 pt-2 pb-1 md:px-4">
-          {suggestions.map((s) => (
-            <button
-              key={s.key}
-              // The "Something else..." entry carries no action; it is an
-              // invitation to type, so it focuses the input instead of doing
-              // nothing at all.
-              onClick={() => (s.action ? handleSubmit(s.action) : inputRef.current?.focus())}
-              // Narration takes seconds. While it runs handleSubmit ignores
-              // input, so leaving these live made every click vanish silently
-              // and the buttons read as broken.
-              disabled={isTyping}
-              className="px-3 py-1.5 text-[15px] font-[var(--font-mono)] rounded border border-[var(--color-border-light)] bg-[var(--color-bg-tertiary)] text-[var(--color-text-primary)] active:border-[var(--color-accent-gold)] active:text-[var(--color-accent-gold)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        <div className="border-b border-[var(--color-border)]">
+          <button
+            onClick={() => setShowActions(s => !s)}
+            aria-expanded={showActions}
+            className="w-full flex items-center justify-between gap-2 px-3 pt-2 pb-1.5 md:px-4 text-[var(--color-text-dim)] hover:text-[var(--color-accent-gold)] transition-colors"
+          >
+            <span className="font-[var(--font-mono)] text-[13px] uppercase tracking-widest text-[var(--color-accent-gold)]">
+              ✦ {suggestions.length} {language === 'es' ? (suggestions.length === 1 ? 'acción' : 'acciones') : (suggestions.length === 1 ? 'action' : 'actions')}
+            </span>
+            <svg
+              className={`w-4 h-4 transition-transform ${showActions ? '' : 'rotate-180'}`}
+              fill="none" stroke="currentColor" viewBox="0 0 24 24"
             >
-              <span className="text-[var(--color-text-dim)] mr-1">[{s.key}]</span>
-              {language === 'es' ? s.labelEs : s.label}
-            </button>
-          ))}
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {showActions && (
+            <div className="flex flex-wrap gap-1.5 px-3 pb-2 md:px-4">
+              {suggestions.map((s) => (
+                <button
+                  key={s.key}
+                  // The "Something else..." entry carries no action; it is an
+                  // invitation to type, so it focuses the input instead of doing
+                  // nothing at all.
+                  onClick={() => (s.action ? handleSubmit(s.action) : inputRef.current?.focus())}
+                  // Narration takes seconds. While it runs handleSubmit ignores
+                  // input, so leaving these live made every click vanish silently
+                  // and the buttons read as broken.
+                  disabled={isTyping}
+                  className="px-3 py-1.5 text-[15px] font-[var(--font-mono)] rounded border border-[var(--color-border-light)] bg-[var(--color-bg-tertiary)] text-[var(--color-text-primary)] active:border-[var(--color-accent-gold)] active:text-[var(--color-accent-gold)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  <span className="text-[var(--color-text-dim)] mr-1">[{s.key}]</span>
+                  {language === 'es' ? s.labelEs : s.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

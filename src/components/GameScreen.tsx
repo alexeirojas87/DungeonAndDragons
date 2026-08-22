@@ -184,6 +184,9 @@ export function GameScreen({
             language={language}
             currentPlayerId={character.id}
             playerPortrait={resolveCharacter(character.portrait, character.archetype)}
+            onAction={onProcessInput}
+            character={character}
+            isTyping={inputLocked}
           />
         )}
 

@@ -4,7 +4,8 @@
 
 'use client';
 
-import type { CombatEncounter, Combatant, Language } from '../engine/types';
+import { useState, useRef, useEffect } from 'react';
+import type { CombatEncounter, Combatant, Language, Character } from '../engine/types';
 import { resolveEnemy, resolveCharacter } from '../assets/registry';
 
 interface CombatViewProps {
@@ -12,9 +13,14 @@ interface CombatViewProps {
   language: Language;
   currentPlayerId: string;
   playerPortrait?: string;
+  /** Tactical actions are surfaced here, beside the cards they target, instead
+   * of only as generic suggestions in the bottom input bar. */
+  onAction?: (input: string) => void;
+  character?: Character | null;
+  isTyping?: boolean;
 }
 
-export function CombatView({ encounter, language, currentPlayerId, playerPortrait }: CombatViewProps) {
+export function CombatView({ encounter, language, currentPlayerId, playerPortrait, onAction, character, isTyping }: CombatViewProps) {
   const currentCombatant = encounter.initiativeOrder[encounter.currentTurn];
   const isPlayerTurn = currentCombatant?.id === currentPlayerId;
 
@@ -59,6 +65,19 @@ export function CombatView({ encounter, language, currentPlayerId, playerPortrai
           </div>
         </div>
       )}
+
+      {/* Tactical actions — desktop only. On mobile the ActionScroll at the
+          bottom is the thumb-reachable combat surface; duplicating it up here
+          would split the same commands across two places. */}
+      {isPlayerTurn && onAction && (
+        <CombatActions
+          encounter={encounter}
+          language={language}
+          character={character}
+          disabled={!!isTyping}
+          onAction={onAction}
+        />
+      )}
     </div>
   );
 }
@@ -73,6 +92,21 @@ function CombatantCard({ combatant, isActive, language, playerPortrait }: {
     ? playerPortrait ?? resolveCharacter(combatant.portrait)
     : resolveEnemy(combatant.portrait);
 
+  // A round resolves in a single pass, so HP can jump from full to wounded in
+  // one render. The damage is still visible: the bar and blood overlay animate
+  // their dimensions, and the card flashes crimson the moment HP drops.
+  const prevHpRef = useRef(combatant.hp);
+  const [hitFlash, setHitFlash] = useState(false);
+  useEffect(() => {
+    if (combatant.hp < prevHpRef.current) {
+      setHitFlash(true);
+      const t = setTimeout(() => setHitFlash(false), 450);
+      prevHpRef.current = combatant.hp;
+      return () => clearTimeout(t);
+    }
+    prevHpRef.current = combatant.hp;
+  }, [combatant.hp]);
+
   return (
     <div className={`w-40 flex-shrink-0 rounded border p-2.5 transition-all ${
       isActive
@@ -80,7 +114,7 @@ function CombatantCard({ combatant, isActive, language, playerPortrait }: {
         : combatant.isAlive
           ? 'border-[var(--color-border)]'
           : 'border-[var(--color-border)] opacity-40'
-    }`}>
+    } ${hitFlash ? 'ring-2 ring-[var(--color-accent-crimson)]' : ''}`}>
       <div className="flex items-start gap-2.5">
         <div className="relative h-16 w-14 flex-shrink-0 overflow-hidden rounded-sm border border-[var(--color-border-light)] bg-black">
           <img
@@ -105,7 +139,7 @@ function CombatantCard({ combatant, isActive, language, playerPortrait }: {
           <span className="block truncate font-[var(--font-mono)] text-[13px] text-[var(--color-text-primary)]">
             {language === 'es' ? combatant.nameEs : combatant.name}
           </span>
-          <span className="mt-1 block font-[var(--font-display)] text-[20px] leading-none tabular-nums" style={{ color: hpColor }}>
+          <span className="mt-1 block font-[var(--font-display)] text-[20px] leading-none tabular-nums transition-colors duration-300" style={{ color: hpColor }}>
             {combatant.hp}
             <span className="text-[12px] text-[var(--color-text-dim)]"> / {combatant.maxHp} HP</span>
           </span>
@@ -148,6 +182,89 @@ function CombatantCard({ combatant, isActive, language, playerPortrait }: {
           {(language === 'es' ? combatant.abilitiesEs : combatant.abilities).join(' · ')}
         </p>
       )}
+    </div>
+  );
+}
+
+function CombatActions({
+  encounter, language, character, disabled, onAction,
+}: {
+  encounter: CombatEncounter;
+  language: Language;
+  character?: Character | null;
+  disabled: boolean;
+  onAction: (input: string) => void;
+}) {
+  const es = language === 'es';
+  const enemies = encounter.initiativeOrder.filter(c => c.type === 'enemy' && c.isAlive);
+  const spells = character?.spells ?? [];
+  const potions = (character?.inventory ?? []).filter(i => /potion/i.test(i.templateId) && i.usable);
+
+  const act = (input: string) => {
+    if (disabled) return;
+    onAction(input);
+  };
+
+  const btn = 'px-2.5 py-1.5 text-[13px] font-[var(--font-mono)] rounded border border-[var(--color-border-light)] bg-[var(--color-bg-tertiary)] text-[var(--color-text-primary)] active:border-[var(--color-accent-gold)] active:text-[var(--color-accent-gold)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors';
+
+  return (
+    <div className="hidden md:flex flex-wrap items-center gap-1.5 px-3 py-2 border-t border-[var(--color-border)]">
+      {/* Targeted attacks — one button per living enemy so the player aims,
+          not just "attack" hitting whichever the engine picks first. */}
+      <span className="font-[var(--font-mono)] text-[11px] uppercase tracking-wider text-[var(--color-text-dim)] mr-0.5">
+        {es ? 'Atacar:' : 'Attack:'}
+      </span>
+      {enemies.length > 1
+        ? enemies.map(e => (
+            <button key={e.id} className={btn} disabled={disabled} onClick={() => act(`attack ${es ? e.nameEs : e.name}`)}>
+              {es ? e.nameEs : e.name}
+            </button>
+          ))
+        : (
+            <button className={btn} disabled={disabled} onClick={() => act('attack')}>
+              {es ? 'Atacar' : 'Attack'}
+            </button>
+          )}
+
+      {/* Spells — every known spell, not just the archetype's signature one.
+          Greyed when mana is short so the cost is visible and binding. */}
+      {spells.length > 0 && (
+        <>
+          <span className="font-[var(--font-mono)] text-[11px] uppercase tracking-wider text-[var(--color-text-dim)] ml-2 mr-0.5">
+            {es ? 'Hechizos:' : 'Spells:'}
+          </span>
+          {spells.map(spell => {
+            const insufficient = !!character && character.mp < spell.mpCost;
+            return (
+              <button
+                key={spell.id}
+                className={btn}
+                disabled={disabled || insufficient}
+                title={insufficient ? (es ? `Maná insuficiente (${spell.mpCost})` : `Not enough mana (${spell.mpCost})`) : undefined}
+                onClick={() => act(`cast ${spell.id.replaceAll('_', ' ')}`)}
+              >
+                {es ? spell.nameEs : spell.name}
+                <span className="text-[var(--color-text-dim)] ml-1">{spell.mpCost}PM</span>
+              </button>
+            );
+          })}
+        </>
+      )}
+
+      <span className="font-[var(--font-mono)] text-[11px] uppercase tracking-wider text-[var(--color-text-dim)] ml-2 mr-0.5">
+        {es ? 'Otros:' : 'Other:'}
+      </span>
+      <button className={btn} disabled={disabled} onClick={() => act('defend')}>
+        {es ? 'Defender' : 'Defend'}
+      </button>
+      {potions.length > 0 && (
+        <button className={btn} disabled={disabled} onClick={() => act('use health potion')}>
+          {es ? 'Usar poción' : 'Use potion'}
+        </button>
+      )}
+      <button className={btn} disabled={disabled} onClick={() => act('flee')}>
+        {es ? 'Huir' : 'Flee'}
+      </button>
     </div>
   );
 }

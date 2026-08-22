@@ -6,7 +6,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { GameEngine } from '../engine/gameEngine';
-import type { Character, NarrativeEntry, Language, Archetype, Origin, UIState, DialogueState, Difficulty } from '../engine/types';
+import type { Character, NarrativeEntry, Language, Archetype, Origin, UIState, DialogueState, Difficulty, CombatEncounter } from '../engine/types';
 import { createCharacter } from '../engine/character';
 import {
   deleteSave, hasCheckpoint, loadCheckpoint, loadGame, saveCheckpoint, saveGame,
@@ -15,12 +15,21 @@ import { audioManager } from '../audio/audioManager';
 import { callDM, NARRATION_MAX_CHARS } from '../ai/dmClient';
 import { getChapterByIndex } from '../data/chapters';
 
+/** Per-step pause during combat playback. Long enough to read a HP change,
+ * short enough that a two-enemy round doesn't drag. */
+const COMBAT_STEP_MS = 550;
+
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export type GameScreen = 'menu' | 'language' | 'character_creation' | 'game';
 
 export function useGame() {
   const engineRef = useRef<GameEngine | null>(null);
   const solvedPuzzleCountRef = useRef(0);
   const combatWasActiveRef = useRef(false);
+  const combatOverrideRef = useRef<CombatEncounter | null>(null);
   const [screen, setScreen] = useState<GameScreen>('menu');
   const [language, setLanguageState] = useState<Language>('en');
   const [narrative, setNarrative] = useState<NarrativeEntry[]>([]);
@@ -169,6 +178,26 @@ export function useGame() {
     // Process action - get results WITHOUT adding to engine narrative
     const results = engine.processInputRaw(input);
 
+    // Show the player's action immediately so the terminal isn't frozen while
+    // the round resolves and animates.
+    setNarrative([playerAction, ...engine.getNarrative()]);
+    setStateVersion(version => version + 1);
+
+    // A combat round resolves synchronously in one pass, which made every HP
+    // change in the round land in a single render. Replay the per-step
+    // snapshots the engine recorded so the cards drain across enemy turns
+    // instead of snapping to the final state.
+    const combatSteps = engine.consumeCombatSteps();
+    if (combatSteps.length > 0) {
+      for (const snapshot of combatSteps) {
+        combatOverrideRef.current = snapshot;
+        setStateVersion(version => version + 1);
+        await delay(COMBAT_STEP_MS);
+      }
+      combatOverrideRef.current = null;
+      setStateVersion(version => version + 1);
+    }
+
     // Try LLM narration for narration-type results
     const hasNarrative = results.some(r => r.type === 'narration');
     let finalResults = results;
@@ -268,6 +297,10 @@ export function useGame() {
   }, [getEngine]);
 
   const getCombat = useCallback(() => {
+    // During stepwise playback the live engine encounter is already at its
+    // final state; show the staged snapshot instead so the cards drain HP one
+    // enemy turn at a time.
+    if (combatOverrideRef.current) return combatOverrideRef.current;
     return getEngine().getCombat();
   }, [getEngine]);
 
