@@ -23,6 +23,8 @@ export function getCampaignChaptersThrough(index: number): Chapter[] {
   return AUTHORED_CHAPTERS.filter(chapter => chapter.index <= index).map(chapter => chapter);
 }
 
-// Later chapters may legitimately gate choices on flags that chapter I set,
-// so the validator must not read those requirements as dead gates.
-registerCarriedFlags(CHAPTER_ONE.summaryFlags ?? []);
+// Later chapters may legitimately gate choices on facts summarized earlier,
+// so every registry entry contributes its carried flags in campaign order.
+for (const chapter of AUTHORED_CHAPTERS) {
+  registerCarriedFlags(chapter.summaryFlags ?? []);
+}
