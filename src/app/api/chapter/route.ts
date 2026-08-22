@@ -109,7 +109,13 @@ async function callLLM(messages: Message[], maxTokens: number, temperature: numb
       messages,
       temperature,
       max_tokens: maxTokens,
-      response_format: { type: 'json_object' },
+      // qwen's hidden reasoning counts against max_tokens. For chapter-sized
+      // JSON that can consume the budget before the closing braces arrive.
+      // NaN accepts this OpenAI-compatible extension for qwen models. We do
+      // not also request response_format: json_object: that combination can
+      // make qwen stop after the opening brace. The prompts already require
+      // JSON-only output and extractJson safely handles an occasional fence.
+      ...(model.toLowerCase().startsWith('qwen') ? { enable_thinking: false } : {}),
       stream: true,
     }),
   });
@@ -260,47 +266,33 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // 2. Identical request already mid-flight? Await the same promise; this is
-  //    what collapses N concurrent equal runs into one LLM call (NaN ≤5).
-  //    The promise is cleared both on success and on failure so a later retry
-  //    does not deadlock on a stale rejection.
-  const inflightKey = key;
-  const existing = inflight.get(inflightKey);
-  if (existing) {
+  // 2. Every caller awaits the actual generation promise. This avoids a
+  //    detached deferred promise whose rejection becomes unhandled when no
+  //    duplicate request exists (and can crash the route after a failed run).
+  let run = inflight.get(key);
+  if (run) {
     console.info(`Coalescing duplicate chapter request ${key} onto an in-flight run`);
-    try {
-      const entry = await existing;
-      return NextResponse.json({
-        chapter: entry.chapter, outline: entry.outline,
-        attempts: entry.attempts, model: entry.model,
-      });
-    } catch {
-      // The in-flight run failed; fall through to start a fresh one below.
-    }
+  } else {
+    run = generateChapterFor(request);
+    inflight.set(key, run);
   }
 
-  let resolveRun!: (entry: CacheEntry) => void;
-  let rejectRun!: (err: unknown) => void;
-  const run = new Promise<CacheEntry>((resolve, reject) => { resolveRun = resolve; rejectRun = reject; });
-  inflight.set(inflightKey, run);
-
   try {
-    const entry = await generateChapterFor(request);
+    const entry = await run;
     cacheSet(key, entry);
-    resolveRun(entry);
     return NextResponse.json({
       chapter: entry.chapter, outline: entry.outline,
       attempts: entry.attempts, model: entry.model,
     });
   } catch (error) {
-    rejectRun(error);
     const message = error instanceof Error ? error.message : String(error);
     if (error instanceof CachedGenerationError) {
       return NextResponse.json({ error: error.tag, issues: error.issues }, { status: error.status });
     }
     return NextResponse.json({ error: message, issues: [] }, { status: 500 });
   } finally {
-    inflight.delete(inflightKey);
+    // Do not delete a newer run that may have been installed for this key.
+    if (inflight.get(key) === run) inflight.delete(key);
   }
 }
 

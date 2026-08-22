@@ -75,7 +75,14 @@ async function callLLM(model: string, messages: any[], maxTokens: number) {
   const res = await fetch(`${NAN_BASE_URL}/chat/completions`, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${NAN_API_KEY}`, 'Content-Type': 'application/json', 'Accept': 'text/event-stream' },
-    body: JSON.stringify({ model, messages, temperature: 0.8, max_tokens: maxTokens, response_format: { type: 'json_object' }, stream: true }),
+    body: JSON.stringify({
+      model,
+      messages,
+      temperature: 0.8,
+      max_tokens: maxTokens,
+      ...(model.toLowerCase().startsWith('qwen') ? { enable_thinking: false } : {}),
+      stream: true,
+    }),
   });
   if (!res.ok) return { ok: false, error: `HTTP ${res.status}: ${(await res.text()).slice(0, 150)}`, charLen: 0, ms: Date.now() - t0, content: '', finishReason: null };
   const reader = res.body!.getReader(); const decoder = new TextDecoder();
